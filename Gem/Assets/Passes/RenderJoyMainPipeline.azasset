@@ -1,0 +1,10 @@
+{
+    "Type": "JsonSerialization",
+    "Version": 1,
+    "ClassName": "RenderPipelineDescriptor",
+    "ClassData": {
+        "Name": "RenderJoyMainPipeline",
+        "MainViewTag": "RenderJoyViewTag",
+        "RootPassTemplate": "RenderJoyMainPassTemplate"
+    }
+}

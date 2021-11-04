@@ -1,0 +1,30 @@
+
+set(FILES
+    Include/RenderJoy/RenderJoyCommon.h
+    Include/RenderJoy/RenderJoySettingsBus.h
+    Include/RenderJoy/RenderJoyTextureProviderBus.h
+    Include/RenderJoy/RenderJoyPassBus.h
+    Include/RenderJoy/IRenderJoySrgDataProvider.h
+    Include/RenderJoy/RenderJoyKeyboardBus.h
+    Source/RenderJoyEditorSystemComponent.cpp
+    Source/RenderJoyEditorSystemComponent.h
+    Source/MainWindow.cpp
+    Source/MainWindow.h
+    Source/RenderJoyTrianglePass.cpp
+    Source/RenderJoyTrianglePass.h
+    Source/RenderJoyMainPassTemplateCreator.cpp
+    Source/RenderJoyMainPassTemplateCreator.h
+    Source/Viewport/RenderJoyViewportRenderer.cpp
+    Source/Viewport/RenderJoyViewportRenderer.h
+    Source/Viewport/RenderJoyViewportWidget.cpp
+    Source/Viewport/RenderJoyViewportWidget.h
+    Source/Viewport/RenderJoyViewportWidget.ui
+    Source/Components/RenderJoySettingsEditorComponent.cpp
+    Source/Components/RenderJoySettingsEditorComponent.h
+    Source/Components/RenderJoyPassEditorComponent.cpp
+    Source/Components/RenderJoyPassEditorComponent.h
+    Source/Components/RenderJoyTextureEditorComponent.cpp
+    Source/Components/RenderJoyTextureEditorComponent.h
+    Source/Components/RenderJoyKeyboardEditorComponent.cpp
+    Source/Components/RenderJoyKeyboardEditorComponent.h
+)

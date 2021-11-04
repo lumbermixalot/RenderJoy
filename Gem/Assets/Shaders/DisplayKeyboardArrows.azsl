@@ -1,0 +1,108 @@
+// Original ShaderToy Code: Created by inigo quilez - iq/2013
+// https://www.shadertoy.com/view/lsXGzf
+
+// Transformed to AZSL by garrieta
+
+#include "RenderJoyPassSrg.azsli"
+
+// An example showing how to use the keyboard input.
+//
+// Row 0: contain the current state of the 256 keys. 
+// Row 1: contains Keypress.
+// Row 2: contains a toggle for every key.
+//
+// Texel positions correspond to ASCII codes. Press arrow keys to test.
+
+
+// See also:
+//
+// Input - Keyboard    : https://www.shadertoy.com/view/lsXGzf
+// Input - Microphone  : https://www.shadertoy.com/view/llSGDh
+// Input - Mouse       : https://www.shadertoy.com/view/Mss3zH
+// Input - Sound       : https://www.shadertoy.com/view/Xds3Rr
+// Input - SoundCloud  : https://www.shadertoy.com/view/MsdGzn
+// Input - Time        : https://www.shadertoy.com/view/lsXGz8
+// Input - TimeDelta   : https://www.shadertoy.com/view/lsKGWV
+// Inout - 3D Texture  : https://www.shadertoy.com/view/4llcR4
+
+
+static const int KEY_LEFT  = 37;
+static const int KEY_UP    = 38;
+static const int KEY_RIGHT = 39;
+static const int KEY_DOWN  = 40;
+
+static const int STATE_ISDOWN = 0;
+static const int STATE_WASPRESSED = 1;
+static const int STATE_TOGGLE = 2;
+
+float FetchKeyState(int key, int stateIndex)
+{
+    return PassSrg::m_channel[0].Load( int3(key, stateIndex, 0) ).x;
+}
+
+PSOutput MainPS(VSOutput IN)
+{
+    PSOutput OUT;
+
+    float u = (-PassSrg::m_resolution.x + 2.0*IN.m_position.x) / PassSrg::m_resolution.y;
+    float v = (PassSrg::m_resolution.y - 2.0*IN.m_position.y) / PassSrg::m_resolution.y;
+    float2 uv = float2(u,v);
+
+    float3 col = float3(0, 0, 0);
+
+    // state
+    col = lerp( col, float3(1.0,0.0,0.0), 
+        (1.0-smoothstep(0.3,0.31,length(uv-float2(-0.75,0.0))))*
+        (0.3+0.7*FetchKeyState(KEY_LEFT, STATE_ISDOWN)) );
+
+    col = lerp( col, float3(1.0,1.0,0.0), 
+        (1.0-smoothstep(0.3,0.31,length(uv-float2(0.0,0.5))))*
+        (0.3+0.7*FetchKeyState(KEY_UP, STATE_ISDOWN)));
+	
+    col = lerp( col, float3(0.0,1.0,0.0),
+        (1.0-smoothstep(0.3,0.31,length(uv-float2(0.75,0.0))))*
+        (0.3+0.7*FetchKeyState(KEY_RIGHT, STATE_ISDOWN)));
+
+    col = lerp( col, float3(0.0,0.0,1.0),
+        (1.0-smoothstep(0.3,0.31,length(uv-float2(0.0,-0.5))))*
+        (0.3+0.7*FetchKeyState(KEY_DOWN, STATE_ISDOWN)));
+
+
+    // keypress	
+    col = lerp( col, float3(1.0,0.0,0.0), 
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(-0.75,0.0))-0.35)))*
+        FetchKeyState(KEY_LEFT, STATE_WASPRESSED));
+	
+    col = lerp( col, float3(1.0,1.0,0.0),
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(0.0,0.5))-0.35)))*
+        FetchKeyState(KEY_UP, STATE_WASPRESSED));
+
+    col = lerp( col, float3(0.0,1.0,0.0),
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(0.75,0.0))-0.35)))*
+        FetchKeyState(KEY_RIGHT, STATE_WASPRESSED));
+	
+    col = lerp( col, float3(0.0,0.0,1.0),
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(0.0,-0.5))-0.35)))*
+        FetchKeyState(KEY_DOWN, STATE_WASPRESSED));
+    
+    
+    // toggle	
+    col = lerp( col, float3(1.0,0.0,0.0), 
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(-0.75,0.0))-0.3)))*
+        FetchKeyState(KEY_LEFT, STATE_TOGGLE));
+	
+    col = lerp( col, float3(1.0,1.0,0.0),
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(0.0,0.5))-0.3)))*
+        FetchKeyState(KEY_UP, STATE_TOGGLE));
+
+    col = lerp( col, float3(0.0,1.0,0.0),
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(0.75,0.0))-0.3)))*
+        FetchKeyState(KEY_RIGHT, STATE_TOGGLE));
+	
+    col = lerp( col, float3(0.0,0.0,1.0),
+        (1.0-smoothstep(0.0,0.01,abs(length(uv-float2(0.0,-0.5))-0.3)))*
+        FetchKeyState(KEY_DOWN, STATE_TOGGLE));
+
+    OUT.m_color = float4(col,1.0);
+    return OUT;
+}

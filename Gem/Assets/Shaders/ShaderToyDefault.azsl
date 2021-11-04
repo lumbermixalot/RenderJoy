@@ -1,0 +1,19 @@
+
+#include "RenderJoyPassSrg.azsli"
+
+// ShaderToy default shader.
+// Ported to RenderJoy by garrieta
+
+PSOutput MainPS(VSOutput IN)
+{
+    PSOutput OUT;
+    
+    // Normalized pixel coordinates (from 0 to 1)
+    float2 uv = IN.m_position.xy / iResolution.xy;
+    // Time varying pixel color
+    float3 color = 0.5 + 0.5*cos(iTime + uv.xyx + float3(0,2,4));
+    
+    OUT.m_color = float4(color,1);
+
+    return OUT;
+}

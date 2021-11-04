@@ -1,0 +1,78 @@
+/*
+* All or portions of this file Copyright (c) Amazon.com, Inc. or its affiliates or
+* its licensors.
+*
+* For complete copyright and license terms please see the LICENSE at the root of this
+* distribution (the "License"). All use of this software is governed by the License,
+* or, if provided, by the license below or the license accompanying this file. Do not
+* remove or modify any license notices. This file is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+*
+*/
+
+// All .azsl files for RenderJoy shaders must start by including this file.
+
+#include <Atom/Features/SrgSemantics.azsli>
+#include <Atom/Features/PostProcessing/FullscreenPixelInfo.azsli>
+#include <Atom/Features/PostProcessing/FullscreenVertex.azsli>
+
+#define CHANNEL_COUNT 4
+
+ShaderResourceGroup PassSrg : SRG_PerPass
+{
+    // Viewport resolution (in pixels).
+    // .x,.y are width and height respectively.
+    // .z is the ratio of the pixel shapes. For now, it is always 1.
+    float3 m_resolution;
+
+    // Shader playback time (in seconds).
+    float m_time;
+
+    // Duration since the previous frame (in seconds).
+    float m_timeDelta;
+
+    // Frame number since rendering started.
+    // starts at 0.
+    int m_frame;
+
+    // aka FPS
+    float m_frameRate;
+
+    // Mouse input data.
+    //      mouse.xy  = mouse position during last button down
+    //  abs(mouse.zw) = mouse position during last button click
+    // sign(mouze.z)  = button is down
+    // sign(mouze.w)  = button is clicked
+    float4 m_mouse;
+
+    // m_channelX resolution (in pixels).
+    // .x,.y are width and height respectively.
+    // .z is the ratio of the pixel shapes. For now, it is always 1.
+    // .w is always 0.
+    float4 m_channelResolution[CHANNEL_COUNT];
+
+    // Input channels/textures
+    Texture2D<float4> m_channel[CHANNEL_COUNT];
+
+    Sampler LinearSampler
+    {
+        MinFilter = Linear;
+        MagFilter = Linear;
+        MipFilter = Linear;
+        AddressU = Clamp;
+        AddressV = Clamp;
+        AddressW = Clamp;
+    };
+}
+
+// Convenience macros to ease porting from ShaderToy
+#define iResolution PassSrg::m_resolution
+#define iTime PassSrg::m_time
+#define iTimeDelta PassSrg::m_timeDelta
+#define iFrame PassSrg::m_frame
+#define iFrameRate PassSrg::m_frameRate
+#define iMouse PassSrg::m_mouse
+#define iChannelResolution PassSrg::m_channelResolution
+#define iChannel PassSrg::m_channel
+
+

@@ -1,0 +1,53 @@
+// Original ShaderToy:
+// https://www.shadertoy.com/view/Ms3XWN
+// Created by inigo quilez - iq/2016
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0
+
+// Modified for RenderJoy by garrieta.
+
+static const int2 txPacmanPos       = int2(31, 1);
+static const int2 txPacmanMovDirNex = int2(31, 3);
+static const int2 txPoints          = int2(31, 5);
+static const int2 txState           = int2(31, 7);
+static const int2 txGhost0PosDir    = int2(31, 9);
+static const int2 txGhost1PosDir    = int2(31,11);
+static const int2 txGhost2PosDir    = int2(31,13);
+static const int2 txGhost3PosDir    = int2(31,15);
+static const int2 txMode            = int2(31,17);
+static const int2 txLives           = int2(31,19);
+static const int4 txCells           = int4(0,0,27,31);
+
+float sdCircle( in float2 p, in float r )
+{
+    return length( p ) - r;
+}
+
+float2 dir2dis( float dir )
+{
+    float2 off = float2(0, 0);
+         if( dir<0.5 ) { off = float2( 0.0, 0.0); }
+    else if( dir<1.5 ) { off = float2( 1.0, 0.0); }
+    else if( dir<2.5 ) { off = float2(-1.0, 0.0); }
+    else if( dir<3.5 ) { off = float2( 0.0, 1.0); }
+    else               { off = float2( 0.0,-1.0); }
+    return off;
+}
+
+float2 cell2ndc( float2 c )
+{
+	c = (c+0.5) / 31.0;
+    c.x -= 0.5*(1.0-iResolution.x/iResolution.y); // center
+    return c;
+}
+
+float4 loadValue( in int2 re )
+{
+    //return texelFetch( iChannel0, re, 0 );
+    return PassSrg::m_channel[0].Load( int3(re, 0) );
+}
+
+float4 Texture0( in float2 uv)
+{
+    return PassSrg::m_channel[0].Sample(PassSrg::LinearSampler, uv);
+}
+

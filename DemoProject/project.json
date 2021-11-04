@@ -1,0 +1,18 @@
+{
+    "project_name": "RenderJoyDemoProject",
+    "origin": "The primary repo for RenderJoyDemoProject goes here: i.e. http://www.mydomain.com",
+    "license": "What license RenderJoyDemoProject uses goes here: i.e. https://opensource.org/licenses/MIT",
+    "display_name": "RenderJoyDemoProject",
+    "summary": "A short description of RenderJoyDemoProject.",
+    "canonical_tags": [
+        "Project"
+    ],
+    "user_tags": [
+        "RenderJoyDemoProject"
+    ],
+    "icon_path": "preview.png",
+    "engine": "o3de",
+    "external_subdirectories": [
+        "E:/GIT/RenderJoy/Gem"
+    ]
+}

@@ -1,0 +1,312 @@
+// Original ShaderToy:
+// https://www.shadertoy.com/view/Ms3XWN
+// Created by inigo quilez - iq/2016
+// License Creative Commons Attribution-NonCommercial-ShareAlike 3.0
+
+// Modified for RenderJoy by garrieta.
+
+#include "RenderJoyPassSrg.azsli"
+#include "PacmanCommon.azsli"
+
+// rendering
+
+float sdBox( float2 p, float2 b )
+{
+  float2 d = abs(p) - b;
+  return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+}
+
+float sdBox( float2 p, float2 a, float2 b )
+{
+  p -= (a+b)*0.5;
+  float2 d = abs(p) - 0.5*(b-a);
+  return min(max(d.x,d.y),0.0) + length(max(d,0.0));
+}
+
+//============================================================
+
+// digit data by P_Malin (https://www.shadertoy.com/view/4sf3RN)
+// converted to LUT and integer logic by iq
+static const int font[] = { 
+    7 + 5*16 + 5*256 + 5*4096 + 7*65536,
+    2 + 2*16 + 2*256 + 2*4096 + 2*65536,
+    7 + 1*16 + 7*256 + 4*4096 + 7*65536,
+    7 + 4*16 + 7*256 + 4*4096 + 7*65536,
+    4 + 7*16 + 5*256 + 1*4096 + 1*65536,
+    7 + 4*16 + 7*256 + 1*4096 + 7*65536,
+    7 + 5*16 + 7*256 + 1*4096 + 7*65536,
+    4 + 4*16 + 4*256 + 4*4096 + 7*65536,
+    7 + 5*16 + 7*256 + 5*4096 + 7*65536,
+    7 + 4*16 + 7*256 + 5*4096 + 7*65536 };
+                          
+int SampleDigit(const in int n, const in float2 vUV)
+{
+    //if( abs(vUV.x-0.5)>0.5 || abs(vUV.y-0.5)>0.5 ) return 0;
+    float2 q = abs(vUV-0.5);
+    if( max(q.x,q.y)>0.5 ) return 0;
+    
+
+    int2 p = int2(floor(vUV * float2(4.0, 5.0)));
+    int   i = p.x + p.y*4;
+    
+    return (font[n]>>i) & 1;
+}
+
+int PrintInt( in float2 uv, in int value )
+{
+    int res = 0;
+    
+    int maxDigits = (value<10) ? 1 : (value<100) ? 2 : 3;
+    int digitID = maxDigits - 1 - int(floor(uv.x));
+    
+    if( digitID>=0 && digitID<maxDigits )
+    {
+        int div = (digitID==0) ? 1 : (digitID==1) ? 10 : 100;
+        res = SampleDigit( (value/div) % 10, float2(frac(uv.x), uv.y) );
+    }
+
+    return res;
+}
+
+//============================================================
+
+float3 drawMap( float3 col, in float2 fragCoord )
+{
+    float2 p = fragCoord/iResolution.y;
+    p.x += 0.5*(1.0-iResolution.x/iResolution.y); // center
+    float wp = 1.0/iResolution.y;
+
+    float2 q = floor(p*31.0);
+    float2 r = frac(p*31.0);
+    float wr = 31.0*wp;
+
+    if( q.x>=0.0 && q.x<=27.0 )
+    {
+        //float c = texture( iChannel0, (q+0.5)/iResolution.xy, -100.0 ).x;
+        float c = Texture0((q+0.5)/iResolution.xy).x;
+
+        // empty
+        if( c<0.5 )
+        {
+
+        }
+        // walls
+        else if( c<1.5 )
+        {
+            float2 wmi = float2( Texture0( (q-float2(1.0,0.0)+0.5)/iResolution.xy ).x,
+                                 Texture0( (q-float2(0.0,1.0)+0.5)/iResolution.xy ).x );
+            float2 wma = float2( Texture0( (q+float2(1.0,0.0)+0.5)/iResolution.xy ).x,
+                                 Texture0( (q+float2(0.0,1.0)+0.5)/iResolution.xy ).x );
+			
+            wmi = step( abs(wmi-1.0), float2(0.25, 0.25) );
+            wma = step( abs(wma-1.0), float2(0.25, 0.25) );
+            float2 ba = -(0.16+0.35*wmi);
+            float2 bb =  (0.16+0.35*wma);
+
+            //bb = vec2(0.51); ba = -bb;
+
+            float d = sdBox(r-0.5, ba, bb);
+            float f = 1.0 - smoothstep( -0.01, 0.01, d );
+            
+            float3 wco = 0.5 + 0.5*cos( 3.9 - 0.2*(wmi.x+wmi.y+wma.x+wma.y) + float3(0.0,1.0,1.5) );
+            wco += 0.1*sin(40.0*d);
+            col = lerp( col, wco, f );
+        }
+        // points
+        else if( c<2.5 )
+        {
+            float d = sdCircle(r-0.5, 0.15);
+            float f = 1.0 - smoothstep( -wr, wr, d );
+            col = lerp( col, float3(1.0,0.8,0.7), f );
+            //col += 0.3*vec3(1.0,0.7,0.4)*exp(-12.0*d*d); // glow
+        }
+        // big alls
+        else
+        {
+            float d = sdCircle( r-0.5 ,0.40*smoothstep( -1.0, -0.5, sin(2.0*6.2831*iTime) ));
+            float f = 1.0 - smoothstep( -wr, wr, d );
+            col = lerp( col, float3(1.0,0.9,0.5), f );
+        }
+    }
+    
+    return col;
+}
+
+
+float3 drawPacman( float3 col, in float2 fragCoord, in float4 pacmanPos, in float3 pacmanMovDirNex )
+{
+    float2 off = dir2dis(pacmanMovDirNex.x);
+    
+    float2 mPacmanPos = pacmanPos.xy;
+    //vec2 mPacmanPos = pacmanPos.xy + off*pacmanPos.z*pacmanPos.w;
+
+    float2 p = fragCoord/iResolution.y;
+    float eps = 1.0 / iResolution.y;
+
+    float2 q = p - cell2ndc( mPacmanPos );
+
+         if( pacmanMovDirNex.y<1.5 ) { q = q.xy*float2(-1.0,1.0); }
+    else if( pacmanMovDirNex.y<2.5 ) { q = q.xy; }
+    else if( pacmanMovDirNex.y<3.5 ) { q = q.yx*float2(-1.0,1.0); }
+    else                             { q = q.yx; }
+
+    float c = sdCircle(q, 0.023);
+    float f = c;
+
+    if( pacmanMovDirNex.y>0.5 )
+    {
+        float an = (0.5 + 0.5*sin(4.0*iTime*6.2831)) * 0.9;
+        float2 w = normalize( q - float2(0.005,0.0) );
+
+        w = float2( w.x, abs( w.y ) );
+        float m = dot( w, float2(sin(an),cos(an)));
+        f = max( f, -m );
+    }
+    f = 1.0 - smoothstep( -0.5*eps, 0.5*eps, f );
+    col = lerp( col, float3(1.0,0.8,0.1), f );
+
+    // glow
+    //col += 0.25*vec3(1.0,0.8,0.0)*exp(-300.0*c*c);
+
+    return col;
+}
+
+float3 drawGhost( float3 col, in float2 fragCoord, in float3 pos, in float dir, in float id, in float3 mode )
+{
+    float2 off = dir2dis(dir);
+
+    float2 gpos = pos.xy;
+
+    
+    float2 p = fragCoord/iResolution.y;
+    float eps = 1.0 / iResolution.y;
+
+    float2 q = p - cell2ndc( gpos );
+
+    float c = sdCircle(q, 0.023);
+    float f = c;
+	f = max(f,-q.y);
+    float on = 0.0025*sin(1.0*6.28318*q.x/0.025 + 6.2831*iTime);
+    f = min( f, sdBox(q-float2(0.0,-0.0065+on), float2(0.023,0.012) ) );
+   
+    float3 gco = 0.5 + 0.5*cos( 5.0 + 0.7*id + float3(0.0,2.0,4.0) );
+    float g = mode.x;
+    if( mode.z>0.75 )
+    {
+        g *= smoothstep(-0.2,0.0,sin(3.0*6.28318*(iTime-mode.y)));
+    }
+    gco = lerp( gco, float3(0.1,0.5,1.0), g );
+    
+    f = 1.0 - smoothstep( -0.5*eps, 0.5*eps, f );
+    col = lerp( col, gco, f );
+
+    f = sdCircle( float2(abs(q.x-off.x*0.006)-0.011,q.y-off.y*0.006-0.008), 0.008);
+    f = 1.0 - smoothstep( -0.5*eps, 0.5*eps, f );
+    col = lerp( col, float3(1.0, 1.0, 1.0), f );
+
+    f = sdCircle( float2(abs(q.x-off.x*0.01)-0.011,q.y-off.y*0.01-0.008), 0.004);
+    f = 1.0 - smoothstep( -0.5*eps, 0.5*eps, f );
+    col = lerp( col, float3(0.0, 0.0, 0.0), f );
+
+    // glow
+    //col += 0.2*gco*exp(-300.0*c*c);
+
+    return col;
+}
+
+
+float3 drawScore( in float3 col, in float2 fragCoord, float2 score, float lives )
+{    
+    // score
+
+    float2 p = fragCoord/iResolution.y;
+    col += float( PrintInt( (p - float2(0.05,0.9))*20.0, int(score.x) ));
+    col += float( PrintInt( (p - float2(0.05,0.8))*20.0, int(242.0-score.y) ));
+    
+    // lives
+    float eps = 1.0 / iResolution.y;
+    for( int i=0; i<3; i++ )
+    {
+        float h = float(i);
+        float2 q = p - float2(0.1 + 0.075*h, 0.7 );
+        if( h + 0.5 < lives )
+        {
+            float c = sdCircle(q, 0.023);
+            float f = c;
+
+            {
+                float2 w = normalize( q - float2(0.005,0.0) );
+                w = float2( w.x, abs( w.y ) );
+                float an = 0.5;
+                float m = dot( w, float2(sin(an),cos(an)));
+                f = max( f, -m );
+            }
+            f = 1.0 - smoothstep( -0.5*eps, 0.5*eps, f );
+            col = lerp( col, float3(1.0,0.8,0.1), f );
+
+            // glow
+            //col += 0.15*float3(1.0,0.8,0.0)*exp(-1500.0*c*c);
+        }
+    }
+
+    return col;
+}
+
+//============================================================
+
+//void mainImage( out vec4 fragColor, in vec2 fragCoord )
+PSOutput MainPS(VSOutput IN)
+{
+    PSOutput OUT;
+    
+    float2 fragCoord = IN.m_position.xy;
+    //float2 fragCoord = float2(IN.m_position.x, PassSrg::m_resolution.y - IN.m_position.y);
+
+    //------------------------
+    // load game state
+    //------------------------
+       
+    float4  pacmanPos = loadValue( txPacmanPos );
+    float3  pacmanDir = loadValue( txPacmanMovDirNex ).xyz;
+    float4  ghostPos[4];
+    ghostPos[0]     = loadValue( txGhost0PosDir );
+    ghostPos[1]     = loadValue( txGhost1PosDir );
+    ghostPos[2]     = loadValue( txGhost2PosDir );
+    ghostPos[3]     = loadValue( txGhost3PosDir );
+    float2  points    = loadValue( txPoints ).xy;
+    float state     = loadValue( txState ).x;
+    float lives     = loadValue( txLives ).x;
+    float3 mode       = loadValue( txMode ) .xyz;
+
+
+    //------------------------
+    // render
+    //------------------------
+    float3 col = float3(0, 0, 0);
+    
+    // map
+    col = drawMap( col, fragCoord );
+    
+    // pacman
+    col = drawPacman( col, fragCoord, pacmanPos, pacmanDir );
+
+    // ghosts
+    for( int i=0; i<4; i++ )
+    {
+       col = drawGhost( col, fragCoord, ghostPos[i].xyz, ghostPos[i].w, float(i), mode );
+    }
+
+    // score
+    col = drawScore( col, fragCoord, points, lives );
+ 
+    
+    if( state>1.5 )
+    {
+        col = lerp( col, float3(0.3, 0.3, 0.3), smoothstep(-1.0,1.0,sin(2.0*6.2831*iTime)) );
+    }
+    
+	float4 fragColor = float4( col, 1.0 );
+
+    OUT.m_color = fragColor;
+    return OUT;
+}
