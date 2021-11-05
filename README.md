@@ -61,4 +61,8 @@ If you use the default 3rdParty folder, then this command should suffice:
 5. Build the game project.  
 Compile the *Editor* target using the generated solution at *'.\build\RenderJoyDemoProject.sln'*, or equivalent if you chose another game project.  
 
+Go to the Wiki for instructions on how to write shaders for RenderJoy:  
+https://github.com/lumbermixalot/RenderJoy/wiki  
+
+
 
