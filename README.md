@@ -59,6 +59,6 @@ If you use the default 3rdParty folder, then this command should suffice:
 `cmake -B build -S . -G "Visual Studio 16 2019"`  
   
 5. Build the game project.  
-Compile the *Editor* target using the generated solution at *'.\build\RenderJoyDemoProject.sln'*, or equuivalent if you chose another game project.  
+Compile the *Editor* target using the generated solution at *'.\build\RenderJoyDemoProject.sln'*, or equivalent if you chose another game project.  
 
 
