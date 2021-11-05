@@ -104,8 +104,10 @@ namespace RenderJoy
         void OnKeyUp(const KeyCodeInfo& keyCodeInfo) override;
         //////////////////////////////////////////////////////////////////////////
 
+        void ResetKeyboardState();
+
         KeyboardComponentConfig m_config;
-        uint8_t m_textureData[aznumeric_cast<size_t>(KeyStateIndices::StateCount)][CharacterCount] = {{{0}, {0}, {0}}};
+        uint8_t m_textureData[aznumeric_cast<size_t>(KeyStateIndices::StateCount)][CharacterCount];
 
         // Each time a key is pressed, we use this struct to store
         // the key code and the time where it was pressed.

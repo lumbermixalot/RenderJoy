@@ -74,6 +74,8 @@ namespace RenderJoy
         RenderJoyTextureProviderBus::Handler::BusConnect(GetEntityId());
         AZ::TickBus::Handler::BusConnect();
         RenderJoyKeyboardNotificationBus::Handler::BusConnect();
+
+        ResetKeyboardState();
     }
 
     void RenderJoyKeyboardEditorComponent::Deactivate()
@@ -177,5 +179,16 @@ namespace RenderJoy
         }
     }
     //////////////////////////////////////////////////////////////////////////
+
+    void RenderJoyKeyboardEditorComponent::ResetKeyboardState()
+    {
+        for (int i = 0; i < aznumeric_cast<int>(KeyStateIndices::StateCount); i++)
+        {
+            for (int j = 0; j < CharacterCount; j++)
+            {
+                m_textureData[i][j] = 0;
+            }
+        }
+    }
 
 } // namespace RenderJoy
