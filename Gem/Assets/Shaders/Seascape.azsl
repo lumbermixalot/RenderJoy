@@ -7,7 +7,7 @@
  
  // Ported to RenderJoy by garrieta
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 /*
  * "Seascape" by Alexander Alekseev aka TDM - 2014

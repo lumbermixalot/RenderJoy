@@ -3,7 +3,7 @@
 
 // Ported to RenderJoy by garrieta
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 float distanceToSegment( float2 a, float2 b, float2 pixelLoc )
 {

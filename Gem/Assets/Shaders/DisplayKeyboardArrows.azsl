@@ -3,7 +3,7 @@
 
 // Transformed to AZSL by garrieta
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 // An example showing how to use the keyboard input.
 //

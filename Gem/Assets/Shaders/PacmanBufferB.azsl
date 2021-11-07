@@ -5,7 +5,7 @@
 
 // Modified for RenderJoy by garrieta.
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 #include "PacmanCommon.azsli"
 
 // rendering

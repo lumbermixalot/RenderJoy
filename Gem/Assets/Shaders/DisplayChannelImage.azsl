@@ -10,7 +10,7 @@
 *
 */
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 // Simply displays the texture attached to channel0.
 PSOutput MainPS(VSOutput IN)

@@ -1,5 +1,5 @@
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 // ShaderToy default shader.
 // Ported to RenderJoy by garrieta

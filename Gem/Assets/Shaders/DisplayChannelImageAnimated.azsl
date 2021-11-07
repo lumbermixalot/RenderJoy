@@ -10,7 +10,7 @@
 *
 */
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 // Simply displas the texture at channel0 and increases the colors periodically.
 PSOutput MainPS(VSOutput IN)

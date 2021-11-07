@@ -3,7 +3,7 @@
 
 // Converted to RenderJoy by garrieta
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 #define resolution iResolution
 #define time iTime

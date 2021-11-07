@@ -10,7 +10,7 @@
 *
 */
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 
 PSOutput MainPS(VSOutput IN)
 {

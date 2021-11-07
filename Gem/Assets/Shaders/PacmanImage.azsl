@@ -6,7 +6,7 @@
 // Modified for RenderJoy by garrieta.
 
 
-#include "RenderJoyPassSrg.azsli"
+#include <RenderJoy/RenderJoyPassSrg.azsli>
 #include "PacmanCommon.azsli"
 
 // postprocess (thanks to Timothy Lottes for the CRT filter - https://www.shadertoy.com/view/XsjSzR)
