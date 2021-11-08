@@ -30,27 +30,36 @@ At its core **RenderJoy** is a Gem, so at a minimum you'll only need to register
 For the sake of simplicity, the following instructions assume you have installed *O3DE* at *"D:\GIT\o3de\"*,  
 and **RenderJoy** was cloned in *"E:\Other\RenderJoy\"*.
 
+
+### Using The Companion RenderJoyDemoProject
+This is the easiest way to compile the O3DE Editor and start using RenderJoy, or checking out the Level demos that come with **RenderJoyDemoProjecy**.  
+1. `cd D:\GIT\o3de`  
+2. Register the provided demo project, **RenderJoyDemoProject**.  
+`.\scripts\o3de.bat register -pp E:\Other\RenderJoy\DemoProject`
+3. `cd E:\Other\RenderJoy\DemoProject`
+4. Generate the VS2019 solution to compile the Editor.
+The following *cmake* configuration command assumes your 3rdParty folder is located at: *"D:\LY3RDPARTY\lyengine\3rdParty\"*  
+`cmake -B build -S . -G "Visual Studio 16 2019" -DLY_3RDPARTY_PATH=D:\LY3RDPARTY\lyengine\3rdParty`  
+OR  
+If you use the default 3rdParty folder, then this command should suffice:  
+`cmake -B build -S . -G "Visual Studio 16 2019"`
+5. Build the Editor.  
+Compile the *Editor* target using the generated solution at *'.\build\RenderJoyDemoProject.sln'*
+
+### Using RenderJoy With Other Game Projects
+
 1. Register the Gem.  
-`cd D:\GIT\o3de`  (all the commands listed below assume this is your working directory).  
+`cd D:\GIT\o3de`  
 `.\scripts\o3de.bat register -gp E:\Other\RenderJoy\Gem`  
   
-2. (Optional) Register the provided demo project, **RenderJoyDemoProject**.  
-`.\scripts\o3de.bat register -pp E:\Other\RenderJoy\DemoProject`  
-  
-3. Enable the **RenderJoy** Gem.  
-Assuming you want to use the provided demo project, you can use either one of these two commands.  
-`.\scripts\o3de.bat enable-gem -pp E:\Other\RenderJoy\DemoProject -gp E:\Other\RenderJoy\Gem`  
-OR  
-`.\scripts\o3de.bat enable-gem -pn RenderJoyDemoProject -gn RenderJoy`  
-Assuming you **don't** want to use the provided demo project, and your particular game project is located at:  
+2. Enable the **RenderJoy** Gem.  
+Assuming your particular game project is located at:  
 *"D:\MyProjects\SecretProject\"*:  
 `.\scripts\o3de.bat enable-gem -pp D:\MyProjects\SecretProject -gp E:\Other\RenderJoy\Gem`  
 OR  
 `.\scripts\o3de.bat enable-gem -pp D:\MyProjects\SecretProject -gn RenderJoy`  
   
-4. Configure the game project.  
-`cd E:\Other\RenderJoy\DemoProject`  
-or, if you are using your own game project  
+3. Generate the VS2019 solution to compile the Editor 
 `cd D:\MyProjects\SecretProject`  
 The following *cmake* configuration command assumes your 3rdParty folder is located at: *"D:\LY3RDPARTY\lyengine\3rdParty\"*  
 `cmake -B build -S . -G "Visual Studio 16 2019" -DLY_3RDPARTY_PATH=D:\LY3RDPARTY\lyengine\3rdParty`  
@@ -58,8 +67,8 @@ OR
 If you use the default 3rdParty folder, then this command should suffice:  
 `cmake -B build -S . -G "Visual Studio 16 2019"`  
   
-5. Build the game project.  
-Compile the *Editor* target using the generated solution at *'.\build\RenderJoyDemoProject.sln'*, or equivalent if you chose another game project.  
+5. Build the Editor.  
+Compile the *Editor* target using the generated solution at *'.\build\SecretProject.sln'*, or equivalent.  
 
 Go to the Wiki for instructions on how to write shaders for RenderJoy:  
 https://github.com/lumbermixalot/RenderJoy/wiki  
