@@ -14,5 +14,6 @@
     "engine": "o3de",
     "external_subdirectories": [
         "../Gem"
-    ]
+    ],
+    "project_id": "{2184ffed-5778-482d-9f2e-c65efac3f05d}"
 }

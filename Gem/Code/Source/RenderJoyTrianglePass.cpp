@@ -198,11 +198,11 @@ namespace RenderJoy
 
         if (GetOutputCount() > 0)
         {
-            outputAttachment = GetOutputBinding(0).m_attachment.get();
+            outputAttachment = GetOutputBinding(0).GetAttachment().get();
         }
         else if (GetInputOutputCount() > 0)
         {
-            outputAttachment = GetInputOutputBinding(0).m_attachment.get();
+            outputAttachment = GetInputOutputBinding(0).GetAttachment().get();
         }
 
         AZ_Assert(outputAttachment != nullptr, "[RenderJoyTrianglePass %s] has no valid output or input/output attachments.", GetPathName().GetCStr());
@@ -512,7 +512,7 @@ namespace RenderJoy
 
         // Source Image (The render target)
         AZ::RPI::PassAttachmentBinding& copySource = GetOutputBinding(0);
-        const AZ::RHI::Image* sourceImage = context.GetImage(copySource.m_attachment->GetAttachmentId());
+        const AZ::RHI::Image* sourceImage = context.GetImage(copySource.GetAttachment()->GetAttachmentId());
         copyDesc.m_sourceImage = sourceImage;
         copyDesc.m_sourceSize = sourceImage->GetDescriptor().m_size;
 
