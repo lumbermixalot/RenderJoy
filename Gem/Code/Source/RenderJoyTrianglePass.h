@@ -52,6 +52,12 @@ namespace RenderJoy
         // Clears the initialized flag so that the next time PrepareFrameInternal is called, it will update the pipeline state
         void Invalidate();
 
+        //AZ::RPI::Pass Overrides
+        bool IsEnabled() const override
+        {
+            return true;
+        }
+
         static constexpr size_t ImageChannelsCount = 4;
 
     private:

@@ -68,7 +68,7 @@ namespace RenderJoy
         // Create a render pipeline from the specified asset for the window context and add the pipeline to the scene
         AZ::Data::Asset<AZ::RPI::AnyAsset> pipelineAsset = AZ::RPI::AssetUtils::LoadAssetByProductPath<AZ::RPI::AnyAsset>(m_defaultPipelineAssetPath.c_str(), AZ::RPI::AssetUtils::TraceLevel::Error);
         m_renderPipeline = AZ::RPI::RenderPipeline::CreateRenderPipelineForWindow(pipelineAsset, *m_windowContext.get());
-        m_renderPipeline->OnPassModified();
+        m_renderPipeline->UpdatePasses();
         m_renderPipeline->SetDefaultView(m_view);
         pipelineAsset.Release();
         m_scene->AddRenderPipeline(m_renderPipeline);

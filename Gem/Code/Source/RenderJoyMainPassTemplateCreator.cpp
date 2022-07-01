@@ -63,7 +63,7 @@ namespace RenderJoy
 
         // Slots (only one)
         AZ::RPI::PassSlot passSlot;
-        passSlot.m_name = AZ::Name("SwapChainOutput");
+        passSlot.m_name = AZ::Name("PipelineOutput");
         passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
         passSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::RenderTarget;
         passTemplate->AddSlot(passSlot);
@@ -199,9 +199,9 @@ namespace RenderJoy
             AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
             transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
             transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("SwapChainOutput");
+            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
             transientAttachmentDesc.m_formatSource.m_pass = AZ::Name("Parent");
-            transientAttachmentDesc.m_formatSource.m_attachment = AZ::Name("SwapChainOutput");
+            transientAttachmentDesc.m_formatSource.m_attachment = AZ::Name("PipelineOutput");
             passTemplate->AddImageAttachment(transientAttachmentDesc);
         }
         else
@@ -213,7 +213,7 @@ namespace RenderJoy
             transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
             transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
             transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("SwapChainOutput");
+            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
             passTemplate->AddImageAttachment(transientAttachmentDesc);
         }
 
@@ -228,7 +228,7 @@ namespace RenderJoy
             transientAttachmentDesc.m_name = AZ::Name("PreviousFrameImage");
             transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
             transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("SwapChainOutput");
+            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
             passTemplate->AddImageAttachment(transientAttachmentDesc);
         }
 
