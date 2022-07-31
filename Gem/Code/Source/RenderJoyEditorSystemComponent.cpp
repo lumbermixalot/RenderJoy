@@ -13,6 +13,7 @@
 
 #include "RenderJoyEditorSystemComponent.h"
 #include "MainWindow.h"
+#include "PassEditor/RenderJoyPassEditorWindow.h"
 #include <RenderJoy/RenderJoySettingsBus.h>
 
 
@@ -76,6 +77,8 @@ namespace RenderJoy
         options.paneRect = QRect(0, 0, width, height);
         options.isDockable = false;
         AzToolsFramework::RegisterViewPane<RenderJoy::MainWindow>(RenderJoyName, LyViewPane::CategoryOther, options);
+
+        AzToolsFramework::RegisterViewPane<RenderJoy::RenderJoyPassEditorWindow>("RenderJoyPassEditor", LyViewPane::CategoryOther, options);
     }
     ////////////////////////////////////////////////////////////////////////
 

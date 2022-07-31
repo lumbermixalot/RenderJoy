@@ -27,4 +27,6 @@ set(FILES
     Source/Components/RenderJoyTextureEditorComponent.h
     Source/Components/RenderJoyKeyboardEditorComponent.cpp
     Source/Components/RenderJoyKeyboardEditorComponent.h
+    Source/PassEditor/RenderJoyPassEditorWindow.cpp
+    Source/PassEditor/RenderJoyPassEditorWindow.h
 )

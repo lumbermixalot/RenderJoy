@@ -45,5 +45,9 @@ namespace RenderJoy
         // AZ::Component
         void Activate() override;
         void Deactivate() override;
+        
+        // Necessary for the RenderJoy PassEditor Window.
+        AZStd::unique_ptr<AtomToolsFramework::DynamicNodeManager> m_dynamicNodeManager;
+        AZStd::shared_ptr<GraphModel::GraphContext> m_graphContext;
     };
 } // namespace RenderJoy
