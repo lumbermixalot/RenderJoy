@@ -11,14 +11,14 @@
 
 #include <QMessageBox>
 
-#include "RenderJoyPassEditorWindow.h"
+#include "RenderJoyCanvasWindow.h"
 //#include "MaterialCanvasViewportContent.h>
 
 namespace RenderJoy
 {
-    RenderJoyPassEditorWindow::RenderJoyPassEditorWindow(QWidget* parent)
-        : Base(ToolId, "RenderJoyPassEditorWindow", parent)
-        , m_styleManager(ToolId, graphViewConfig.m_styleManagerPath)
+    RenderJoyCanvasWindow::RenderJoyCanvasWindow(QWidget* parent)
+        : Base(ToolId, "RenderJoyCanvasWindow", parent)
+        , m_styleManager(ToolId, "RenderJoy/StyleSheet/renderjoy_style.json")
     {
         //m_assetBrowser->SetFilterState("", AZ::RPI::StreamingImageAsset::Group, true);
         //m_assetBrowser->SetFilterState("", AZ::RPI::MaterialAsset::Group, true);
@@ -64,29 +64,29 @@ namespace RenderJoy
         OnDocumentOpened(AZ::Uuid::CreateNull());
     }
 
-    RenderJoyPassEditorWindow::~RenderJoyPassEditorWindow()
+    RenderJoyCanvasWindow::~RenderJoyCanvasWindow()
     {
     }
 
-    void RenderJoyPassEditorWindow::OnDocumentOpened(const AZ::Uuid& documentId)
+    void RenderJoyCanvasWindow::OnDocumentOpened(const AZ::Uuid& documentId)
     {
         Base::OnDocumentOpened(documentId);
         m_documentInspector->SetDocumentId(documentId);
     }
 
-    void RenderJoyPassEditorWindow::OnDocumentCleared(const AZ::Uuid& documentId)
+    void RenderJoyCanvasWindow::OnDocumentCleared(const AZ::Uuid& documentId)
     {
         Base::OnDocumentCleared(documentId);
         m_documentInspector->SetDocumentId(documentId);
     }
 
-    void RenderJoyPassEditorWindow::OnDocumentError(const AZ::Uuid& documentId)
+    void RenderJoyCanvasWindow::OnDocumentError(const AZ::Uuid& documentId)
     {
         Base::OnDocumentError(documentId);
         m_documentInspector->SetDocumentId(documentId);
     }
 
-    void RenderJoyPassEditorWindow::ResizeViewportRenderTarget(uint32_t width, uint32_t height)
+    void RenderJoyCanvasWindow::ResizeViewportRenderTarget(uint32_t width, uint32_t height)
     {
         AZ_Warning(LogName, false, "Error %s for size (%u,%u) is unsupported", __FUNCTION__, width, height);
         //QSize requestedViewportSize = QSize(width, height) / devicePixelRatioF();
@@ -109,19 +109,19 @@ namespace RenderJoy
         //    newDeviceSize.width(), newDeviceSize.height());
     }
 
-    void RenderJoyPassEditorWindow::LockViewportRenderTargetSize(uint32_t width, uint32_t height)
+    void RenderJoyCanvasWindow::LockViewportRenderTargetSize(uint32_t width, uint32_t height)
     {
         //m_materialViewport->LockRenderTargetSize(width, height);
         AZ_Warning(LogName, false, "Error %s for size (%u,%u) is unsupported", __FUNCTION__, width, height);
     }
 
-    void RenderJoyPassEditorWindow::UnlockViewportRenderTargetSize()
+    void RenderJoyCanvasWindow::UnlockViewportRenderTargetSize()
     {
         //m_materialViewport->UnlockRenderTargetSize();
         AZ_Warning(LogName, false, "Error %s is unsupported", __FUNCTION__);
     }
 
-    AZStd::string RenderJoyPassEditorWindow::GetHelpDialogText() const
+    AZStd::string RenderJoyCanvasWindow::GetHelpDialogText() const
     {
         return R"(<html><head/><body>
             <p><h3><u>Welcome to RenderJoy</u></h3></p>
@@ -130,4 +130,4 @@ namespace RenderJoy
     }
 } // namespace RenderJoy
 
-#include "moc_RenderJoyPassEditorWindow.cpp"
+#include "moc_RenderJoyCanvasWindow.cpp"

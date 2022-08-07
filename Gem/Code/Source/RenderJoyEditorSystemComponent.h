@@ -15,6 +15,9 @@
 #include <AzToolsFramework/API/ToolsApplicationAPI.h>
 #include <AzToolsFramework/Entity/EditorEntityContextBus.h>
 
+#include <GraphModel/Model/GraphContext.h>
+#include <AtomToolsFramework/DynamicNode/DynamicNodeManager.h>
+
 namespace RenderJoy
 {
     /// System component for RenderJoy editor
@@ -45,6 +48,8 @@ namespace RenderJoy
         // AZ::Component
         void Activate() override;
         void Deactivate() override;
+
+        void InitDataForPassEditor();
         
         // Necessary for the RenderJoy PassEditor Window.
         AZStd::unique_ptr<AtomToolsFramework::DynamicNodeManager> m_dynamicNodeManager;

@@ -6,6 +6,8 @@ set(FILES
     Include/RenderJoy/RenderJoyPassBus.h
     Include/RenderJoy/IRenderJoySrgDataProvider.h
     Include/RenderJoy/RenderJoyKeyboardBus.h
+    Include/RenderJoy/Document/RenderJoyDocumentNotificationBus.h
+    Include/RenderJoy/Document/RenderJoyDocumentRequestBus.h
     Source/RenderJoyEditorSystemComponent.cpp
     Source/RenderJoyEditorSystemComponent.h
     Source/MainWindow.cpp
@@ -27,6 +29,8 @@ set(FILES
     Source/Components/RenderJoyTextureEditorComponent.h
     Source/Components/RenderJoyKeyboardEditorComponent.cpp
     Source/Components/RenderJoyKeyboardEditorComponent.h
-    Source/PassEditor/RenderJoyPassEditorWindow.cpp
-    Source/PassEditor/RenderJoyPassEditorWindow.h
+    Source/Canvas/RenderJoyCanvasWindow.cpp
+    Source/Canvas/RenderJoyCanvasWindow.h
+    Source/Canvas/Document/RenderJoyCanvasDocument.cpp
+    Source/Canvas/Document/RenderJoyCanvasDocument.h
 )

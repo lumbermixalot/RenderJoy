@@ -24,19 +24,19 @@
 
 namespace RenderJoy
 {
-    //! RenderJoyPassEditorWindow
-    class RenderJoyPassEditorWindow : public AtomToolsFramework::AtomToolsDocumentMainWindow
+    //! RenderJoyCanvasWindow
+    class RenderJoyCanvasWindow : public AtomToolsFramework::AtomToolsDocumentMainWindow
     {
         Q_OBJECT
     public:
-        AZ_CLASS_ALLOCATOR(RenderJoyPassEditorWindow, AZ::SystemAllocator, 0);
+        AZ_CLASS_ALLOCATOR(RenderJoyCanvasWindow, AZ::SystemAllocator, 0);
 
         using Base = AtomToolsFramework::AtomToolsDocumentMainWindow;
 
-        RenderJoyPassEditorWindow(QWidget* parent = 0);
-        ~RenderJoyPassEditorWindow();
+        RenderJoyCanvasWindow(QWidget* parent = 0);
+        ~RenderJoyCanvasWindow();
 
-        static constexpr char LogName[] = "RenderJoyPassEditorWindow";
+        static constexpr char LogName[] = "RenderJoyCanvasWindow";
         static constexpr AZ::Crc32 ToolId = AZ_CRC_CE("RenderJoy");
 
     protected:
