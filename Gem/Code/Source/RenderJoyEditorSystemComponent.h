@@ -17,6 +17,9 @@
 
 #include <GraphModel/Model/GraphContext.h>
 #include <AtomToolsFramework/DynamicNode/DynamicNodeManager.h>
+#include <AtomToolsFramework/GraphView/GraphViewConfig.h>
+
+#include <RenderJoy/RenderJoyCanvasSystemRequestBus.h>
 
 namespace RenderJoy
 {
@@ -24,6 +27,7 @@ namespace RenderJoy
     class RenderJoyEditorSystemComponent
         : public AZ::Component
         , private AzToolsFramework::EditorEvents::Bus::Handler
+        , public RenderJoyCanvasSystemRequestBus::Handler
     {
     public:
         AZ_COMPONENT(RenderJoyEditorSystemComponent, "{24185bbf-5ac7-4008-95ce-98b3af1df39f}");
@@ -38,6 +42,9 @@ namespace RenderJoy
         // AztoolsFramework::EditorEvents::Bus::Handler overrides
         void NotifyRegisterViews() override;
         ////////////////////////////////////////////////////////////////////////
+
+        // RenderJoyCanvasSystemRequestBus Overrides
+        void GetRenderJoyGraphViewConfig(AtomToolsFramework::GraphViewConfig& graphViewConfig) const override;
 
     private:
         static void GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided);
@@ -54,5 +61,6 @@ namespace RenderJoy
         // Necessary for the RenderJoy PassEditor Window.
         AZStd::unique_ptr<AtomToolsFramework::DynamicNodeManager> m_dynamicNodeManager;
         AZStd::shared_ptr<GraphModel::GraphContext> m_graphContext;
+        AtomToolsFramework::GraphViewConfig m_graphViewConfig;
     };
 } // namespace RenderJoy

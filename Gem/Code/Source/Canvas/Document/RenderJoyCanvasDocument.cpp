@@ -17,8 +17,8 @@
 #include <AzCore/RTTI/BehaviorContext.h>
 #include <AzCore/Serialization/EditContext.h>
 #include <AzCore/Serialization/SerializeContext.h>
-#include <Document/MaterialCanvasDocument.h>
-#include <Document/MaterialCanvasDocumentNotificationBus.h>
+#include "RenderJoyCanvasDocument.h"
+#include <RenderJoy/Document/RenderJoyCanvasDocumentNotificationBus.h>
 #include <GraphCanvas/Components/SceneBus.h>
 #include <GraphCanvas/GraphCanvasBus.h>
 #include <GraphModel/Model/Connection.h>
@@ -36,32 +36,32 @@
 #include <AzCore/std/containers/vector.h>
 #include <AzCore/std/sort.h>
 
-namespace MaterialCanvas
+namespace RenderJoy
 {
-    void MaterialCanvasDocument::Reflect(AZ::ReflectContext* context)
+    void RenderJoyCanvasDocument::Reflect(AZ::ReflectContext* context)
     {
         if (auto serialize = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serialize->Class<MaterialCanvasDocument, AtomToolsFramework::AtomToolsDocument>()
+            serialize->Class<RenderJoyCanvasDocument, AtomToolsFramework::AtomToolsDocument>()
                 ->Version(0);
         }
 
         if (auto behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context))
         {
-            behaviorContext->EBus<MaterialCanvasDocumentRequestBus>("MaterialCanvasDocumentRequestBus")
+            behaviorContext->EBus<RenderJoyCanvasDocumentRequestBus>("RenderJoyCanvasDocumentRequestBus")
                 ->Attribute(AZ::Script::Attributes::Scope, AZ::Script::Attributes::ScopeFlags::Common)
                 ->Attribute(AZ::Script::Attributes::Category, "Editor")
                 ->Attribute(AZ::Script::Attributes::Module, "materialcanvas")
-                ->Event("GetGraphId", &MaterialCanvasDocumentRequests::GetGraphId)
-                ->Event("GetGeneratedFilePaths", &MaterialCanvasDocumentRequests::GetGeneratedFilePaths)
-                ->Event("GetGraphName", &MaterialCanvasDocumentRequests::GetGraphName)
-                ->Event("CompileGraph", &MaterialCanvasDocumentRequests::CompileGraph)
-                ->Event("QueueCompileGraph", &MaterialCanvasDocumentRequests::QueueCompileGraph)
-                ->Event("IsCompileGraphQueued", &MaterialCanvasDocumentRequests::IsCompileGraphQueued);
+                ->Event("GetGraphId", &RenderJoyCanvasDocumentRequests::GetGraphId)
+                ->Event("GetGeneratedFilePaths", &RenderJoyCanvasDocumentRequests::GetGeneratedFilePaths)
+                ->Event("GetGraphName", &RenderJoyCanvasDocumentRequests::GetGraphName)
+                ->Event("CompileGraph", &RenderJoyCanvasDocumentRequests::CompileGraph)
+                ->Event("QueueCompileGraph", &RenderJoyCanvasDocumentRequests::QueueCompileGraph)
+                ->Event("IsCompileGraphQueued", &RenderJoyCanvasDocumentRequests::IsCompileGraphQueued);
         }
     }
 
-    MaterialCanvasDocument::MaterialCanvasDocument(
+    RenderJoyCanvasDocument::RenderJoyCanvasDocument(
         const AZ::Crc32& toolId,
         const AtomToolsFramework::DocumentTypeInfo& documentTypeInfo,
         AZStd::shared_ptr<GraphModel::GraphContext> graphContext)
@@ -84,12 +84,12 @@ namespace MaterialCanvas
         // Listen for GraphController notifications on the new graph.
         GraphModelIntegration::GraphControllerNotificationBus::Handler::BusConnect(m_graphId);
 
-        MaterialCanvasDocumentRequestBus::Handler::BusConnect(m_id);
+        RenderJoyCanvasDocumentRequestBus::Handler::BusConnect(m_id);
     }
 
-    MaterialCanvasDocument::~MaterialCanvasDocument()
+    RenderJoyCanvasDocument::~RenderJoyCanvasDocument()
     {
-        MaterialCanvasDocumentRequestBus::Handler::BusDisconnect();
+        RenderJoyCanvasDocumentRequestBus::Handler::BusDisconnect();
 
         // Stop listening for GraphController notifications for this graph.
         GraphModelIntegration::GraphControllerNotificationBus::Handler::BusDisconnect();
@@ -103,7 +103,7 @@ namespace MaterialCanvas
         m_sceneEntity = {};
     }
 
-    AtomToolsFramework::DocumentTypeInfo MaterialCanvasDocument::BuildDocumentTypeInfo()
+    AtomToolsFramework::DocumentTypeInfo RenderJoyCanvasDocument::BuildDocumentTypeInfo()
     {
         // Setting up placeholder document type info and extensions. This is not representative of final data.
         AtomToolsFramework::DocumentTypeInfo documentType;
@@ -117,7 +117,7 @@ namespace MaterialCanvas
             // Creating a graph context per document by default. It can be overridden in the application to provide a shared context.
             auto graphContext = AZStd::make_shared<GraphModel::GraphContext>("Material Canvas", ".materialcanvas", registeredDataTypes);
             graphContext->CreateModuleGraphManager();
-            return aznew MaterialCanvasDocument(toolId, documentTypeInfo, graphContext);
+            return aznew RenderJoyCanvasDocument(toolId, documentTypeInfo, graphContext);
         };
 
         // Need to revisit the distinction between file types for creation versus file types for opening. Creation types are meant to be
@@ -143,11 +143,11 @@ namespace MaterialCanvas
         return documentType;
     }
 
-    AtomToolsFramework::DocumentObjectInfoVector MaterialCanvasDocument::GetObjectInfo() const
+    AtomToolsFramework::DocumentObjectInfoVector RenderJoyCanvasDocument::GetObjectInfo() const
     {
         if (!IsOpen())
         {
-            AZ_Error("MaterialCanvasDocument", false, "Document is not open.");
+            AZ_Error("RenderJoyCanvasDocument", false, "Document is not open.");
             return {};
         }
 
@@ -155,7 +155,7 @@ namespace MaterialCanvas
         return objects;
     }
 
-    bool MaterialCanvasDocument::Open(const AZStd::string& loadPath)
+    bool RenderJoyCanvasDocument::Open(const AZStd::string& loadPath)
     {
         if (!AtomToolsDocument::Open(loadPath))
         {
@@ -183,7 +183,7 @@ namespace MaterialCanvas
         return OpenSucceeded();
     }
 
-    bool MaterialCanvasDocument::Save()
+    bool RenderJoyCanvasDocument::Save()
     {
         if (!AtomToolsDocument::Save())
         {
@@ -203,7 +203,7 @@ namespace MaterialCanvas
         return SaveSucceeded();
     }
 
-    bool MaterialCanvasDocument::SaveAsCopy(const AZStd::string& savePath)
+    bool RenderJoyCanvasDocument::SaveAsCopy(const AZStd::string& savePath)
     {
         if (!AtomToolsDocument::SaveAsCopy(savePath))
         {
@@ -223,7 +223,7 @@ namespace MaterialCanvas
         return SaveSucceeded();
     }
 
-    bool MaterialCanvasDocument::SaveAsChild(const AZStd::string& savePath)
+    bool RenderJoyCanvasDocument::SaveAsChild(const AZStd::string& savePath)
     {
         if (!AtomToolsDocument::SaveAsChild(savePath))
         {
@@ -243,22 +243,22 @@ namespace MaterialCanvas
         return SaveSucceeded();
     }
 
-    bool MaterialCanvasDocument::IsOpen() const
+    bool RenderJoyCanvasDocument::IsOpen() const
     {
         return AtomToolsDocument::IsOpen() && m_graph && m_graphId.IsValid();
     }
 
-    bool MaterialCanvasDocument::IsModified() const
+    bool RenderJoyCanvasDocument::IsModified() const
     {
         return m_modified;
     }
 
-    bool MaterialCanvasDocument::BeginEdit()
+    bool RenderJoyCanvasDocument::BeginEdit()
     {
         return true;
     }
 
-    bool MaterialCanvasDocument::EndEdit()
+    bool RenderJoyCanvasDocument::EndEdit()
     {
         auto undoState = m_graphStateForUndoRedo;
 
@@ -281,17 +281,17 @@ namespace MaterialCanvas
         return true;
     }
 
-    GraphCanvas::GraphId MaterialCanvasDocument::GetGraphId() const
+    GraphCanvas::GraphId RenderJoyCanvasDocument::GetGraphId() const
     {
         return m_graphId;
     }
 
-    const AZStd::vector<AZStd::string>& MaterialCanvasDocument::GetGeneratedFilePaths() const
+    const AZStd::vector<AZStd::string>& RenderJoyCanvasDocument::GetGeneratedFilePaths() const
     {
         return m_generatedFiles;
     }
 
-    void MaterialCanvasDocument::Clear()
+    void RenderJoyCanvasDocument::Clear()
     {
         DestroyGraph();
         m_compileGraphQueued = false;
@@ -301,33 +301,33 @@ namespace MaterialCanvas
         AtomToolsFramework::AtomToolsDocument::Clear();
     }
 
-    bool MaterialCanvasDocument::ReopenRecordState()
+    bool RenderJoyCanvasDocument::ReopenRecordState()
     {
         return AtomToolsDocument::ReopenRecordState();
     }
 
-    bool MaterialCanvasDocument::ReopenRestoreState()
+    bool RenderJoyCanvasDocument::ReopenRestoreState()
     {
         return AtomToolsDocument::ReopenRestoreState();
     }
 
-    void MaterialCanvasDocument::OnGraphModelRequestUndoPoint()
+    void RenderJoyCanvasDocument::OnGraphModelRequestUndoPoint()
     {
         BeginEdit();
         EndEdit();
     }
 
-    void MaterialCanvasDocument::OnGraphModelTriggerUndo()
+    void RenderJoyCanvasDocument::OnGraphModelTriggerUndo()
     {
         Undo();
     }
 
-    void MaterialCanvasDocument::OnGraphModelTriggerRedo()
+    void RenderJoyCanvasDocument::OnGraphModelTriggerRedo()
     {
         Redo();
     }
 
-    void MaterialCanvasDocument::RecordGraphState()
+    void RenderJoyCanvasDocument::RecordGraphState()
     {
         // Serialize the current graph to a byte stream so that it can be restored with undo redo operations.
         m_graphStateForUndoRedo.clear();
@@ -335,7 +335,7 @@ namespace MaterialCanvas
         AZ::Utils::SaveObjectToStream(undoGraphStateStream, AZ::ObjectStream::ST_BINARY, m_graph.get());
     }
 
-    void MaterialCanvasDocument::RestoreGraphState(const AZStd::vector<AZ::u8>& graphState)
+    void RenderJoyCanvasDocument::RestoreGraphState(const AZStd::vector<AZ::u8>& graphState)
     {
         // Restore a version of the graph that was previously serialized to a byte stream
         m_graphStateForUndoRedo = graphState;
@@ -354,7 +354,7 @@ namespace MaterialCanvas
             m_toolId, &AtomToolsFramework::AtomToolsDocumentNotificationBus::Events::OnDocumentModified, m_id);
     }
 
-    void MaterialCanvasDocument::CreateGraph(GraphModel::GraphPtr graph)
+    void RenderJoyCanvasDocument::CreateGraph(GraphModel::GraphPtr graph)
     {
         DestroyGraph();
 
@@ -367,7 +367,7 @@ namespace MaterialCanvas
             &GraphModelIntegration::GraphManagerRequests::CreateGraphController, m_graphId, m_graph);
     }
 
-    void MaterialCanvasDocument::DestroyGraph()
+    void RenderJoyCanvasDocument::DestroyGraph()
     {
         // The graph controller does not currently delete all of the scene items when it's destroyed.
         GraphModelIntegration::GraphManagerRequestBus::Broadcast(
@@ -380,7 +380,7 @@ namespace MaterialCanvas
         GraphCanvas::GraphModelRequestBus::Event(m_graphId, &GraphCanvas::GraphModelRequests::RequestPopPreventUndoStateUpdate);
     }
 
-    AZStd::string MaterialCanvasDocument::GetGraphName() const
+    AZStd::string RenderJoyCanvasDocument::GetGraphName() const
     {
         AZStd::string documentName;
         AZ::StringFunc::Path::GetFullFileName(m_absolutePath.c_str(), documentName);
@@ -392,7 +392,7 @@ namespace MaterialCanvas
         return AZ::RPI::AssetUtils::SanitizeFileName(documentName);
     }
 
-    AZStd::string MaterialCanvasDocument::GetOutputPathFromTemplatePath(const AZStd::string& templateInputPath) const
+    AZStd::string RenderJoyCanvasDocument::GetOutputPathFromTemplatePath(const AZStd::string& templateInputPath) const
     {
         AZStd::string templateInputFileName;
         AZ::StringFunc::Path::GetFullFileName(templateInputPath.c_str(), templateInputFileName);
@@ -406,7 +406,7 @@ namespace MaterialCanvas
         return templateOuputPath;
     }
 
-    void MaterialCanvasDocument::ReplaceStringsInContainer(
+    void RenderJoyCanvasDocument::ReplaceStringsInContainer(
         const AZStd::string& findText, const AZStd::string& replaceText, AZStd::vector<AZStd::string>& container) const
     {
         for (auto& sourceText : container)
@@ -415,7 +415,7 @@ namespace MaterialCanvas
         }
     }
 
-    AZStd::string MaterialCanvasDocument::ConvertSlotTypeToAZSL(const AZStd::string& slotTypeName) const
+    AZStd::string RenderJoyCanvasDocument::ConvertSlotTypeToAZSL(const AZStd::string& slotTypeName) const
     {
         if (AZ::StringFunc::Equal(slotTypeName, "color"))
         {
@@ -425,7 +425,7 @@ namespace MaterialCanvas
         return slotTypeName;
     }
 
-    AZStd::string MaterialCanvasDocument::ConvertSlotValueToAZSL(const AZStd::any& slotValue) const
+    AZStd::string RenderJoyCanvasDocument::ConvertSlotValueToAZSL(const AZStd::any& slotValue) const
     {
         if (auto v = AZStd::any_cast<const AZ::Color>(&slotValue))
         {
@@ -458,7 +458,7 @@ namespace MaterialCanvas
         return AZStd::string();
     }
 
-    AZStd::vector<AZStd::string> MaterialCanvasDocument::GetInstructionsFromSlot(
+    AZStd::vector<AZStd::string> RenderJoyCanvasDocument::GetInstructionsFromSlot(
         GraphModel::ConstNodePtr node, const AtomToolsFramework::DynamicNodeSlotConfig& slotConfig) const
     {
         AZStd::vector<AZStd::string> instructionsForSlot;
@@ -492,7 +492,7 @@ namespace MaterialCanvas
         return instructionsForSlot;
     }
 
-    bool MaterialCanvasDocument::ShouldUseInstructionsFromInputNode(
+    bool RenderJoyCanvasDocument::ShouldUseInstructionsFromInputNode(
         GraphModel::ConstNodePtr outputNode, GraphModel::ConstNodePtr inputNode, const AZStd::vector<AZStd::string>& inputSlotNames) const
     {
         if (inputNode == outputNode)
@@ -519,7 +519,7 @@ namespace MaterialCanvas
         return false;
     }
 
-    AZStd::vector<GraphModel::ConstNodePtr> MaterialCanvasDocument::GetInstructionNodesInExecutionOrder(
+    AZStd::vector<GraphModel::ConstNodePtr> RenderJoyCanvasDocument::GetInstructionNodesInExecutionOrder(
         GraphModel::ConstNodePtr outputNode, const AZStd::vector<AZStd::string>& inputSlotNames) const
     {
         AZStd::vector<GraphModel::ConstNodePtr> sortedNodes;
@@ -545,7 +545,7 @@ namespace MaterialCanvas
         return sortedNodes;
     }
 
-    AZStd::vector<AZStd::string> MaterialCanvasDocument::GetInstructionsFromConnectedNodes(
+    AZStd::vector<AZStd::string> RenderJoyCanvasDocument::GetInstructionsFromConnectedNodes(
         GraphModel::ConstNodePtr outputNode, const AZStd::vector<AZStd::string>& inputSlotNames) const
     {
         AZStd::vector<AZStd::string> instructions;
@@ -597,7 +597,7 @@ namespace MaterialCanvas
         return instructions;
     }
 
-    void MaterialCanvasDocument::ReplaceLinesInTemplateBlock(
+    void RenderJoyCanvasDocument::ReplaceLinesInTemplateBlock(
         const AZStd::string& blockBeginToken,
         const AZStd::string& blockEndToken,
         const LineGenerationFn& lineGenerationFn,
@@ -613,7 +613,7 @@ namespace MaterialCanvas
 
         while (blockBeginItr != templateLines.end())
         {
-            AZ_TracePrintf("MaterialCanvasDocument", "*blockBegin: %s\n", (*blockBeginItr).c_str());
+            AZ_TracePrintf("RenderJoyCanvasDocument", "*blockBegin: %s\n", (*blockBeginItr).c_str());
 
             // We have to insert one line at a time because AZStd::vector does not include a standard
             // range insert that returns an iterator
@@ -622,12 +622,12 @@ namespace MaterialCanvas
             {
                 ++blockBeginItr;
                 blockBeginItr = templateLines.insert(blockBeginItr, lineToInsert);
-                AZ_TracePrintf("MaterialCanvasDocument", "lineToInsert: %s\n", lineToInsert.c_str());
+                AZ_TracePrintf("RenderJoyCanvasDocument", "lineToInsert: %s\n", lineToInsert.c_str());
             }
 
             if (linesToInsert.empty())
             {
-                AZ_TracePrintf("MaterialCanvasDocument", "Nothing was generated. This block will remain unmodified.\n");
+                AZ_TracePrintf("RenderJoyCanvasDocument", "Nothing was generated. This block will remain unmodified.\n");
             }
 
             ++blockBeginItr;
@@ -641,7 +641,7 @@ namespace MaterialCanvas
                     return AZ::StringFunc::Contains(line, blockEndToken);
                 });
 
-            AZ_TracePrintf("MaterialCanvasDocument", "*blockEnd: %s\n", (*blockEndItr).c_str());
+            AZ_TracePrintf("RenderJoyCanvasDocument", "*blockEnd: %s\n", (*blockEndItr).c_str());
 
             if (!linesToInsert.empty())
             {
@@ -660,7 +660,7 @@ namespace MaterialCanvas
         }
     }
 
-    bool MaterialCanvasDocument::CompileGraph() const
+    bool RenderJoyCanvasDocument::CompileGraph() const
     {
         m_compileGraphQueued = false;
         m_generatedFiles.clear();
@@ -678,7 +678,7 @@ namespace MaterialCanvas
         AZStd::vector<AZStd::string> classDefinitions;
         AZStd::vector<AZStd::string> functionDefinitions;
 
-        AZ_TracePrintf("MaterialCanvasDocument", "Dumping data scraped from traversing material graph.\n");
+        AZ_TracePrintf("RenderJoyCanvasDocument", "Dumping data scraped from traversing material graph.\n");
 
         // Traverse all graph nodes and slots to collect global settings like include files and class definitions
         for (const auto& nodePair : m_graph->GetNodes())
@@ -719,7 +719,7 @@ namespace MaterialCanvas
             // Attempt to resolve every template file, replacing tokens, injecting lines, updating settings, and outputting the final result
             for (const auto& templatePath : templatePaths)
             {
-                AZ_TracePrintf("MaterialCanvasDocument", "templatePath: %s\n", templatePath.c_str());
+                AZ_TracePrintf("RenderJoyCanvasDocument", "templatePath: %s\n", templatePath.c_str());
 
                 // Remove any aliases to resolve the absolute path to the template file
                 const AZStd::string templateInputPath = AtomToolsFramework::GetPathWithoutAlias(templatePath);
@@ -793,24 +793,24 @@ namespace MaterialCanvas
             }
         }
 
-        MaterialCanvasDocumentNotificationBus::Event(
-            m_toolId, &MaterialCanvasDocumentNotificationBus::Events::OnCompileGraphCompleted, m_id);
+        RenderJoyCanvasDocumentNotificationBus::Event(
+            m_toolId, &RenderJoyCanvasDocumentNotificationBus::Events::OnCompileGraphCompleted, m_id);
         return true;
     }
 
-    void MaterialCanvasDocument::QueueCompileGraph() const
+    void RenderJoyCanvasDocument::QueueCompileGraph() const
     {
         if (IsOpen() && !m_compileGraphQueued)
         {
             m_compileGraphQueued = true;
             AZ::SystemTickBus::QueueFunction([id = m_id](){
-                MaterialCanvasDocumentRequestBus::Event(id, &MaterialCanvasDocumentRequestBus::Events::CompileGraph);
+                RenderJoyCanvasDocumentRequestBus::Event(id, &RenderJoyCanvasDocumentRequestBus::Events::CompileGraph);
             });
         }
     }
 
-    bool MaterialCanvasDocument::IsCompileGraphQueued() const
+    bool RenderJoyCanvasDocument::IsCompileGraphQueued() const
     {
         return m_compileGraphQueued;
     }
-} // namespace MaterialCanvas
+} // namespace RenderJoy

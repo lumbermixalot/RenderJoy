@@ -13,7 +13,7 @@
 
 namespace RenderJoy
 {
-    class RenderJoyDocumentRequests : public AZ::EBusTraits
+    class RenderJoyCanvasDocumentRequests : public AZ::EBusTraits
     {
     public:
         static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Multiple;
@@ -39,5 +39,5 @@ namespace RenderJoy
         virtual bool IsCompileGraphQueued() const = 0;
     };
 
-    using RenderJopyDocumentRequestBus = AZ::EBus<RenderJoyDocumentRequests>;
+    using RenderJoyCanvasDocumentRequestBus = AZ::EBus<RenderJoyCanvasDocumentRequests>;
 } // namespace RenderJoy

@@ -10,12 +10,15 @@
 
 #include <AzToolsFramework/API/ViewPaneOptions.h>
 #include <LyViewPaneNames.h>
+#include <AtomToolsFramework/Document/AtomToolsDocumentSystemRequestBus.h>
 
 #include "RenderJoyEditorSystemComponent.h"
 #include "MainWindow.h"
 #include "Canvas/RenderJoyCanvasWindow.h"
+#include "Canvas/RenderJoyCanvasGraphView.h"
 #include "Canvas/Document/RenderJoyCanvasDocument.h"
 #include <RenderJoy/RenderJoySettingsBus.h>
+#include <RenderJoy/RenderJoyCanvasWindowRequestBus.h>
 
 
 namespace RenderJoy
@@ -57,11 +60,14 @@ namespace RenderJoy
 
     void RenderJoyEditorSystemComponent::Activate()
     {
+        InitDataForPassEditor();
         AzToolsFramework::EditorEvents::Bus::Handler::BusConnect();
+        RenderJoyCanvasSystemRequestBus::Handler::BusConnect();
     }
 
     void RenderJoyEditorSystemComponent::Deactivate()
     {
+        RenderJoyCanvasSystemRequestBus::Handler::BusDisconnect();
         AzToolsFramework::EditorEvents::Bus::Handler::BusDisconnect();
     }
 
@@ -92,12 +98,11 @@ namespace RenderJoy
         m_graphContext->CreateModuleGraphManager();
 
         // This configuration data is passed through the main window and graph views to setup translation data, styling, and node palettes
-        AtomToolsFramework::GraphViewConfig graphViewConfig;
-        graphViewConfig.m_translationPath = "@products@/translation/renderjoy_en_us.qm";
-        graphViewConfig.m_styleManagerPath = "RenderJoy/StyleSheet/renderjoy_style.json";
-        graphViewConfig.m_nodeMimeType = "RenderJoy/node-palette-mime-event";
-        graphViewConfig.m_nodeSaveIdentifier = "RenderJoy/ContextMenu";
-        graphViewConfig.m_createNodeTreeItemsFn = [](const AZ::Crc32& toolId)
+        m_graphViewConfig.m_translationPath = "@products@/translation/renderjoy_en_us.qm";
+        m_graphViewConfig.m_styleManagerPath = "RenderJoy/StyleSheet/renderjoy_style.json";
+        m_graphViewConfig.m_nodeMimeType = "RenderJoy/node-palette-mime-event";
+        m_graphViewConfig.m_nodeSaveIdentifier = "RenderJoy/ContextMenu";
+        m_graphViewConfig.m_createNodeTreeItemsFn = [](const AZ::Crc32& toolId)
         {
             GraphCanvas::GraphCanvasTreeItem* rootTreeItem = {};
             AtomToolsFramework::DynamicNodeManagerRequestBus::EventResult(
@@ -111,19 +116,21 @@ namespace RenderJoy
         // Overriding default document factory function to pass in a shared graph context
         documentTypeInfo.m_documentFactoryCallback = [this](const AZ::Crc32& toolId, const AtomToolsFramework::DocumentTypeInfo& documentTypeInfo)
         {
-            return aznew MaterialCanvasDocument(toolId, documentTypeInfo, m_graphContext);
+            return aznew RenderJoyCanvasDocument(toolId, documentTypeInfo, m_graphContext);
         };
 
         // Overriding documentview factory function to create graph view
-        documentTypeInfo.m_documentViewFactoryCallback = [this, graphViewConfig](const AZ::Crc32& toolId, const AZ::Uuid& documentId)
+        documentTypeInfo.m_documentViewFactoryCallback = [this](const AZ::Crc32& toolId, const AZ::Uuid& documentId)
         {
-            return m_window->AddDocumentTab(documentId, aznew MaterialCanvasGraphView(toolId, documentId, graphViewConfig));
+            RenderJoyCanvasWindow* window = nullptr;
+            RenderJoyCanvasWindowRequestBus::BroadcastResult(window, &RenderJoyCanvasWindowRequests::GetRenderJoyCanvasWindow);
+            return window->AddDocumentTab(documentId, aznew RenderJoyCanvasGraphView(toolId, documentId, m_graphViewConfig));
         };
 
         AtomToolsFramework::AtomToolsDocumentSystemRequestBus::Event(
-            m_toolId, &AtomToolsFramework::AtomToolsDocumentSystemRequestBus::Handler::RegisterDocumentType, documentTypeInfo);
+            RenderJoyCanvasWindow::ToolId, &AtomToolsFramework::AtomToolsDocumentSystemRequestBus::Handler::RegisterDocumentType, documentTypeInfo);
 
-        m_viewportSettingsSystem.reset(aznew AtomToolsFramework::EntityPreviewViewportSettingsSystem(m_toolId));
+        //m_viewportSettingsSystem.reset(aznew AtomToolsFramework::EntityPreviewViewportSettingsSystem(m_toolId));
     }
 
     ////////////////////////////////////////////////////////////////////////
@@ -140,7 +147,15 @@ namespace RenderJoy
         options.isDockable = false;
         AzToolsFramework::RegisterViewPane<RenderJoy::MainWindow>(RenderJoyName, LyViewPane::CategoryOther, options);
 
-        AzToolsFramework::RegisterViewPane<RenderJoy::RenderJoyCanvasWindow>("RenderJoyPassEditor", LyViewPane::CategoryOther, options);
+        AzToolsFramework::RegisterViewPane<RenderJoy::RenderJoyCanvasWindow>("RenderJoyCanvas", LyViewPane::CategoryOther, options);
+    }
+    ////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////
+    // RenderJoyCanvasSystemRequestBus Overrides
+    void RenderJoyEditorSystemComponent::GetRenderJoyGraphViewConfig(AtomToolsFramework::GraphViewConfig& graphViewConfig) const
+    {
+        graphViewConfig = m_graphViewConfig;
     }
     ////////////////////////////////////////////////////////////////////////
 

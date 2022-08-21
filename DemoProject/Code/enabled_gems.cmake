@@ -12,5 +12,6 @@ set(ENABLED_GEMS
     GraphModel
     Profiler
     QtForPython
+    DiffuseProbeGrid
     RenderJoy
 )

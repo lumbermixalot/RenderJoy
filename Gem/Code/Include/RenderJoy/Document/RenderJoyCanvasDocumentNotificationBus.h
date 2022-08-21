@@ -12,7 +12,7 @@
 
 namespace RenderJoy
 {
-    class RenderJoyDocumentNotifications : public AZ::EBusTraits
+    class RenderJoyCanvasDocumentNotifications : public AZ::EBusTraits
     {
     public:
         static const AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Multiple;
@@ -23,5 +23,5 @@ namespace RenderJoy
         virtual void OnCompileGraphCompleted([[maybe_unused]] const AZ::Uuid& documentId){};
     };
 
-    using RenderJoyDocumentNotificationBus = AZ::EBus<RenderJoyDocumentNotifications>;
+    using RenderJoyCanvasDocumentNotificationBus = AZ::EBus<RenderJoyCanvasDocumentNotifications>;
 } // namespace RenderJoy

@@ -16,29 +16,29 @@
 
 #include <AtomToolsFramework/Document/AtomToolsDocument.h>
 #include <AtomToolsFramework/DynamicNode/DynamicNodeConfig.h>
-#include <Document/MaterialCanvasDocumentRequestBus.h>
+
+#include <RenderJoy/Document/RenderJoyCanvasDocumentRequestBus.h>
 
 namespace RenderJoy
 {
-    //! MaterialCanvasDocument
-    class MaterialCanvasDocument
+    class RenderJoyCanvasDocument
         : public AtomToolsFramework::AtomToolsDocument
-        , public MaterialCanvasDocumentRequestBus::Handler
+        , public RenderJoyCanvasDocumentRequestBus::Handler
         , public GraphModelIntegration::GraphControllerNotificationBus::Handler
     {
     public:
-        AZ_RTTI(MaterialCanvasDocument, "{90299628-AD02-4FEB-9527-7278FA2817AD}", AtomToolsFramework::AtomToolsDocument);
-        AZ_CLASS_ALLOCATOR(MaterialCanvasDocument, AZ::SystemAllocator, 0);
-        AZ_DISABLE_COPY_MOVE(MaterialCanvasDocument);
+        AZ_RTTI(RenderJoyCanvasDocument, "{61FE15E6-B763-4498-8782-791177216F4D}", AtomToolsFramework::AtomToolsDocument);
+        AZ_CLASS_ALLOCATOR(RenderJoyCanvasDocument, AZ::SystemAllocator, 0);
+        AZ_DISABLE_COPY_MOVE(RenderJoyCanvasDocument);
 
         static void Reflect(AZ::ReflectContext* context);
 
-        MaterialCanvasDocument() = default;
-        MaterialCanvasDocument(
+        RenderJoyCanvasDocument() = default;
+        RenderJoyCanvasDocument(
             const AZ::Crc32& toolId,
             const AtomToolsFramework::DocumentTypeInfo& documentTypeInfo,
             AZStd::shared_ptr<GraphModel::GraphContext> graphContext);
-        virtual ~MaterialCanvasDocument();
+        virtual ~RenderJoyCanvasDocument();
 
         // AtomToolsFramework::AtomToolsDocument overrides...
         static AtomToolsFramework::DocumentTypeInfo BuildDocumentTypeInfo();
@@ -126,4 +126,4 @@ namespace RenderJoy
         mutable bool m_compileGraphQueued = {};
         mutable AZStd::vector<AZStd::string> m_generatedFiles;
     };
-} // namespace MaterialCanvas
+} // namespace RenderJoy

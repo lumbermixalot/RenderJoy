@@ -18,6 +18,7 @@
 #include <GraphCanvas/Widgets/MiniMapGraphicsView/MiniMapGraphicsView.h>
 #include <GraphCanvas/Widgets/NodePalette/NodePaletteDockWidget.h>
 #include <GraphCanvas/Widgets/NodePalette/NodePaletteWidget.h>
+#include <RenderJoy/RenderJoyCanvasWindowRequestBus.h>
 
 #include <QTranslator>
 #endif
@@ -25,7 +26,8 @@
 namespace RenderJoy
 {
     //! RenderJoyCanvasWindow
-    class RenderJoyCanvasWindow : public AtomToolsFramework::AtomToolsDocumentMainWindow
+    class RenderJoyCanvasWindow : public AtomToolsFramework::AtomToolsDocumentMainWindow,
+        public RenderJoyCanvasWindowRequestBus::Handler
     {
         Q_OBJECT
     public:
@@ -52,6 +54,9 @@ namespace RenderJoy
 
         // AtomToolsFramework::AtomToolsDocumentMainWindow overrides...
         AZStd::string GetHelpDialogText() const override;
+
+        // RenderJoyCanvasWindowRequestBus overrides...
+        RenderJoyCanvasWindow* GetRenderJoyCanvasWindow() override { return this; }
 
     private:
         AtomToolsFramework::AtomToolsDocumentInspector* m_documentInspector = {};

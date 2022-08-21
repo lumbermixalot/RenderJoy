@@ -13,6 +13,7 @@
 
 #include "RenderJoyCanvasWindow.h"
 //#include "MaterialCanvasViewportContent.h>
+#include <RenderJoy/RenderJoyCanvasSystemRequestBus.h>
 
 namespace RenderJoy
 {
@@ -22,6 +23,8 @@ namespace RenderJoy
     {
         //m_assetBrowser->SetFilterState("", AZ::RPI::StreamingImageAsset::Group, true);
         //m_assetBrowser->SetFilterState("", AZ::RPI::MaterialAsset::Group, true);
+        RenderJoyCanvasWindowRequestBus::Handler::BusConnect();
+        RenderJoyCanvasSystemRequestBus::Broadcast(&RenderJoyCanvasSystemRequests::GetRenderJoyGraphViewConfig, m_graphViewConfig);
 
         m_toolBar = new AtomToolsFramework::EntityPreviewViewportToolBar(m_toolId, this);
         addToolBar(m_toolBar);
@@ -66,6 +69,7 @@ namespace RenderJoy
 
     RenderJoyCanvasWindow::~RenderJoyCanvasWindow()
     {
+        RenderJoyCanvasWindowRequestBus::Handler::BusDisconnect();
     }
 
     void RenderJoyCanvasWindow::OnDocumentOpened(const AZ::Uuid& documentId)
