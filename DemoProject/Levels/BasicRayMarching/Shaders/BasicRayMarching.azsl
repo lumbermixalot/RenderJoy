@@ -1,0 +1,178 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+#define MAX_STEPS 100
+#define SURFACE_DISTANCE 0.01
+#define MAX_DISTANCE 1000.0
+
+
+// Hardcoded to the existance of two objects.
+// A sphere, and a ground plane
+float GetDistance(float3 position)
+{
+                        //Center  , Radius
+    float4 sphere = float4(0, 1, 6, 1);
+    float distanceToSphere = distance(position, sphere.xyz) - sphere.w;
+    float distanceToPlane = position.y;
+    float d = min(distanceToSphere, distanceToPlane);
+    return d;
+}
+
+float3 GetNormal(float3 position)
+{
+    float d = GetDistance(position);
+    float2 e = float2(.01, 0);
+
+    float3 n = float3(d, d, d) - float3(GetDistance(position - e.xyy),
+                                        GetDistance(position - e.yxy),
+                                        GetDistance(position - e.yyx));
+    return normalize(n);
+}
+
+float RayMarch(float3 rayOrigin, float3 rayDirection);
+
+float GetLight(float3 position)
+{
+    // A light above the sphere.
+    float3 lightPosition = float3(0, 5, 6);
+    lightPosition.xz += float2(sin(iTime), cos(iTime)) * 3.0;
+    float3 lightHitNormal = normalize(lightPosition - position);
+    float3 surfaceNormal = GetNormal(position);
+    float diffuse = clamp(dot(surfaceNormal, lightHitNormal), 0, 1);
+
+    // As shadow effect.
+    float distanceToOccludingObject = RayMarch(position + surfaceNormal, lightHitNormal);
+    float distanceToLight = length(lightPosition - position);
+    if (distanceToOccludingObject < distanceToLight){
+        diffuse *= 0.2;
+    }
+
+    return diffuse;
+}
+
+float RayMarch(float3 rayOrigin, float3 rayDirection)
+{
+    float d = 0;
+    for (int iStep=0; iStep<MAX_STEPS; iStep++)
+    {
+        float3 posAtStep = rayOrigin + d * rayDirection;
+        float deltaStep = GetDistance(posAtStep);
+        d += deltaStep;
+        if (deltaStep < SURFACE_DISTANCE || d > MAX_DISTANCE)
+            break;
+    }
+    return d;
+}
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+
+
+
+PSOutput MainPS(VSOutput IN) // V2
+{
+    // Version2 does light calculation
+    PSOutput OUT;
+    
+    // Normalized pixel coordinates (from -1 to 1)
+    float2 position = float2(IN.m_position.x, iResolution.y - IN.m_position.y);
+    float2 uv = (position - 0.5 * iResolution.xy) / iResolution.y;
+
+    float3 cameraPos = float3(0, 1, 0); // 1 unit above 0 (y is Up)
+    float3 rayDirection = normalize(float3(uv.x, uv.y, 1));
+    float hitDistance = RayMarch(cameraPos, rayDirection);
+
+    float3 hitPosition = cameraPos + hitDistance * rayDirection;
+    float lightIntensity = GetLight(hitPosition);
+    OUT.m_color = float4(lightIntensity, lightIntensity, lightIntensity, 1);
+
+    return OUT;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+PSOutput MainPS_V0(VSOutput IN) // V0
+{
+    // Version0 renders the hit distance.
+
+    PSOutput OUT;
+    
+    // Normalized pixel coordinates (from -1 to 1)
+    float2 position = float2(IN.m_position.x, iResolution.y - IN.m_position.y);
+    float2 uv = (position - 0.5 * iResolution.xy) / iResolution.y;
+
+    float3 cameraPos = float3(0, 1, 0); // 1 unit above 0 (y is Up)
+    float3 rayDirection = normalize(float3(uv.x, uv.y, 1));
+    float hitDistance = RayMarch(cameraPos, rayDirection);
+    hitDistance /= 6.0;
+
+    OUT.m_color = float4(hitDistance, hitDistance, hitDistance, 1);
+
+    return OUT;
+}
+
+
+PSOutput MainPS_V1(VSOutput IN) // V1
+{
+    //Version1 is used for debugging and renders the normals at each point.
+
+    PSOutput OUT;
+    
+    // Normalized pixel coordinates (from -1 to 1)
+    float2 position = float2(IN.m_position.x, iResolution.y - IN.m_position.y);
+    float2 uv = (position - 0.5 * iResolution.xy) / iResolution.y;
+
+    float3 cameraPos = float3(0, 1, 0); // 1 unit above 0 (y is Up)
+    float3 rayDirection = normalize(float3(uv.x, uv.y, 1));
+    float hitDistance = RayMarch(cameraPos, rayDirection);
+
+    float3 hitPosition = cameraPos + hitDistance * rayDirection;
+    OUT.m_color = float4(GetNormal(hitPosition), 1);
+
+    return OUT;
+}

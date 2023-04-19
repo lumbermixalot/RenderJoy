@@ -1,0 +1,18 @@
+{
+    "Amazon": {
+        "AssetProcessor": {
+            "Settings": {
+                "ScanFolder RenderJoy/Assets": {
+                    "watch": "@GEMROOT:RenderJoy@/Assets",
+                    "recursive": 1,
+                    "order": 101
+                },
+                "ScanFolder RenderJoy/Registry": {
+                    "watch": "@GEMROOT:RenderJoy@/Registry",
+                    "recursive": 1,
+                    "order": 102
+                }
+            }
+        }
+    }
+}

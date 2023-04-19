@@ -17,7 +17,14 @@
             },
             "Component_[14126657869720434043]": {
                 "$type": "EditorEntitySortComponent",
-                "Id": 14126657869720434043
+                "Id": 14126657869720434043,
+                "Child Entity Order": [
+                    "Entity_[3930733520279]",
+                    "Entity_[829804850382]",
+                    "Entity_[547867552258]",
+                    "Entity_[560752454146]",
+                    "Entity_[556457486850]"
+                ]
             },
             "Component_[15014622945074152502]": {
                 "$type": "RenderJoySettingsEditorComponent",
@@ -36,10 +43,6 @@
                 "$type": "EditorEntityIconComponent",
                 "Id": 5688118765544765547
             },
-            "Component_[6545738857812235305]": {
-                "$type": "SelectionComponent",
-                "Id": 6545738857812235305
-            },
             "Component_[7247035804068349658]": {
                 "$type": "EditorPrefabComponent",
                 "Id": 7247035804068349658
@@ -51,6 +54,11 @@
             "Component_[9562516168917670048]": {
                 "$type": "EditorVisibilityComponent",
                 "Id": 9562516168917670048
+            },
+            "LocalViewBookmarkComponent": {
+                "$type": "LocalViewBookmarkComponent",
+                "Id": 16522677598514731371,
+                "LocalBookmarkFileName": "PacMan_16818694218839856.setreg"
             }
         }
     },
@@ -84,10 +92,6 @@
                 "Component_[14914043451678116985]": {
                     "$type": "EditorEntitySortComponent",
                     "Id": 14914043451678116985
-                },
-                "Component_[15305889555745707200]": {
-                    "$type": "SelectionComponent",
-                    "Id": 15305889555745707200
                 },
                 "Component_[16583686609170814661]": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
@@ -176,10 +180,6 @@
                     "$type": "EditorLockComponent",
                     "Id": 553008529981986098
                 },
-                "Component_[5962929816410939830]": {
-                    "$type": "SelectionComponent",
-                    "Id": 5962929816410939830
-                },
                 "Component_[9069579591518304630]": {
                     "$type": "EditorDisabledCompositionComponent",
                     "Id": 9069579591518304630
@@ -214,10 +214,6 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 13439353750780963393
                 },
-                "Component_[1365491549829010894]": {
-                    "$type": "SelectionComponent",
-                    "Id": 1365491549829010894
-                },
                 "Component_[1520228774757900163]": {
                     "$type": "EditorDisabledCompositionComponent",
                     "Id": 1520228774757900163
@@ -251,10 +247,6 @@
             "Id": "Entity_[560752454146]",
             "Name": "Output Pass",
             "Components": {
-                "Component_[10090779389450039019]": {
-                    "$type": "SelectionComponent",
-                    "Id": 10090779389450039019
-                },
                 "Component_[13017833334478004543]": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 13017833334478004543
@@ -349,10 +341,6 @@
                             ""
                         ]
                     }
-                },
-                "Component_[15526043562595840521]": {
-                    "$type": "SelectionComponent",
-                    "Id": 15526043562595840521
                 },
                 "Component_[15529799916346767371]": {
                     "$type": "EditorVisibilityComponent",

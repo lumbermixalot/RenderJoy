@@ -1,5 +1,7 @@
 {
     "project_name": "RenderJoyDemoProject",
+    "version": "1.0.0",
+    "project_id": "{2184ffed-5778-482d-9f2e-c65efac3f05d}",
     "origin": "The primary repo for RenderJoyDemoProject goes here: i.e. http://www.mydomain.com",
     "license": "What license RenderJoyDemoProject uses goes here: i.e. https://opensource.org/licenses/MIT",
     "display_name": "RenderJoyDemoProject",
@@ -13,7 +15,25 @@
     "icon_path": "preview.png",
     "engine": "o3de",
     "external_subdirectories": [
+        "Code",
         "../Gem"
     ],
-    "project_id": "{2184ffed-5778-482d-9f2e-c65efac3f05d}"
+    "restricted": "RenderJoyDemoProject",
+    "gem_names": [
+        "RenderJoyDemoProject",
+        "Atom",
+        "CameraFramework",
+        "Compression",
+        "DebugDraw",
+        "DevTextures",
+        "DiffuseProbeGrid",
+        "EditorPythonBindings",
+        "ImGui",
+        "PrefabBuilder",
+        "StartingPointInput",
+        "TextureAtlas",
+        "QtForPython",
+        "RenderJoy"
+    ],
+    "engine_version": "2.0.0"
 }

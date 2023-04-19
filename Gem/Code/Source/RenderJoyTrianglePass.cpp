@@ -294,7 +294,7 @@ namespace RenderJoy
     void RenderJoyTrianglePass::SetupFrameGraphDependencies(AZ::RHI::FrameGraphInterface frameGraph)
     {
         AZ::RPI::RenderPass::SetupFrameGraphDependencies(frameGraph);
-        frameGraph.SetEstimatedItemCount(1);
+        frameGraph.SetEstimatedItemCount(2);
     }
 
     void RenderJoyTrianglePass::CompileResources(const AZ::RHI::FrameGraphCompileContext& context)

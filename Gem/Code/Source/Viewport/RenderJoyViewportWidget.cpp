@@ -12,18 +12,19 @@
 #include <Atom/RPI.Public/ViewportContext.h>
 #include <Atom/RPI.Public/WindowContext.h>
 
-#include "RenderJoyViewportWidget.h"
-#include "RenderJoyViewportRenderer.h"
-#include <RenderJoy/RenderJoyKeyboardBus.h>
-
 AZ_PUSH_DISABLE_WARNING(4251 4800, "-Wunknown-warning-option") // disable warnings spawned by QT
 #include <QWindow>
 #include <QMouseEvent>
-#include <Viewport/ui_RenderJoyViewportWidget.h>
+#include <Source/Viewport/ui_RenderJoyViewportWidget.h>
 AZ_POP_DISABLE_WARNING
 
 #include <AzCore/PlatformIncl.h>
 #include <AzFramework/Viewport/ViewportControllerList.h>
+
+
+#include <RenderJoy/RenderJoyKeyboardBus.h>
+#include "RenderJoyViewportRenderer.h"
+#include "RenderJoyViewportWidget.h"
 
 namespace RenderJoy
 {

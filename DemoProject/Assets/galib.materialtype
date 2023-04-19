@@ -1,0 +1,17 @@
+{
+    "description": "galib Material Type Template.",
+    "version": 1,
+    "shaders": [
+        {
+            "file": "./galib_ForwardPass.shader"
+        },
+        {
+            "file": "Shaders/Shadow/Shadowmap.shader"
+        },
+        {
+            "file": "Shaders/Depth/DepthPass.shader"
+        }
+    ],
+    "functors": [
+    ]
+}

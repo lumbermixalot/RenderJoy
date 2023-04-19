@@ -1,0 +1,1 @@
+cmake -B build19 -G "Visual Studio 16 2019"

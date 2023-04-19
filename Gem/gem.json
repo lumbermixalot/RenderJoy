@@ -1,17 +1,29 @@
 {
     "gem_name": "RenderJoy",
+    "version": "1.0.0",
     "display_name": "RenderJoy",
-    "license": "What license RenderJoy uses goes here: i.e. https://opensource.org/licenses/MIT",
-    "origin": "The primary repo for RenderJoy goes here: i.e. http://www.mydomain.com",
+    "license": "MIT",
+    "license_url": "",
+    "origin": "Galib Arrieta",
+    "origin_url": "https://github.com/lumbermixalot/RenderJoy",
     "type": "Code",
-    "summary": "A short description of RenderJoy.",
+    "summary": "A ShaderToy Clone for O3DE",
     "canonical_tags": [
         "Gem"
     ],
     "user_tags": [
         "RenderJoy"
     ],
-    "icon_path": "preview.png",
+    "platforms": [
+        "Linux",
+        "Windows"
+    ],
+    "icon_path": "",
     "requirements": "",
-    "restricted_name": "RenderJoy"
+    "documentation_url": "",
+    "dependencies": [],
+    "repo_uri": "https://github.com/lumbermixalot/RenderJoy",
+    "compatible_engines": [],
+    "engine_api_dependencies": [],
+    "restricted": "RenderJoy"
 }
