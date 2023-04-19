@@ -83,14 +83,21 @@ namespace RenderJoy
     RenderJoyViewportRenderer::~RenderJoyViewportRenderer()
     {
         AZ::Data::AssetBus::Handler::BusDisconnect();
-        AZ::RPI::RPISystemInterface::Get()->UnregisterScene(m_scene);
 
         // Need to call this to delete all the RenderJoy Passes from memory
         // so We don't get errors later when calling m_mainPassCreator.RemoveTemplates()
-        m_renderPipeline->RemoveFromScene();
-        m_scene = nullptr;
-        m_renderPipeline = nullptr;
-        
+        if (m_renderPipeline)
+        {
+            m_renderPipeline->RemoveFromScene();
+            m_renderPipeline = nullptr;
+        }
+
+        if (m_scene)
+        {
+            AZ::RPI::RPISystemInterface::Get()->UnregisterScene(m_scene);
+            m_scene = nullptr;
+        }
+ 
         //Passes have been removed. Let's remove the templates we created.
         m_mainPassCreator.RemoveTemplates(AZ::RPI::PassSystemInterface::Get());
     }
