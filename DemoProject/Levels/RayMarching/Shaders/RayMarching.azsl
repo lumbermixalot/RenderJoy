@@ -1,0 +1,252 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+#define MAX_STEPS 100
+#define SURFACE_DISTANCE 0.01
+#define MAX_DISTANCE 1000.0
+
+// Interface to something solid in the world
+interface IObject
+{
+    float GetDistanceTo(float3 position);
+};
+
+class Sphere: IObject
+{
+    float m_radius;
+    float3 m_position;
+
+    static Sphere ctor(float3 position, float radius)
+    {
+        Sphere s;
+        s.m_radius = radius;
+        s.m_position = position;
+        return s;
+    }
+
+    ///////////////////////////////////////
+    //  IObject Impl Start
+    float GetDistanceTo(float3 position)
+    {
+        const float3 delta = position - m_position;
+        const float distanceToCenter = length(delta);
+        return distanceToCenter - m_radius;
+    }
+    //  IObject Impl End
+    ///////////////////////////////////////
+};
+
+
+class Plane: IObject
+{
+    float3 m_position;
+    float3 m_normal;
+
+    static Plane ctor(float3 position, float3 normal)
+    {
+        Plane p;
+        p.m_position = position;
+        p.m_normal = normal;
+        return p;
+    }
+
+    ///////////////////////////////////////
+    //  IObject Impl Start
+    float GetDistanceTo(float3 position)
+    {
+        const float3 delta = position - m_position;
+        const float distanceToPlane = dot(delta, m_normal);
+        return distanceToPlane;
+    }
+    //  IObject Impl End
+    ///////////////////////////////////////
+
+};
+
+
+int SceneNumObjects()
+{
+    return 2;
+}
+
+float SceneGetDistanceToObject(int objectIdx, float3 pos)
+{
+    static Plane g_plane = Plane::ctor(float3(0,0,0), float3(0,1,0));
+    static Sphere g_sphere = Sphere::ctor(float3(0,1,10), 0.5);
+    switch(objectIdx)
+    {
+        case 0:
+            return g_plane.GetDistanceTo(pos);
+        case 1:
+            return g_sphere.GetDistanceTo(pos);
+    }
+    return 100000.0;
+}
+
+
+
+
+class Camera
+{
+    static Camera ctor(float3 position, float3 lookAtPosition)
+    {
+        Camera cam;
+        cam.m_pos = position;
+        cam.m_lookAtPos = lookAtPosition;
+        return cam;
+    }
+
+    // pixelCoord is x,y in pixels. 
+    // X goes 0 -> viewportWidth
+    // Y goes 0 (top), viewportHeight(bottom)
+    float3 GetRayDirection(float2 pixelCoord)
+    {
+        const float2 pixelPos = float2(pixelCoord.x, iResolution.y - pixelCoord.y);
+        const float2 uv = (pixelPos - 0.5 * iResolution.xy) / iResolution.y;
+        const float3 rayDirection = normalize(float3(uv.x, uv.y, 1));
+        return rayDirection;
+    }
+
+    // Member variables.
+    float3 m_pos; // World space position
+    float3 m_lookAtPos; // World space LookAt Position.
+    float  m_zoom; // Unused.
+};
+
+
+// Returns the distance from @position to the closest
+// object at that position.
+float GetDistanceToClosestObject(float3 position)
+{
+    // Loop through all the objects in the scene and return the closest
+    // distance to any of them.
+
+    float distance = SceneGetDistanceToObject(0, position);
+    for(int objIdx = 1; objIdx < SceneNumObjects(); objIdx++)
+    {
+        float objDistance  = SceneGetDistanceToObject(objIdx, position);
+        distance = min(objDistance, distance);
+    }
+    return distance;
+}
+
+// Returns the distance to the closest hit point to the camera.
+float RayMarch(float3 origin, float3 rayDirection)
+{
+    float distanceToOrigin = 0.0;
+    for (int i=0; i < MAX_STEPS; i++)
+    {
+        float3 position = origin + distanceToOrigin*rayDirection;
+        float stepDistance = GetDistanceToClosestObject(position);
+        distanceToOrigin += stepDistance;
+        if ((stepDistance < SURFACE_DISTANCE) || (distanceToOrigin > MAX_DISTANCE))
+        {
+            break;
+        }  
+    }
+    return distanceToOrigin;
+}
+
+
+// The Normalized(gradient) of an isosurface is the normal at the point.
+// There are three ways to calculate the gradient:
+// 1- Forwards Differentiation:
+//    dF(p)/dx = (f(p + (h,0,0)) - f(p))/h
+// 2- Backwards Differentiation:
+//    dF(p)/dx = (f(p) - f(p - (h,0,0)))/h
+// 3- Centralized Differentiation (unbiased, yet more expensive)
+//    CD = (FD+BD)/2
+//    dF(p)/dx = [f(p + (h,0,0)) -  f(p - (h,0,0))]/(2h)
+// We are using here the Backwards differentiation.
+float3 GetSurfaceNormal(float3 position)
+{
+    const float2 vH = float2(0.01, 0);
+    const float fp = GetDistanceToClosestObject(position);
+    // Disregarding "h" because the final vector will be normalized anyways.
+    const float dFdx = fp - GetDistanceToClosestObject(position - vH.xyy);
+    const float dFdy = fp - GetDistanceToClosestObject(position - vH.yxy);
+    const float dFdz = fp - GetDistanceToClosestObject(position - vH.yyx);
+    return normalize(float3(dFdx, dFdy, dFdz));
+}
+
+interface ILight
+{
+    float GetIntensity(float3 position);
+};
+
+class PointLight: ILight
+{
+    float3 m_position;
+
+    static PointLight ctor(float3 position)
+    {
+        PointLight light;
+        light.m_position = position;
+        return light;
+    }
+
+    float GetIntensity(float3 position)
+    {
+        // animate the light position.
+        m_position += float3(cos(iTime), 0, sin(iTime)) * 5.0;
+
+        float3 lightVector = normalize(m_position - position);
+        float3 surfaceNormal = GetSurfaceNormal(position);
+        return dot(lightVector, surfaceNormal);
+    }
+};
+
+int SceneNumLights()
+{
+    return 1;
+}
+
+float SceneGetLightIntensity(int lightIndex, float3 position)
+{
+    static PointLight g_light0 = PointLight::ctor(float3(0, 10, 0));
+    switch(lightIndex)
+    {
+        case 0:
+            return g_light0.GetIntensity(position);
+    }
+
+    return 0.0f;
+}
+
+float GetLight(float3 position)
+{
+    float intensity = 0.0;
+    for (int i=0; i < SceneNumLights(); i++)
+    {
+        intensity += SceneGetLightIntensity(i, position);
+    }
+    return clamp(intensity, 0.0, 1.0);
+}
+
+//#define Camera(...) Camera::ctor(__VA_ARGS__)
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+PSOutput MainPS(VSOutput IN) // V2
+{
+    // Version2 does light calculation
+    PSOutput OUT;
+
+    const float3 CAM_POS = float3(0,1,0); // 1 unit above 0 (y is Up)
+    const float3 CAM_LOOK_AT = float3(0,0,10); // 1 unit above 0 (y is Up)
+    Camera mainCam = Camera::ctor(CAM_POS, CAM_LOOK_AT);
+    const float3 rayDirection = mainCam.GetRayDirection(IN.m_position.xy);
+
+    float hitDistance = RayMarch(mainCam.m_pos, rayDirection);
+    float3 hitPosition = mainCam.m_pos + hitDistance * rayDirection;
+    float lightIntensity = GetLight(hitPosition);
+
+    OUT.m_color = float4(lightIntensity, lightIntensity, lightIntensity, 1);//float4(1.0, 0.4, 0.2, 1);
+
+    return OUT;
+}
+
