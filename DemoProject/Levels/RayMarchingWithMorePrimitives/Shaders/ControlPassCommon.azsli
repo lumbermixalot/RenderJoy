@@ -1,0 +1,19 @@
+
+// Each pixel location contains a float4.
+// Pixel coordinates where we store some important state information.
+static const int2 pixCameraPosition = int2(0, 0);
+static const int2 pixCameraRight = int2(1, 0);
+static const int2 pixCameraUp = int2(2, 0);
+static const int2 pixCameraForward = int2(3, 0);
+static const int2 pixMousePos = int2(4, 0);
+static const int2 pixCamEulers = int2(5, 0);
+
+static const int2 MaxDataCoordinates = int2(6,1);
+
+float4 loadValue( in int2 pixCoord )
+{
+    //return texelFetch( iChannel0, re, 0 );
+    return PassSrg::m_channel[0].Load( int3(pixCoord, 0) );
+}
+
+

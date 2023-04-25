@@ -1,0 +1,198 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+#include "ControlPassCommon.azsli"
+
+static const float CameraSpeed = 2.0; // 1 world unit per second
+static const float CameraRotSpeed = 0.1; // Rads/"Mouse pixels"/secs.
+static const float MaxAbsolutePitchRads = 1.22173; // 70 degrees.
+
+
+//https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values
+// Virtual Key Codes (Windows).
+static const int KEY_SPACE = 32;
+static const int KEY_ENTER = 13;
+
+static const int KEY_LEFT  = 37;
+static const int KEY_A  = 65;
+
+
+static const int KEY_UP    = 38;
+static const int KEY_W = 87;
+
+static const int KEY_RIGHT = 39;
+static const int KEY_D = 68;
+
+static const int KEY_DOWN  = 40;
+static const int KEY_S  = 83;
+
+static const int KEY_Q  = 81;
+static const int KEY_E  = 69;
+
+
+
+void storeValue( in int2 pixCoord, in float4 value, inout float4 fragColor, in int2 iFragCoord )
+{
+    fragColor = ( pixCoord.x==iFragCoord.x && pixCoord.y==iFragCoord.y ) ? value : fragColor;
+}
+
+float Keyboard(int key, int stateIndex)
+{
+    return PassSrg::m_channel[1].Load( int3(key, stateIndex, 0) ).x;
+}
+
+bool IsKeyMoveCameraBackwards()
+{
+    return (Keyboard(KEY_DOWN,0)>0.5) || (Keyboard(KEY_S,0)>0.5);
+}
+
+bool IsKeyMoveCameraForward()
+{
+    return (Keyboard(KEY_UP,0)>0.5) || (Keyboard(KEY_W,0)>0.5);
+}
+
+bool IsKeyMoveCameraLeft()
+{
+    return (Keyboard(KEY_LEFT,0)>0.5) || (Keyboard(KEY_A,0)>0.5);
+}
+
+bool IsKeyMoveCameraRight()
+{
+    return (Keyboard(KEY_RIGHT,0)>0.5) || (Keyboard(KEY_D,0)>0.5);
+}
+
+bool IsKeyMoveCameraUpwards()
+{
+    return Keyboard(KEY_Q,0)>0.5;
+}
+
+bool IsKeyMoveCameraDownwards()
+{
+    return Keyboard(KEY_E,0)>0.5;
+}
+
+float3x3 CreateRotMatrix(float2 yaw_pitch)
+{
+    float cosPitch = cos(yaw_pitch.y);
+    float sinPitch = sin(yaw_pitch.y);
+    float3x3 pitchMatrix = {1, 0,         0,
+                            0, cosPitch, -sinPitch,
+                            0, sinPitch,  cosPitch};
+
+    float cosYaw = cos(yaw_pitch.x);
+    float sinYaw = sin(yaw_pitch.x);
+    float3x3 yawMatrix = {cosYaw,   0,  sinYaw,
+                            0,      1,  0,
+                           -sinYaw, 0,  cosYaw};
+
+    return mul(pitchMatrix, yawMatrix);
+}
+
+
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+PSOutput MainPS(VSOutput IN) // V2
+{
+    PSOutput OUT;
+
+    float2 fragCoord = IN.m_position.xy;
+    //float2 fragCoord = float2(IN.m_position.x, PassSrg::m_resolution.y - IN.m_position.y);
+    int2 ifragCoord = int2( fragCoord - 0.5 );
+
+    // Don't compute gameplay outside of the data area
+    if( (ifragCoord.x >= MaxDataCoordinates.x) || (ifragCoord.y >= MaxDataCoordinates.y) )
+    {
+         discard;
+         return OUT;
+    }
+
+    //---------------------------------------------------------------------------------   
+	// load state
+	//---------------------------------------------------------------------------------
+    float4 cameraPos       = loadValue( pixCameraPosition );
+    float4 cameraRight     = loadValue( pixCameraRight );
+    float4 cameraUp        = loadValue( pixCameraUp );
+    float4 cameraForward   = loadValue( pixCameraForward );
+    float4 prevMousePos    = loadValue( pixMousePos );
+    float4 camEulers       = loadValue( pixCamEulers );
+
+    if( iFrame < 3 )
+    {
+        // Time to Reset all the data.
+        cameraPos = float4(0, 1, 0, 0); // 1 unit above 0 (y is Up)
+        cameraRight = float4(1,0,0, 0); // 1 unit above 0 (y is Up)
+        cameraUp = float4(0,1,0, 0); // 1 unit above 0 (y is Up)
+        cameraForward = float4(0,0,1, 0); // 1 unit above 0 (y is Up)
+        prevMousePos = iMouse;
+        camEulers = float4(0.0, 0.0, 0.0, 0.0);
+    }
+    else
+    {
+        // Change the cameraPosition according to the keyboard.
+        float rightDelta = 0.0;
+        if( IsKeyMoveCameraLeft() ) {
+            rightDelta = -(iTimeDelta * CameraSpeed);
+        }
+        if( IsKeyMoveCameraRight() ) {
+            rightDelta = (iTimeDelta * CameraSpeed);
+        }
+
+        float upDelta = 0.0;
+        if( IsKeyMoveCameraDownwards() ) {
+            upDelta = -(iTimeDelta * CameraSpeed);
+        }
+        if( IsKeyMoveCameraUpwards() ) {
+           upDelta = (iTimeDelta * CameraSpeed);
+        }
+
+        float forwardDelta = 0.0;
+        if( IsKeyMoveCameraBackwards() ) {
+            forwardDelta = -(iTimeDelta * CameraSpeed);
+        }
+        if( IsKeyMoveCameraForward() ) {
+            forwardDelta = (iTimeDelta * CameraSpeed);
+        }
+
+        cameraPos += (rightDelta   *   cameraRight) +
+                     (upDelta      *   cameraUp) + 
+                     (forwardDelta *   cameraForward);
+
+        if ( sign(iMouse.w) > 0)
+        {
+            prevMousePos = iMouse;
+        }
+
+        if( sign(iMouse.z) > 0 )
+        {
+            float radsX = (iMouse.x - prevMousePos.x) * iTimeDelta * CameraRotSpeed;
+            float radsY = (iMouse.y - prevMousePos.y) * iTimeDelta * CameraRotSpeed;
+            camEulers.x -= radsX;
+            camEulers.y = clamp(camEulers.y - radsY, -MaxAbsolutePitchRads, MaxAbsolutePitchRads);
+            float3x3 rotMatrix = CreateRotMatrix(camEulers.xy);
+            cameraRight = float4(rotMatrix._m00_m01_m02, 0);
+            cameraUp =    float4(rotMatrix._m10_m11_m12, 0);
+            cameraForward = float4(rotMatrix._m20_m21_m22, 0);
+        }
+    }
+
+    //---------------------------------------------------------------------------------
+	// store game state
+	//---------------------------------------------------------------------------------
+    float4 fragColor = float4(0, 0, 0, 0);
+ 
+    storeValue( pixCameraPosition, cameraPos, fragColor, ifragCoord );
+    storeValue( pixCameraRight, cameraRight, fragColor, ifragCoord );
+    storeValue( pixCameraUp, cameraUp, fragColor, ifragCoord );
+    storeValue( pixCameraForward, cameraForward, fragColor, ifragCoord );
+    storeValue( pixMousePos, iMouse, fragColor, ifragCoord );
+    storeValue( pixCamEulers, camEulers, fragColor, ifragCoord );
+
+    OUT.m_color = fragColor;
+    return OUT;
+}
+
