@@ -1,0 +1,237 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+// This demo is based on the Fractal Brownian Motion article:
+// https://thebookofshaders.com/13/
+// But we use PerlinNoise as the noise function. 
+
+// Comments and code taken from: https://adrianb.io/2014/08/09/perlinnoise.html
+// The first thing we need to do is set up our permutation table, or the PERMUTATION[] array for short.
+// This is simply a length 256 array of random values from 0 - 255 inclusive.
+// We also repeat this array (for a total size of 512) to avoid buffer overflow later on:
+// Hash lookup table as defined by Ken Perlin.  This is a randomly
+// arranged array of all numbers from 0-255 inclusive.
+static const int PERMUTATION[512] = { 
+    151,160,137,91,90,15,
+    131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
+    190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
+    88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
+    77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
+    102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
+    135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
+    5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
+    223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
+    129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
+    251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
+    49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
+    138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
+    //REPEAT. Doubled permutation to avoid overflow
+    151,160,137,91,90,15,
+    131,13,201,95,96,53,194,233,7,225,140,36,103,30,69,142,8,99,37,240,21,10,23,
+    190, 6,148,247,120,234,75,0,26,197,62,94,252,219,203,117,35,11,32,57,177,33,
+    88,237,149,56,87,174,20,125,136,171,168, 68,175,74,165,71,134,139,48,27,166,
+    77,146,158,231,83,111,229,122,60,211,133,230,220,105,92,41,55,46,245,40,244,
+    102,143,54, 65,25,63,161, 1,216,80,73,209,76,132,187,208, 89,18,169,200,196,
+    135,130,116,188,159,86,164,100,109,198,173,186, 3,64,52,217,226,250,124,123,
+    5,202,38,147,118,126,255,82,85,212,207,206,59,227,47,16,58,17,182,189,28,42,
+    223,183,170,213,119,248,152, 2,44,154,163, 70,221,153,101,155,167, 43,172,9,
+    129,22,39,253, 19,98,108,110,79,113,224,232,178,185, 112,104,218,246,97,228,
+    251,34,242,193,238,210,144,12,191,179,162,241, 81,51,145,235,249,14,239,107,
+    49,192,214, 31,181,199,106,157,184, 84,204,176,115,121,50,45,127, 4,150,254,
+    138,236,205,93,222,114,67,29,24,72,243,141,128,195,78,66,215,61,156,180,
+};
+
+// t is a value from 0.0 to 1.0.
+float fade(float t) {
+    // Fade function as defined by Ken Perlin.  This eases coordinate values
+    // so that they will ease towards integral values.  This ends up smoothing
+    // the final output.
+    // 6t^5 - 15t^4 + 10t^3
+    return t * t * t * (t * (t * 6 - 15) + 10);
+}
+
+// Size of repetition.
+// For a 32x32 texture set this to 32.
+// For a 64x64 set this to 64, etc.
+static const int REPEAT = 0;
+int inc(int num) {
+    num++;
+    if (REPEAT > 0) {
+        num %= REPEAT;
+    }
+    return num;
+}
+
+// The Gradient Function
+// I have always thought that Ken Perlin's original grad() function is needlessly complicated and confusing.
+// Remember, the goal of grad() is to calculate the dot product of a randomly selected gradient vector
+// and the (4)8 location vectors. Ken Perlin used some fancy bit-flipping code to accomplish this:
+// Source: http://riven8192.blogspot.com/2010/08/calculate-perlinnoise-twice-as-fast.html
+// Pick a random vector from the following 12 vectors:
+// (1,1,0),(-1,1,0),(1,-1,0),(-1,-1,0),
+// (1,0,1),(-1,0,1),(1,0,-1),(-1,0,-1),
+// (0,1,1),(0,-1,1),(0,1,-1),(0,-1,-1)
+float Gradient(int hash, float x, float y, float z)
+{
+    switch(hash & 0xF)
+    {
+        case 0x0: return  x + y;
+        case 0x1: return -x + y;
+        case 0x2: return  x - y;
+        case 0x3: return -x - y;
+        case 0x4: return  x + z;
+        case 0x5: return -x + z;
+        case 0x6: return  x - z;
+        case 0x7: return -x - z;
+        case 0x8: return  y + z;
+        case 0x9: return -y + z;
+        case 0xA: return  y - z;
+        case 0xB: return -y - z;
+        case 0xC: return  y + x;
+        case 0xD: return -y + z;
+        case 0xE: return  y - x;
+        case 0xF: return -y - z;
+    }
+    return 0.0; // never happens
+}
+
+
+float Perlin3D(float x, float y, float z)
+{
+    // If we have any repeat on, change the coordinates to their "local" repetitions
+    if(REPEAT > 0) {
+        x = x % REPEAT;
+        y = y % REPEAT;
+        //z = z % REPEAT;
+    }
+    
+    // Calculate the "unit cube" that the point asked will be located in
+    // The left bound is ( |_x_|,|_y_|,|_z_| ) and the right bound is that
+    // plus 1. Next we calculate the location (from 0.0 to 1.0) in that cube.
+    int xPermIdx = (int)x & 255; 
+    int yPermIdx = (int)y & 255;
+    int zPermIdx = (int)z & 255;
+
+    //calculate the location (from 0.0 to 1.0) in that cube.
+    float xFraction = x - (int)x;
+    float yFraction = y - (int)y;
+    float zFraction = z - (int)z;
+
+    float u = fade(xFraction);
+    float v = fade(yFraction);
+    float w = fade(zFraction);
+
+    // The Hash Function
+    // The Perlin Noise hash function is used to get a unique value for every coordinate input.
+    // The hash function hashes all (4)8 unit cube coordinates surrounding the input coordinate.
+    // inc() is simply used to increment the numbers and make sure that the noise still repeats.
+    // If you didn’t care about the ability to repeat, inc(xi) can be replaced by xi+1.
+    // The result of this hash function is a value between 0 and 255 (inclusive) because of our PERMUTATION[] array.
+    int aaa, aba, aab, abb, baa, bba, bab, bbb;
+    aaa = PERMUTATION[PERMUTATION[PERMUTATION[    xPermIdx ] +     yPermIdx ] +     zPermIdx ];
+    aba = PERMUTATION[PERMUTATION[PERMUTATION[    xPermIdx ] + inc(yPermIdx)] +     zPermIdx ];
+    aab = PERMUTATION[PERMUTATION[PERMUTATION[    xPermIdx ] +     yPermIdx ] + inc(zPermIdx)];
+    abb = PERMUTATION[PERMUTATION[PERMUTATION[    xPermIdx ] + inc(yPermIdx)] + inc(zPermIdx)];
+    baa = PERMUTATION[PERMUTATION[PERMUTATION[inc(xPermIdx)] +     yPermIdx ] +     zPermIdx ];
+    bba = PERMUTATION[PERMUTATION[PERMUTATION[inc(xPermIdx)] + inc(yPermIdx)] +     zPermIdx ];
+    bab = PERMUTATION[PERMUTATION[PERMUTATION[inc(xPermIdx)] +     yPermIdx ] + inc(zPermIdx)];
+    bbb = PERMUTATION[PERMUTATION[PERMUTATION[inc(xPermIdx)] + inc(yPermIdx)] + inc(zPermIdx)];
+
+    // Putting it all Together
+    // Now, we take all of these functions, use them for all 8 surrounding unit cube coordinates, and interpolate them together:
+    // The gradient function calculates the dot product between a pseudorandom
+    // gradient vector and the vector from the input coordinate to the 8
+    // surrounding points in its unit cube.
+    // This is all then lerped together as a sort of weighted average based on the faded (u,v,w)
+    // values we made earlier.
+    float x1, x2, y1, y2;
+    x1 = lerp( Gradient (aaa, xFraction    , yFraction,     zFraction),
+               Gradient (baa, xFraction - 1, yFraction,     zFraction),
+               u);                              
+    x2 = lerp( Gradient (aba, xFraction  ,   yFraction - 1, zFraction),    
+               Gradient (bba, xFraction - 1, yFraction - 1, zFraction),      
+               u);
+    y1 = lerp(x1, x2, v);
+
+    x1 = lerp( Gradient (aab, xFraction    , yFraction,     zFraction - 1),
+               Gradient (bab, xFraction - 1, yFraction,     zFraction - 1),
+               u);
+    x2 = lerp( Gradient (abb, xFraction    , yFraction - 1, zFraction - 1),
+               Gradient (bbb, xFraction - 1, yFraction - 1, zFraction - 1),
+               u);
+    y2 = lerp (x1, x2, v);
+
+    // theoretical min/max before is [-1, 1]
+    return lerp (y1, y2, w);
+
+    // For convenience we bind the result to 0 - 1
+    // return (lerp (y1, y2, w)+1)/2;
+}
+
+float FBM(float x, float y, float z, int octaves, float persistence) {
+    float total = 0;
+    float frequency = 2.0;
+    float amplitude = 0.668;
+    float maxValue = 0;  // Used for normalizing result to 0.0 - 1.0
+    for(int i=0;i<octaves;i++) {
+        float noise = Perlin3D(x, y, z);
+        #if 0
+        const float ridgeOffset = 0.75;
+        noise = abs(noise); // create creases
+        noise = ridgeOffset - noise; // invert so creases are at top
+        noise *= noise;      // sharpen creases
+        #else
+        noise = abs(noise);
+        #endif
+
+        total += noise * amplitude;
+        x *= frequency;
+        y *= frequency;
+        amplitude *= persistence;
+
+        maxValue += amplitude;
+    }
+    
+    return total;// total/maxValue;
+}
+
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+PSOutput MainPS(VSOutput IN) // V2
+{
+    // Version2 does light calculation
+    PSOutput OUT;
+
+    //int permutationX = (int)IN.m_position.x % 256;
+    //int permutationY = (int)IN.m_position.y % 256;
+    //float r = (float)PERMUTATION[permutationX] / 255.0;
+    //float g = (float)PERMUTATION[permutationY] / 255.0;
+    ////float b = (r + g) * 0.5;
+    //int permutationZ = iFrame % 256;
+    //float b = (float)PERMUTATION[permutationZ] / 255.0;
+
+    //float p = Perlin(IN.m_position.x/iResolution.x, IN.m_position.y/iResolution.y);
+    float seed = 0.25 * iTime;
+    //float p = Perlin3D(IN.m_position.x, IN.m_position.y, seed);
+
+    const int octaves = 6;
+    const float persistence = 0.5; // How much each octave contributes to the signal
+    //float p = OctavePerlin3D(IN.m_position.x, IN.m_position.y, seed, octaves, persistence);
+
+    float2 uv = IN.m_position.xy / iResolution.xy;
+    uv.x *= iResolution.x/iResolution.y;
+    const float size = 3.0;
+    uv *= size;
+
+    float p = FBM(uv.x, uv.y, seed, octaves, persistence);
+
+    OUT.m_color = float4(p, p, p, 1);
+
+    return OUT;
+}
+

@@ -1,0 +1,55 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+PSOutput MainPS(VSOutput IN) // V2
+{
+    // Version2 does light calculation
+    PSOutput OUT;
+
+    float2 st = IN.m_position.xy/iResolution.xy;
+    st.x *= iResolution.x/iResolution.y;
+
+    float3 color = 0;
+
+    float2 off = float2(cos(iTime), sin(iTime)) * 0.05;
+    // Cell positions
+    float2 points[5];
+    //points[0] = float2(0.83,0.75);
+    //points[1] = float2(0.60,0.07);
+    //points[2] = float2(0.28,0.64);
+    //points[3] = float2(0.31,0.26);
+    points[0] = float2(0.25 + off.x,0.25+off.y); points[1] = float2(0.75-off.y,0.25 - off.x);
+    points[2] = float2(0.25 - off.x,0.75-off.y); points[3] = float2(0.75+off.y,0.75 + off.y);
+    points[4] = iMouse.xy/iResolution.xy;
+
+    float m_dist = 1.;  // minimum distance
+
+    // Iterate through the points positions
+    for (int i = 0; i < 5; i++) {
+        float dist = distance(st, points[i]);
+
+        // Keep the closer distance
+        m_dist = min(m_dist, dist);
+    }
+
+    // Draw the min distance (distance field)
+    color += m_dist;
+
+    #define EFFECT_DURATION_SECS 6
+    // Show isolines based on time.
+    const float effecTime = iTime % (EFFECT_DURATION_SECS*2);
+    if (effecTime >= EFFECT_DURATION_SECS) {
+        color -= step(.7, abs(sin(50.0*m_dist)) )*.3;
+    }
+
+    OUT.m_color = float4(color, 1);
+
+    return OUT;
+}
+

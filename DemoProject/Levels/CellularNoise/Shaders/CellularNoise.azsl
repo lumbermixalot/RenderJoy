@@ -1,0 +1,85 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+float2 GetRandomPosition( float2 p ) {
+    return frac(sin(float2(dot(p,float2(127.1,311.7)),dot(p,float2(269.5,183.3))))*43758.5453);
+}
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+PSOutput MainPS(VSOutput IN) // V2
+{
+    // Version2 does light calculation
+    PSOutput OUT;
+
+    float2 st = IN.m_position.xy/iResolution.xy;
+    st.x *= iResolution.x/iResolution.y;
+    float3 color = 0;
+
+    // The viewport will be split into 3x3 tiles.
+    // Scale
+    st *= 3.;
+
+    // Tile the space
+    float2 i_st = floor(st);
+    float2 f_st = frac(st);
+
+    float m_dist = 1.;  // minimum distance
+
+    for (int y= -1; y <= 1; y++) {
+        for (int x= -1; x <= 1; x++) {
+            // Neighbor place in the grid
+            float2 neighbor = float2(float(x),float(y));
+
+            // Random position from current + neighbor place in the grid
+            float2 rndPoint = GetRandomPosition(i_st + neighbor);
+
+			// Animate the point
+            rndPoint = 0.5 + 0.5*sin(iTime + 6.2831*rndPoint);
+
+			// Vector between the pixel and the point
+            float2 diff = neighbor + rndPoint - f_st;
+
+            // Distance to the point
+            float dist = length(diff);
+
+            // Keep the closer distance
+            m_dist = min(m_dist, dist);
+        }
+    }
+
+    #define EFFECT_DURATION_SECS 6
+    const float effecTime = iTime % (EFFECT_DURATION_SECS*3);
+
+    // Draw the min distance (distance field)
+    if ((effecTime < EFFECT_DURATION_SECS) || (effecTime > (EFFECT_DURATION_SECS*2)))
+    {
+        color += m_dist;
+    }
+    else
+    {
+        color += (1.0 - m_dist);
+    }
+
+    // Draw cell center
+    color += 1. - step(.02, m_dist);
+
+    // Draw grid
+    color.r += step(.98, f_st.x) + step(.98, f_st.y);
+
+
+    // Show isolines based on time.
+
+    if (effecTime >= (EFFECT_DURATION_SECS*2)) {
+       color -= step(.7,abs(sin(27.0*m_dist)))*.5;
+    }
+
+    OUT.m_color = float4(color, 1);
+
+    return OUT;
+}
+
