@@ -56,8 +56,8 @@
                 "$type": "RenderJoySettingsEditorComponent",
                 "Id": 10258070016114864616,
                 "SettingsConfig": {
-                    "RenderTargetWidth": 256,
-                    "RenderTargetHeight": 256
+                    "RenderTargetWidth": 512,
+                    "RenderTargetHeight": 512
                 }
             }
         }
@@ -65,7 +65,7 @@
     "Entities": {
         "Entity_[597094055804]": {
             "Id": "Entity_[597094055804]",
-            "Name": "CellularNoise",
+            "Name": "TileableCellularNoise",
             "Components": {
                 "EditorDisabledCompositionComponent": {
                     "$type": "EditorDisabledCompositionComponent",
@@ -85,7 +85,8 @@
                 },
                 "EditorLockComponent": {
                     "$type": "EditorLockComponent",
-                    "Id": 13180443100171049933
+                    "Id": 13180443100171049933,
+                    "Locked": true
                 },
                 "EditorOnlyEntityComponent": {
                     "$type": "EditorOnlyEntityComponent",
@@ -105,9 +106,9 @@
                     "Config": {
                         "ShaderAsset": {
                             "assetId": {
-                                "guid": "{D160EBF1-B140-54A9-A8E7-D5143554F569}"
+                                "guid": "{91516072-100B-5675-982D-8980F5543BB0}"
                             },
-                            "assetHint": "levels/cellularnoise/shaders/cellularnoise.azshader"
+                            "assetHint": "levels/tileablecellularnoise/shaders/tileablecellularnoise.azshader"
                         },
                         "InputChannels": [
                             "",

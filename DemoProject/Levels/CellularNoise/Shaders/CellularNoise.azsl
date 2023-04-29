@@ -2,7 +2,10 @@
 #include <RenderJoy/RenderJoyPassSrg.azsli>
 
 float2 GetRandomPosition( float2 p ) {
-    return frac(sin(float2(dot(p,float2(127.1,311.7)),dot(p,float2(269.5,183.3))))*43758.5453);
+    const float dotX = dot(p,float2(127.1,311.7));
+    const float dotY = dot(p,float2(269.5,183.3));
+    const float2 sinDots = sin( float2(dotX, dotY) );
+    return frac(sinDots * 43758.5453);
 }
 
 // Screen coordinates orientation
@@ -39,7 +42,7 @@ PSOutput MainPS(VSOutput IN) // V2
             float2 rndPoint = GetRandomPosition(i_st + neighbor);
 
 			// Animate the point
-            rndPoint = 0.5 + 0.5*sin(iTime + 6.2831*rndPoint);
+            //rndPoint = 0.5 + 0.5*sin(iTime + 6.2831*rndPoint);
 
 			// Vector between the pixel and the point
             float2 diff = neighbor + rndPoint - f_st;

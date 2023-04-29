@@ -54,7 +54,11 @@
             },
             "RenderJoySettingsEditorComponent": {
                 "$type": "RenderJoySettingsEditorComponent",
-                "Id": 10258070016114864616
+                "Id": 10258070016114864616,
+                "SettingsConfig": {
+                    "RenderTargetWidth": 512,
+                    "RenderTargetHeight": 512
+                }
             }
         }
     },

@@ -1,0 +1,138 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+// This tileable version of tileable worly noise comes from:
+// https://github.com/rikardolajos/noisegen/blob/master/NoiseGen/worley.cpp
+
+// https://www.ronja-tutorials.com/post/024-white-noise/
+// get a scalar random value from a 3d value
+// Returns a value between 0.0 and 1.0
+float rand3dTo1d(float3 value, float3 dotDir = float3(12.9898, 78.233, 37.719))
+{
+    //make value smaller to avoid artefacts
+    float3 smallValue = sin(value);
+    //get scalar value from 3d vector
+    float random = dot(smallValue, dotDir);
+    //make value more random by making it bigger and then taking teh factional part
+    random = frac(sin(random) * 143758.5453);
+    return random;
+}
+
+// https://www.ronja-tutorials.com/post/024-white-noise/
+// Returns a vector where all components will be between 0 and 1
+float3 rand3dTo3d(float3 seedVector)
+{
+    return float3(
+        rand3dTo1d(seedVector, float3(12.989, 78.233, 37.719)),
+        rand3dTo1d(seedVector, float3(39.346, 11.135, 83.155)),
+        rand3dTo1d(seedVector, float3(73.156, 52.235, 09.151))
+    );
+}
+
+float3 myModulo(float3 divident, float3 divisor)
+{
+    float3 positiveDivident = divident % divisor + divisor;
+    return positiveDivident % divisor;
+}
+
+float WorleyNoise(float3 input, int period)
+{
+	/* Determine which cube the evaluation point is in */
+	float3 baseCell = floor(input);
+	float3 period3 = (float)period;
+
+	float shortest_distance = 1000.0f;
+
+	/* Loop over the neightbors */
+	[unroll]
+	for (int iX = -1; iX <= 1; iX++)
+	{
+		[unroll]
+		for (int iY = -1; iY <= 1; iY++)
+		{
+			[unroll]
+			for (int iZ = -1; iZ <= 1; iZ++)
+			{
+				float3 cell = baseCell + float3(iX,iY,iZ);
+				float3 tiledCell = myModulo(cell, period);
+				float3 cellPosition = cell + rand3dTo3d(tiledCell);
+				float3 deltaToCell = cellPosition - input;
+				float distanceToCell = length(deltaToCell);
+				if (distanceToCell < shortest_distance) {
+					shortest_distance = distanceToCell;
+					//}
+				}
+			}
+		}
+	}
+
+    return shortest_distance;
+
+	/* The inverse of the shortest distance normalized with the theoretical maximum */
+	//float inv = 1.0f - shortest_distance;
+    //
+	//if (inv < 0.0) {
+	//	inv = 0.0;
+	//}
+    //
+    //return inv;
+
+	/* Change from 0 - 1 to -1 - 1*/
+	//return inv * 2.0f - 1.0f;
+}
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+PSOutput MainPS(VSOutput IN) // V2
+{
+    // Version2 does light calculation
+    PSOutput OUT;
+
+    float2 st = IN.m_position.xy/iResolution.xy;
+    st.x *= iResolution.x/iResolution.y;
+    //st.x *= 6.0 * sin(iTime);
+    //st.y *= 6.0 * cos(iTime);
+    st *= 6.0;
+    
+    float z = 0.25 * iTime;
+
+    int period = 3;
+    float m_dist = WorleyNoise(float3(st.x, st.y, z), period);
+
+    
+    float3 color = 0.0;
+    #define EFFECT_DURATION_SECS 6
+    const float effecTime = iTime % (EFFECT_DURATION_SECS*3);
+
+    // Draw the min distance (distance field)
+    if ((effecTime < EFFECT_DURATION_SECS) || (effecTime > (EFFECT_DURATION_SECS*2)))
+    {
+        color += m_dist;
+    }
+    else
+    {
+        color += (1.0 - m_dist);
+    }
+
+    // Draw cell center
+    //color += 1. - step(.02, m_dist);
+
+    // Draw grid
+    //color.r += step(.98, f_st.x) + step(.98, f_st.y);
+
+
+    // Show isolines based on time.
+
+    if (effecTime >= (EFFECT_DURATION_SECS*2)) {
+       color -= step(.7,abs(sin(27.0*m_dist)))*.5;
+    }
+
+    OUT.m_color = float4(color, 1);
+
+    return OUT;
+}
+

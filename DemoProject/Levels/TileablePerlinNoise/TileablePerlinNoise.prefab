@@ -56,8 +56,8 @@
                 "$type": "RenderJoySettingsEditorComponent",
                 "Id": 10258070016114864616,
                 "SettingsConfig": {
-                    "RenderTargetWidth": 256,
-                    "RenderTargetHeight": 256
+                    "RenderTargetWidth": 512,
+                    "RenderTargetHeight": 512
                 }
             }
         }
@@ -65,7 +65,7 @@
     "Entities": {
         "Entity_[597094055804]": {
             "Id": "Entity_[597094055804]",
-            "Name": "CellularNoise",
+            "Name": "TileablePerlinNoise",
             "Components": {
                 "EditorDisabledCompositionComponent": {
                     "$type": "EditorDisabledCompositionComponent",
@@ -101,13 +101,13 @@
                 },
                 "RenderJoyPassEditorComponent": {
                     "$type": "RenderJoyPassEditorComponent",
-                    "Id": 9347923606193280101,
+                    "Id": 12379441108401212863,
                     "Config": {
                         "ShaderAsset": {
                             "assetId": {
-                                "guid": "{D160EBF1-B140-54A9-A8E7-D5143554F569}"
+                                "guid": "{EAFEDE2D-1E09-54BA-93F4-D34A52861EFF}"
                             },
-                            "assetHint": "levels/cellularnoise/shaders/cellularnoise.azshader"
+                            "assetHint": "levels/tileableperlinnoise/shaders/tileableperlinnoise.azshader"
                         },
                         "InputChannels": [
                             "",
