@@ -64,6 +64,7 @@ namespace RenderJoy
         uint32_t height = aznumeric_cast<uint32_t>(AZStd::ceilf(size.GetY()));
         m_viewport->LockRenderTargetSize(width, height);
         setCentralWidget(m_viewport);
+        layout()->setSizeConstraint(QLayout::SizeConstraint::SetFixedSize);
         AZ::TickBus::Handler::BusConnect();
     }
 

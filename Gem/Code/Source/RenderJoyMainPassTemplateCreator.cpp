@@ -189,6 +189,10 @@ namespace RenderJoy
         passTemplate->AddSlot(outputSlot);
         /////////////////////////////////////////////////////
 
+        uint32_t renderTargetWidth = 0;
+        RenderJoyPassRequestBus::EventResult(renderTargetWidth, currentPassEntity, &RenderJoyPassRequestBus::Handler::GetRenderTargetWidth);
+        uint32_t renderTargetHeight = 0;
+        RenderJoyPassRequestBus::EventResult(renderTargetHeight, currentPassEntity, &RenderJoyPassRequestBus::Handler::GetRenderTargetHeight);
         // Attachments:
 
         // - define the output target as transient attachment.
@@ -212,8 +216,18 @@ namespace RenderJoy
             AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
             transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
             transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
-            transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
+
+            if (renderTargetWidth && renderTargetHeight)
+            {
+                transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
+                transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
+            }
+            else
+            {
+                transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
+                transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
+            }
+
             passTemplate->AddImageAttachment(transientAttachmentDesc);
         }
 
@@ -227,8 +241,16 @@ namespace RenderJoy
             AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
             transientAttachmentDesc.m_name = AZ::Name("PreviousFrameImage");
             transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
-            transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-            transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
+            if (renderTargetWidth && renderTargetHeight)
+            {
+                transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
+                transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
+            }
+            else
+            {
+                transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
+                transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
+            }
             passTemplate->AddImageAttachment(transientAttachmentDesc);
         }
 

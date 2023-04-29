@@ -25,9 +25,14 @@ namespace RenderJoy
 
         static void Reflect(AZ::ReflectContext* context);
 
+        static constexpr uint32_t MinRenderTargetSize = 0;
+        static constexpr uint32_t MaxRenderTargetSize = 7680; //We will allow 8K 7680x4320
+
         AZ::Data::Asset<AZ::RPI::ShaderAsset> m_shaderAsset;
         AZStd::array<AZ::EntityId, MaxInputChannels> m_inputChannels;
         bool m_isOutputPass = false;
+        uint32_t m_renderTargetWidth = 0; // Viewport width when 0
+        uint32_t m_renderTargetHeight = 0; // Viewport height when 0
     };
 
     /*
@@ -83,6 +88,8 @@ namespace RenderJoy
         bool IsOutputPass() override;
         AZStd::vector<AZ::EntityId> GetEntitiesOnInputChannels() override;
         AZ::Data::Asset<AZ::RPI::ShaderAsset> GetShaderAsset() override { return m_config.m_shaderAsset; }
+        uint32_t GetRenderTargetWidth() override;
+        uint32_t GetRenderTargetHeight() override;
         //////////////////////////////////////////////////////////////////////////
 
         PassComponentConfig m_config;

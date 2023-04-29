@@ -31,6 +31,8 @@ namespace RenderJoy
         virtual bool IsOutputPass() = 0;
         virtual AZStd::vector<AZ::EntityId> GetEntitiesOnInputChannels() = 0;
         virtual AZ::Data::Asset<AZ::RPI::ShaderAsset> GetShaderAsset() = 0;
+        virtual uint32_t GetRenderTargetWidth() = 0; // Only matters for render passes that are NOT the final output pass.
+        virtual uint32_t GetRenderTargetHeight() = 0; // Only matters for render passes that are NOT the final output pass.
     };
     using RenderJoyPassRequestBus = AZ::EBus<RenderJoyPassRequests>;
 
@@ -50,6 +52,7 @@ namespace RenderJoy
     };
 
     using RenderJoyPassNotificationBus = AZ::EBus<RenderJoyPassNotifications>;
+
 
     namespace RenderJoyPassRequestBusUtils
     {

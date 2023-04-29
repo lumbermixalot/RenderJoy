@@ -1,0 +1,256 @@
+{
+    "ContainerEntity": {
+        "Id": "Entity_[1146574390643]",
+        "Name": "Level",
+        "Components": {
+            "Component_[10641544592923449938]": {
+                "$type": "EditorInspectorComponent",
+                "Id": 10641544592923449938
+            },
+            "Component_[12039882709170782873]": {
+                "$type": "EditorOnlyEntityComponent",
+                "Id": 12039882709170782873
+            },
+            "Component_[12265484671603697631]": {
+                "$type": "EditorPendingCompositionComponent",
+                "Id": 12265484671603697631
+            },
+            "Component_[14126657869720434043]": {
+                "$type": "EditorEntitySortComponent",
+                "Id": 14126657869720434043,
+                "Child Entity Order": [
+                    "Entity_[547867552258]",
+                    "Entity_[560752454146]",
+                    "Entity_[657165041537]"
+                ]
+            },
+            "Component_[15014622945074152502]": {
+                "$type": "RenderJoySettingsEditorComponent",
+                "Id": 15014622945074152502,
+                "SettingsConfig": {
+                    "RenderTargetWidth": 256,
+                    "RenderTargetHeight": 256
+                }
+            },
+            "Component_[15230859088967841193]": {
+                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                "Id": 15230859088967841193,
+                "Parent Entity": ""
+            },
+            "Component_[16239496886950819870]": {
+                "$type": "EditorDisabledCompositionComponent",
+                "Id": 16239496886950819870
+            },
+            "Component_[5688118765544765547]": {
+                "$type": "EditorEntityIconComponent",
+                "Id": 5688118765544765547
+            },
+            "Component_[7247035804068349658]": {
+                "$type": "EditorPrefabComponent",
+                "Id": 7247035804068349658
+            },
+            "Component_[9307224322037797205]": {
+                "$type": "EditorLockComponent",
+                "Id": 9307224322037797205
+            },
+            "Component_[9562516168917670048]": {
+                "$type": "EditorVisibilityComponent",
+                "Id": 9562516168917670048
+            },
+            "LocalViewBookmarkComponent": {
+                "$type": "LocalViewBookmarkComponent",
+                "Id": 16522677598514731371,
+                "LocalBookmarkFileName": "PacMan_16818694218839856.setreg"
+            }
+        }
+    },
+    "Entities": {
+        "Entity_[547867552258]": {
+            "Id": "Entity_[547867552258]",
+            "Name": "AboutThisDemo",
+            "Components": {
+                "Component_[11035233810340591782]": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 11035233810340591782
+                },
+                "Component_[12663900458749687616]": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 12663900458749687616,
+                    "Parent Entity": "Entity_[1146574390643]",
+                    "Transform Data": {
+                        "Translate": [
+                            -0.016172213479876518,
+                            9.999994277954102,
+                            0.0
+                        ]
+                    }
+                },
+                "Component_[13401419250448702501]": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 13401419250448702501
+                },
+                "Component_[13412822944589561721]": {
+                    "$type": "EditorCommentComponent",
+                    "Id": 13412822944589561721,
+                    "Configuration": "Validating the new feature where each render pass can have its own size."
+                },
+                "Component_[137435919328711343]": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 137435919328711343
+                },
+                "Component_[15033494963607993575]": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 15033494963607993575
+                },
+                "Component_[15661981966821915006]": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 15661981966821915006
+                },
+                "Component_[2427985940250778409]": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 2427985940250778409
+                },
+                "Component_[553008529981986098]": {
+                    "$type": "EditorLockComponent",
+                    "Id": 553008529981986098
+                },
+                "Component_[9069579591518304630]": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 9069579591518304630
+                }
+            }
+        },
+        "Entity_[560752454146]": {
+            "Id": "Entity_[560752454146]",
+            "Name": "Output Pass",
+            "Components": {
+                "Component_[13017833334478004543]": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 13017833334478004543
+                },
+                "Component_[14141349220939737057]": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 14141349220939737057
+                },
+                "Component_[1525183053282368569]": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 1525183053282368569
+                },
+                "Component_[16843081615921433700]": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 16843081615921433700
+                },
+                "Component_[17908122985897371943]": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 17908122985897371943
+                },
+                "Component_[5429044646570868143]": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 5429044646570868143,
+                    "Parent Entity": "Entity_[1146574390643]",
+                    "Transform Data": {
+                        "Translate": [
+                            -0.016172213479876518,
+                            9.999994277954102,
+                            0.0
+                        ]
+                    }
+                },
+                "Component_[6120957290643427348]": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 6120957290643427348
+                },
+                "Component_[6995026778635938908]": {
+                    "$type": "RenderJoyPassEditorComponent",
+                    "Id": 6995026778635938908,
+                    "Config": {
+                        "ShaderAsset": {
+                            "assetId": {
+                                "guid": "{EBE6364C-49E3-51F9-BEA5-451A3F8BEB35}"
+                            },
+                            "assetHint": "levels/renderbuffersizestest/shaders/outputpass.azshader"
+                        },
+                        "InputChannels": [
+                            "Entity_[657165041537]",
+                            "",
+                            "",
+                            ""
+                        ],
+                        "IsOutputPass": true
+                    }
+                },
+                "Component_[726153968835593257]": {
+                    "$type": "EditorLockComponent",
+                    "Id": 726153968835593257
+                },
+                "Component_[8839479053807637093]": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 8839479053807637093
+                }
+            }
+        },
+        "Entity_[657165041537]": {
+            "Id": "Entity_[657165041537]",
+            "Name": "HiddenRenderPass",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 13716618780060919652
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 7074518367080244342
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 15203683345277390351
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 6033924240499848974
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 17241024899299639421
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 7188643395835471181
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 12833296564972254314
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 17470313860554786205
+                },
+                "RenderJoyPassEditorComponent": {
+                    "$type": "RenderJoyPassEditorComponent",
+                    "Id": 13118561956236355803,
+                    "Config": {
+                        "ShaderAsset": {
+                            "assetId": {
+                                "guid": "{3ACD2E5C-B063-5B91-AC50-291B82506D70}"
+                            },
+                            "assetHint": "levels/renderbuffersizestest/shaders/hiddenrenderpass.azshader"
+                        },
+                        "InputChannels": [
+                            "",
+                            "",
+                            "",
+                            ""
+                        ],
+                        "RenderTargetWidth": 128,
+                        "RenderTargetHeight": 128
+                    }
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 577833747551534457,
+                    "Parent Entity": "Entity_[1146574390643]"
+                }
+            }
+        }
+    }
+}
