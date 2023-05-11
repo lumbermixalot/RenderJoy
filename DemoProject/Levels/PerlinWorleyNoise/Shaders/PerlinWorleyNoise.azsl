@@ -1,0 +1,85 @@
+
+#include <RenderJoy/RenderJoyPassSrg.azsli>
+
+#if 1
+
+#include "TileablePerlinNoise_A.azsli"
+#include "TileableWorleyNoise_A.azsli"
+
+#else
+
+#include "TileablePerlinNoise_B.azsli"
+#include "TileableWorleyNoise_B.azsli"
+
+#endif
+
+
+// Utility function that maps a value from one range to another.
+// From GPU Pro 7. Chapter 4
+float Remap(float value, float oldMin, float oldMax, float newMin, float newMax)
+{
+    return (((value - oldMin) / (oldMax - oldMin)) * (newMax - newMin)) + newMin;
+}
+
+// Per Guerrilla Games' Andrew Schneider.
+float WorleyNoiseFbmForClouds(float3 input, float frequency)
+{
+    const float wn1 = WorleyNoise(input * frequency, frequency) * .625;
+    const float wn2 = WorleyNoise(input * frequency * 2, frequency * 2) * .25;
+    const float wn3 = WorleyNoise(input * frequency * 4, frequency * 4) * .125;
+    return wn1 + wn2 + wn3;
+}
+
+
+// Values x, y and z can be arbitrary values
+// that range let's say within 64 pixels,
+// or within 256 pixels, or within the Viewport size
+float PerlinWorleyNoise(float3 input) {
+    const float frequency = 4;
+    const int perlinOctaves = 7;
+    const float perlinPersistence = 0.5504;
+
+    float perlinNoise = PerlinNoiseFbm(input, frequency, perlinOctaves, perlinPersistence);
+    // By default noise color is biased towards black.
+    // let's change that.
+    perlinNoise = lerp(1, perlinNoise, .5);
+    perlinNoise = abs( (perlinNoise * 2.0) - 1.0);
+
+
+    float worleyNoise = WorleyNoiseFbmForClouds(input, frequency);
+    //float pwNoise = Remap(perlinNoise, -0.25, 0.75, worleyNoise, 1.0);
+    float pwNoise = Remap(perlinNoise, 0.0, 1.0, worleyNoise, 1.0);
+
+    return pwNoise;
+}
+
+// Screen coordinates orientation
+// (0, 0)------>  (iResolution.x, 0)
+//       |
+//       |
+//       |
+// (0, iResolution.y)
+PSOutput MainPS(VSOutput IN) // V2
+{
+    // Version2 does light calculation
+    PSOutput OUT;
+
+    float2 st = IN.m_position.xy/iResolution.xy;
+    st.x *= iResolution.x/iResolution.y;
+    //st.x *= 6.0 * sin(iTime);
+    //st.y *= 6.0 * cos(iTime);
+    //st *= 3.0;
+    
+    float z = 0.03 * iTime;
+
+    float3 color = 0.0;
+
+    float m_dist = PerlinWorleyNoise(float3(st.x, st.y, z));
+    color += m_dist;
+    
+
+    OUT.m_color = float4(color, 1);
+
+    return OUT;
+}
+

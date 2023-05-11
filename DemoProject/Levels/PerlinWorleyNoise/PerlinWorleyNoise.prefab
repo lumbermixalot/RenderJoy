@@ -1,0 +1,129 @@
+{
+    "ContainerEntity": {
+        "Id": "Entity_[1146574390643]",
+        "Name": "Level",
+        "Components": {
+            "Component_[10641544592923449938]": {
+                "$type": "EditorInspectorComponent",
+                "Id": 10641544592923449938
+            },
+            "Component_[12039882709170782873]": {
+                "$type": "EditorOnlyEntityComponent",
+                "Id": 12039882709170782873
+            },
+            "Component_[12265484671603697631]": {
+                "$type": "EditorPendingCompositionComponent",
+                "Id": 12265484671603697631
+            },
+            "Component_[14126657869720434043]": {
+                "$type": "EditorEntitySortComponent",
+                "Id": 14126657869720434043,
+                "Child Entity Order": [
+                    "Entity_[597094055804]"
+                ]
+            },
+            "Component_[15230859088967841193]": {
+                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                "Id": 15230859088967841193,
+                "Parent Entity": ""
+            },
+            "Component_[16239496886950819870]": {
+                "$type": "EditorDisabledCompositionComponent",
+                "Id": 16239496886950819870
+            },
+            "Component_[5688118765544765547]": {
+                "$type": "EditorEntityIconComponent",
+                "Id": 5688118765544765547
+            },
+            "Component_[7247035804068349658]": {
+                "$type": "EditorPrefabComponent",
+                "Id": 7247035804068349658
+            },
+            "Component_[9307224322037797205]": {
+                "$type": "EditorLockComponent",
+                "Id": 9307224322037797205
+            },
+            "Component_[9562516168917670048]": {
+                "$type": "EditorVisibilityComponent",
+                "Id": 9562516168917670048
+            },
+            "LocalViewBookmarkComponent": {
+                "$type": "LocalViewBookmarkComponent",
+                "Id": 11122665660198416446,
+                "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
+            },
+            "RenderJoySettingsEditorComponent": {
+                "$type": "RenderJoySettingsEditorComponent",
+                "Id": 10258070016114864616,
+                "SettingsConfig": {
+                    "RenderTargetWidth": 512,
+                    "RenderTargetHeight": 512
+                }
+            }
+        }
+    },
+    "Entities": {
+        "Entity_[597094055804]": {
+            "Id": "Entity_[597094055804]",
+            "Name": "PerlinWorleyNoise",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 16394652661137783885
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 1282557575705256263
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 412471392918652434
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 15194449258439760064
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 13180443100171049933
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 18431621524732590685
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 4840068608094150098
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 6542505920671505724
+                },
+                "RenderJoyPassEditorComponent": {
+                    "$type": "RenderJoyPassEditorComponent",
+                    "Id": 12379441108401212863,
+                    "Config": {
+                        "ShaderAsset": {
+                            "assetId": {
+                                "guid": "{84CE3C99-901D-522C-B12C-C0F7C1B1B404}"
+                            },
+                            "assetHint": "levels/perlinworleynoise/shaders/perlinworleynoise.azshader"
+                        },
+                        "InputChannels": [
+                            "",
+                            "",
+                            "",
+                            ""
+                        ],
+                        "IsOutputPass": true
+                    }
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 8648535109438981924,
+                    "Parent Entity": "Entity_[1146574390643]"
+                }
+            }
+        }
+    }
+}

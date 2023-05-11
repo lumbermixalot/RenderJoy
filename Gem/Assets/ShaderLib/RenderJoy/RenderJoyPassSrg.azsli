@@ -59,9 +59,12 @@ ShaderResourceGroup PassSrg : SRG_PerPass
         MinFilter = Linear;
         MagFilter = Linear;
         MipFilter = Linear;
-        AddressU = Clamp;
-        AddressV = Clamp;
-        AddressW = Clamp;
+        //AddressU = Clamp;
+        //AddressV = Clamp;
+        //AddressW = Clamp;
+        AddressU = Wrap;
+        AddressV = Wrap;
+        AddressW = Wrap;
     };
 }
 
