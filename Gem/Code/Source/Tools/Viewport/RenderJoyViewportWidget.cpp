@@ -15,7 +15,7 @@
 AZ_PUSH_DISABLE_WARNING(4251 4800, "-Wunknown-warning-option") // disable warnings spawned by QT
 #include <QWindow>
 #include <QMouseEvent>
-#include <Source/Viewport/ui_RenderJoyViewportWidget.h>
+#include <Source/Tools/Viewport/ui_RenderJoyViewportWidget.h>
 AZ_POP_DISABLE_WARNING
 
 #include <AzCore/PlatformIncl.h>

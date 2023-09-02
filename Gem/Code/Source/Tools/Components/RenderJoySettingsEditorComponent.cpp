@@ -88,20 +88,25 @@ namespace RenderJoy
     // RenderJoySettingsRequestBus overrides
     AZ::Vector2 RenderJoySettingsEditorComponent::GetRenderTargetSize() const
     {
-        return AZ::Vector2(m_settingsConfig.m_renderTargetWith, m_settingsConfig.m_renderTargetHeight);
+        const float width = static_cast<float>(m_settingsConfig.m_renderTargetWith);
+        const float height = static_cast<float>(m_settingsConfig.m_renderTargetHeight);
+        return AZ::Vector2(width, height);
     }
     //////////////////////////////////////////////////////////////////////////
 
     void RenderJoySettingsEditorComponent::OnConfigChanged()
     {
+        const float width = static_cast<float>(m_settingsConfig.m_renderTargetWith);
+        const float height = static_cast<float>(m_settingsConfig.m_renderTargetHeight);
         ValidateConfig();
         RenderJoySettingsNotificationBus::Broadcast(
             &RenderJoySettingsNotifications::OnRenderTargetSizeChanged,
-            AZ::Vector2(m_settingsConfig.m_renderTargetWith, m_settingsConfig.m_renderTargetHeight));
+            AZ::Vector2(width, height));
     }
 
     void RenderJoySettingsEditorComponent::ValidateConfig()
     {
+
         m_settingsConfig.m_renderTargetWith = AZStd::max(SettingsComponentConfig::MinDimensionSize, m_settingsConfig.m_renderTargetWith);
         m_settingsConfig.m_renderTargetWith = AZStd::min(SettingsComponentConfig::MaxDimensionSize, m_settingsConfig.m_renderTargetWith);
         m_settingsConfig.m_renderTargetHeight = AZStd::max(SettingsComponentConfig::MinDimensionSize, m_settingsConfig.m_renderTargetHeight);

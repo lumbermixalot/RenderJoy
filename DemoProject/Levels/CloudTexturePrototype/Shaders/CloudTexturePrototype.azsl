@@ -44,7 +44,7 @@ PSOutput MainPS(VSOutput IN) // V2
 
     // cloud shape modeled after the GPU Pro 7 chapter
     float cloud = Remap(perlinWorley, worleyFbm - 1., 1., 0., 1.);
-    cloud = Remap(cloud, .85, 1., 0., 1.); // fake cloud coverage
+    cloud = Remap(cloud, .5, 1., 0., 1.); // fake cloud coverage
     
     if (st.x < 1.)
         color += perlinWorley;

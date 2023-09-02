@@ -6,25 +6,18 @@ set(FILES
     Include/RenderJoy/RenderJoyPassBus.h
     Include/RenderJoy/IRenderJoySrgDataProvider.h
     Include/RenderJoy/RenderJoyKeyboardBus.h
-    Source/RenderJoyEditorSystemComponent.cpp
-    Source/RenderJoyEditorSystemComponent.h
-    Source/MainWindow.cpp
-    Source/MainWindow.h
-    Source/RenderJoyTrianglePass.cpp
-    Source/RenderJoyTrianglePass.h
-    Source/RenderJoyMainPassTemplateCreator.cpp
-    Source/RenderJoyMainPassTemplateCreator.h
-    Source/Viewport/RenderJoyViewportRenderer.cpp
-    Source/Viewport/RenderJoyViewportRenderer.h
-    Source/Viewport/RenderJoyViewportWidget.cpp
-    Source/Viewport/RenderJoyViewportWidget.h
-    Source/Viewport/RenderJoyViewportWidget.ui
-    Source/Components/RenderJoySettingsEditorComponent.cpp
-    Source/Components/RenderJoySettingsEditorComponent.h
-    Source/Components/RenderJoyPassEditorComponent.cpp
-    Source/Components/RenderJoyPassEditorComponent.h
-    Source/Components/RenderJoyTextureEditorComponent.cpp
-    Source/Components/RenderJoyTextureEditorComponent.h
-    Source/Components/RenderJoyKeyboardEditorComponent.cpp
-    Source/Components/RenderJoyKeyboardEditorComponent.h
+    Source/Tools/RenderJoyEditorSystemComponent.cpp
+    Source/Tools/RenderJoyEditorSystemComponent.h
+    Source/Tools/Components/RenderJoySettingsEditorComponent.cpp
+    Source/Tools/Components/RenderJoySettingsEditorComponent.h
+    Source/Tools/Components/RenderJoyPassEditorComponent.cpp
+    Source/Tools/Components/RenderJoyPassEditorComponent.h
+    Source/Tools/Components/RenderJoyTextureEditorComponent.cpp
+    Source/Tools/Components/RenderJoyTextureEditorComponent.h
+    Source/Tools/Components/RenderJoyKeyboardEditorComponent.cpp
+    Source/Tools/Components/RenderJoyKeyboardEditorComponent.h
+    Source/Render/RenderJoyTrianglePass.cpp
+    Source/Render/RenderJoyTrianglePass.h
+    Source/Render/RenderJoyMainPassTemplateCreator.cpp
+    Source/Render/RenderJoyMainPassTemplateCreator.h
 )

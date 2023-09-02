@@ -19,8 +19,8 @@
 #include <Atom/RPI.Public/Base.h>
 
 #include <RenderJoy/IRenderJoySrgDataProvider.h>
-#include "RenderJoyTrianglePass.h"
-#include "RenderJoyMainPassTemplateCreator.h"
+#include <Render/RenderJoyTrianglePass.h>
+#include <Render/RenderJoyMainPassTemplateCreator.h>
 
 //#include <RenderJoy/Viewport/RenderJoyViewportNotificationBus.h>
 //#include "InputController/RenderJoyViewportInputController.h"

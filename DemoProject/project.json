@@ -33,7 +33,8 @@
         "StartingPointInput",
         "TextureAtlas",
         "QtForPython",
-        "RenderJoy"
+        "RenderJoy",
+        "RenderBoy"
     ],
     "engine_version": "2.0.0"
 }
