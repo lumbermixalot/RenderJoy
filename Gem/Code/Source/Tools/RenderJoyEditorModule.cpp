@@ -3,11 +3,14 @@
 #include <AzCore/Module/Module.h>
 
 
+#include "Components/EditorRenderJoyBillboardComponent.h"
+
 #include "RenderJoyEditorSystemComponent.h"
-#include "Components/RenderJoyTextureEditorComponent.h"
-#include "Components/RenderJoyKeyboardEditorComponent.h"
-#include "Components/RenderJoyPassEditorComponent.h"
-#include "Components/RenderJoySettingsEditorComponent.h"
+
+// #include "Components/RenderJoyTextureEditorComponent.h"
+// #include "Components/RenderJoyKeyboardEditorComponent.h"
+// #include "Components/RenderJoyPassEditorComponent.h"
+// #include "Components/RenderJoySettingsEditorComponent.h"
 
 namespace RenderJoy
 {
@@ -26,10 +29,12 @@ namespace RenderJoy
             // This happens through the [MyComponent]::Reflect() function.
             m_descriptors.insert(m_descriptors.end(), {
                 RenderJoyEditorSystemComponent::CreateDescriptor(),
-                RenderJoyTextureEditorComponent::CreateDescriptor(),
-                RenderJoyKeyboardEditorComponent::CreateDescriptor(),
-                RenderJoyPassEditorComponent::CreateDescriptor(),
-                RenderJoySettingsEditorComponent::CreateDescriptor(),
+                RenderJoyBillboardComponent::CreateDescriptor(),
+                EditorRenderJoyBillboardComponent::CreateDescriptor(),
+                //RenderJoyTextureEditorComponent::CreateDescriptor(),
+                //RenderJoyKeyboardEditorComponent::CreateDescriptor(),
+                //RenderJoyPassEditorComponent::CreateDescriptor(),
+                //RenderJoySettingsEditorComponent::CreateDescriptor(),
             });
         }
 

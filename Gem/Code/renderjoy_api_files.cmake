@@ -6,12 +6,8 @@
 #
 #
 
-#set(FILES
-#    Include/RenderBoy/RenderBoyBus.h
-#    Include/RenderBoy/RenderBoyTypeIds.h
-#    Include/RenderBoy/RenderBoyFeatureProcessorInterface.h
-#)
-
 set(FILES
+    Include/RenderJoy/RenderJoyBus.h
     Include/RenderJoy/RenderJoyTypeIds.h
+    Include/RenderJoy/RenderJoyFeatureProcessorInterface.h
 )

@@ -8,22 +8,25 @@
 
 #pragma once
 
-#include <AzCore/Component/Component.h>
-#include <AzCore/std/containers/unordered_map.h>
-#include <AzCore/std/smart_ptr/make_shared.h>
-
+//#include <AzCore/Component/Component.h>
 #include <AzToolsFramework/API/ToolsApplicationAPI.h>
-#include <AzToolsFramework/Entity/EditorEntityContextBus.h>
+
+#include <Clients/RenderJoySystemComponent.h>
+
+//#include <AzToolsFramework/Entity/EditorEntityContextBus.h>
 
 namespace RenderJoy
 {
     /// System component for RenderJoy editor
     class RenderJoyEditorSystemComponent
-        : public AZ::Component
+        : public RenderJoySystemComponent
         , private AzToolsFramework::EditorEvents::Bus::Handler
     {
+        using BaseSystemComponent = RenderJoySystemComponent;
     public:
-        AZ_COMPONENT(RenderJoyEditorSystemComponent, "{24185bbf-5ac7-4008-95ce-98b3af1df39f}");
+        //AZ_COMPONENT(RenderJoyEditorSystemComponent, "{24185bbf-5ac7-4008-95ce-98b3af1df39f}");
+        AZ_COMPONENT_DECL(RenderJoyEditorSystemComponent);
+
         static void Reflect(AZ::ReflectContext* context);
 
         static constexpr char RenderJoyName[] = "RenderJoy";

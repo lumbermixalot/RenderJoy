@@ -6,84 +6,84 @@
  *
  */
 
-#include "RenderBoySystemComponent.h"
+#include "RenderJoySystemComponent.h"
 
-#include <RenderBoy/RenderBoyTypeIds.h>
+#include <RenderJoy/RenderJoyTypeIds.h>
 
 #include <AzCore/Serialization/SerializeContext.h>
 
 #include <Atom/RPI.Public/FeatureProcessorFactory.h>
 
-#include <Render/RenderBoyFeatureProcessor.h>
+#include <Render/RenderJoyFeatureProcessor.h>
 
-namespace RenderBoy
+namespace RenderJoy
 {
-    AZ_COMPONENT_IMPL(RenderBoySystemComponent, "RenderBoySystemComponent",
-        RenderBoySystemComponentTypeId);
+    AZ_COMPONENT_IMPL(RenderJoySystemComponent, "RenderJoySystemComponent",
+        RenderJoySystemComponentTypeId);
 
-    void RenderBoySystemComponent::Reflect(AZ::ReflectContext* context)
+    void RenderJoySystemComponent::Reflect(AZ::ReflectContext* context)
     {
         if (auto serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serializeContext->Class<RenderBoySystemComponent, AZ::Component>()
+            serializeContext->Class<RenderJoySystemComponent, AZ::Component>()
                 ->Version(0)
                 ;
         }
 
-        RenderBoyFeatureProcessor::Reflect(context);
+        RenderJoyFeatureProcessor::Reflect(context);
     }
 
-    void RenderBoySystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided)
+    void RenderJoySystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided)
     {
-        provided.push_back(AZ_CRC_CE("RenderBoySystemService"));
+        provided.push_back(AZ_CRC_CE("RenderJoySystemService"));
     }
 
-    void RenderBoySystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible)
+    void RenderJoySystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible)
     {
-        incompatible.push_back(AZ_CRC_CE("RenderBoySystemService"));
+        incompatible.push_back(AZ_CRC_CE("RenderJoySystemService"));
     }
 
-    void RenderBoySystemComponent::GetRequiredServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& required)
+    void RenderJoySystemComponent::GetRequiredServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& required)
     {
         required.push_back(AZ_CRC_CE("RPISystem"));
     }
 
-    void RenderBoySystemComponent::GetDependentServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& dependent)
+    void RenderJoySystemComponent::GetDependentServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& dependent)
     {
     }
 
-    RenderBoySystemComponent::RenderBoySystemComponent()
+    RenderJoySystemComponent::RenderJoySystemComponent()
     {
-        if (RenderBoyInterface::Get() == nullptr)
+        if (RenderJoyInterface::Get() == nullptr)
         {
-            RenderBoyInterface::Register(this);
+            RenderJoyInterface::Register(this);
         }
     }
 
-    RenderBoySystemComponent::~RenderBoySystemComponent()
+    RenderJoySystemComponent::~RenderJoySystemComponent()
     {
-        if (RenderBoyInterface::Get() == this)
+        if (RenderJoyInterface::Get() == this)
         {
-            RenderBoyInterface::Unregister(this);
+            RenderJoyInterface::Unregister(this);
         }
     }
 
-    void RenderBoySystemComponent::Init()
+    void RenderJoySystemComponent::Init()
     {
     }
 
-    void RenderBoySystemComponent::Activate()
+    void RenderJoySystemComponent::Activate()
     {
-        RenderBoyRequestBus::Handler::BusConnect();
+        //RenderJoyRequestBus::Handler::BusConnect();
 
-        AZ::RPI::FeatureProcessorFactory::Get()->RegisterFeatureProcessor<RenderBoyFeatureProcessor>();
+        AZ::RPI::FeatureProcessorFactory::Get()->RegisterFeatureProcessor<RenderJoyFeatureProcessor>();
     }
 
-    void RenderBoySystemComponent::Deactivate()
+    void RenderJoySystemComponent::Deactivate()
     {
-        AZ::RPI::FeatureProcessorFactory::Get()->UnregisterFeatureProcessor<RenderBoyFeatureProcessor>();
+        AZ::RPI::FeatureProcessorFactory::Get()->UnregisterFeatureProcessor<RenderJoyFeatureProcessor>();
 
-        RenderBoyRequestBus::Handler::BusDisconnect();
+        //RenderJoyRequestBus::Handler::BusDisconnect();
     }
 
-} // namespace RenderBoy
+} // namespace RenderJoy

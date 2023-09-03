@@ -6,37 +6,37 @@
  *
  */
 
-#include <RenderBoy/RenderBoyTypeIds.h>
-#include <RenderBoyModuleInterface.h>
-#include "RenderBoySystemComponent.h"
+#include <RenderJoy/RenderJoyTypeIds.h>
+#include <RenderJoyModuleInterface.h>
+#include "RenderJoySystemComponent.h"
 
 #include <AzCore/RTTI/RTTI.h>
 
-#include <Components/RenderBoyComponent.h>
+#include <Components/RenderJoyBillboardComponent.h>
 
-namespace RenderBoy
+namespace RenderJoy
 {
-    class RenderBoyModule
-        : public RenderBoyModuleInterface
+    class RenderJoyModule
+        : public RenderJoyModuleInterface
     {
     public:
-        AZ_RTTI(RenderBoyModule, RenderBoyModuleTypeId, RenderBoyModuleInterface);
-        AZ_CLASS_ALLOCATOR(RenderBoyModule, AZ::SystemAllocator);
+        AZ_RTTI(RenderJoyModule, RenderJoyModuleTypeId, RenderJoyModuleInterface);
+        AZ_CLASS_ALLOCATOR(RenderJoyModule, AZ::SystemAllocator);
 
-        RenderBoyModule()
+        RenderJoyModule()
         {
             m_descriptors.insert(m_descriptors.end(),
                 {
-                    RenderBoySystemComponent::CreateDescriptor(),
-                    RenderBoyComponent::CreateDescriptor(),
+                    RenderJoySystemComponent::CreateDescriptor(),
+                    RenderJoyBillboardComponent::CreateDescriptor(),
                 });
         }
 
         AZ::ComponentTypeList GetRequiredSystemComponents() const
         {
-            return AZ::ComponentTypeList{ azrtti_typeid<RenderBoySystemComponent>() };
+            return AZ::ComponentTypeList{ azrtti_typeid<RenderJoySystemComponent>() };
         }
     };
-}// namespace RenderBoy
+}// namespace RenderJoy
 
-AZ_DECLARE_MODULE_CLASS(Gem_RenderBoy, RenderBoy::RenderBoyModule)
+AZ_DECLARE_MODULE_CLASS(Gem_RenderJoy, RenderJoy::RenderJoyModule)

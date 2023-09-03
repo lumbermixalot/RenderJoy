@@ -10,16 +10,16 @@
 
 #include <AzCore/Component/Component.h>
 #include <AzCore/Component/TickBus.h>
-#include <RenderBoy/RenderBoyBus.h>
+#include <RenderJoy/RenderJoyBus.h>
 
-namespace RenderBoy
+namespace RenderJoy
 {
-    class RenderBoySystemComponent
+    class RenderJoySystemComponent
         : public AZ::Component
-        , protected RenderBoyRequestBus::Handler
+        , protected RenderJoyRequestBus::Handler
     {
     public:
-        AZ_COMPONENT_DECL(RenderBoySystemComponent);
+        AZ_COMPONENT_DECL(RenderJoySystemComponent);
 
         static void Reflect(AZ::ReflectContext* context);
 
@@ -28,12 +28,12 @@ namespace RenderBoy
         static void GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required);
         static void GetDependentServices(AZ::ComponentDescriptor::DependencyArrayType& dependent);
 
-        RenderBoySystemComponent();
-        ~RenderBoySystemComponent();
+        RenderJoySystemComponent();
+        ~RenderJoySystemComponent();
 
     protected:
         ////////////////////////////////////////////////////////////////////////
-        // RenderBoyRequestBus interface implementation
+        // RenderJoyRequestBus interface implementation
 
         ////////////////////////////////////////////////////////////////////////
 
@@ -46,4 +46,4 @@ namespace RenderBoy
 
     };
 
-} // namespace RenderBoy
+} // namespace RenderJoy

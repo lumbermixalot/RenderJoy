@@ -20,6 +20,14 @@
 #)
 
 set(FILES
+    Source/RenderJoyModuleInterface.cpp
+    Source/RenderJoyModuleInterface.h
     Source/Clients/RenderJoySystemComponent.cpp
     Source/Clients/RenderJoySystemComponent.h
+    Source/Components/RenderJoyBillboardComponent.h
+    Source/Components/RenderJoyBillboardComponent.cpp
+    Source/Components/RenderJoyBillboardComponentController.h
+    Source/Components/RenderJoyBillboardComponentController.cpp
+    Source/Render/RenderJoyFeatureProcessor.h
+    Source/Render/RenderJoyFeatureProcessor.cpp
 )
