@@ -12,7 +12,7 @@
 #include <AzCore/Component/Component.h>
 #include <AzCore/Component/TransformBus.h>
 
-#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
+//#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 
 namespace RenderJoy
 {
@@ -26,7 +26,11 @@ namespace RenderJoy
 
         RenderJoyBillboardComponentConfig() = default;
 
-        AZ::u64 m_entityId{ AZ::EntityId::InvalidEntityId };
+        // Entity that owns a RenderJoy shader.
+        AZ::EntityId m_shaderEntityId;
+
+        bool m_alwaysFaceCamera = false;
+
     };
 
     class RenderJoyBillboardComponentController final
@@ -57,17 +61,20 @@ namespace RenderJoy
 
         AZ_DISABLE_COPY(RenderJoyBillboardComponentController);
 
+        static constexpr char LogName[] = "RenderJoyBillboardComponentController";
+
         // TransformNotificationBus overrides
         void OnTransformChanged(const AZ::Transform& local, const AZ::Transform& world) override;
 
-        // handle for this probe in the feature processor
-        //RenderJoyHandle m_handle;
+        void OnConfigurationChanged();
 
-        RenderJoyFeatureProcessorInterface* m_featureProcessor = nullptr;
+        // RenderJoyFeatureProcessorInterface* m_featureProcessor = nullptr;
         AZ::TransformInterface* m_transformInterface = nullptr;
+
         AZ::EntityId m_entityId;
         
         RenderJoyBillboardComponentConfig m_configuration;
+        RenderJoyBillboardComponentConfig m_prevConfiguration;
 
     };
 } // namespace RenderJoy

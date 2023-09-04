@@ -10,13 +10,14 @@
 
 #include <AzCore/Component/Component.h>
 #include <AzCore/Component/TickBus.h>
+
 #include <RenderJoy/RenderJoyBus.h>
 
 namespace RenderJoy
 {
     class RenderJoySystemComponent
         : public AZ::Component
-        , protected RenderJoyRequestBus::Handler
+        , public RenderJoyRequestBus::Handler
     {
     public:
         AZ_COMPONENT_DECL(RenderJoySystemComponent);
@@ -33,8 +34,11 @@ namespace RenderJoy
 
     protected:
         ////////////////////////////////////////////////////////////////////////
-        // RenderJoyRequestBus interface implementation
-
+        // RenderJoyRequestBus interface implementation START
+        AZ::Outcome<AZ::RPI::PassTemplate, AZStd::string> CreateRenderJoyPassTemplate(AZ::EntityId passBusEntity) override;
+        bool CreateFeatureProcessor(const AZ::RPI::PassTemplate& passTemplate) override;
+        void DestroyFeatureProcessor() override;
+        // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////
@@ -43,6 +47,9 @@ namespace RenderJoy
         void Activate() override;
         void Deactivate() override;
         ////////////////////////////////////////////////////////////////////////
+
+    private:
+        static constexpr char LogName[] = "RenderJoySystemComponent";
 
     };
 

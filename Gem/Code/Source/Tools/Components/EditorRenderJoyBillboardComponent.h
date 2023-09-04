@@ -21,7 +21,7 @@
 
 namespace RenderJoy
 {
-    inline constexpr AZ::TypeId EditorComponentTypeId { "{50A91A4A-234F-4475-A164-3A8FD0FE8FBE}" };
+    inline constexpr AZ::TypeId EditorBillboardComponentTypeId { "{50A91A4A-234F-4475-A164-3A8FD0FE8FBE}" };
 
     class EditorRenderJoyBillboardComponent final
         : public AZ::Render::EditorRenderComponentAdapter<RenderJoyBillboardComponentController, RenderJoyBillboardComponent, RenderJoyBillboardComponentConfig>
@@ -32,22 +32,23 @@ namespace RenderJoy
     {
     public:
         using BaseClass = AZ::Render::EditorRenderComponentAdapter <RenderJoyBillboardComponentController, RenderJoyBillboardComponent, RenderJoyBillboardComponentConfig>;
-        AZ_EDITOR_COMPONENT(EditorRenderJoyBillboardComponent, EditorComponentTypeId, BaseClass);
+        AZ_EDITOR_COMPONENT(EditorRenderJoyBillboardComponent, EditorBillboardComponentTypeId, BaseClass);
 
         static void Reflect(AZ::ReflectContext* context);
 
         EditorRenderJoyBillboardComponent();
         EditorRenderJoyBillboardComponent(const RenderJoyBillboardComponentConfig& config);
 
+    private:
+
+        // EditorComponentAdapter overrides
+        AZ::u32 OnConfigurationChanged();
+
         // AZ::Component overrides
         void Activate() override;
         void Deactivate() override;
 
-    protected:
-
         void OnEntityVisibilityChanged(bool visibility) override;
-
-    private:
 
         // AZ::TickBus overrides
         void OnTick(float deltaTime, AZ::ScriptTimePoint time) override;

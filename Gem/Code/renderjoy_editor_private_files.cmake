@@ -23,4 +23,6 @@ set(FILES
     Source/Tools/RenderJoyEditorSystemComponent.h
     Source/Tools/Components/EditorRenderJoyBillboardComponent.cpp
     Source/Tools/Components/EditorRenderJoyBillboardComponent.h
+    Source/Tools/Components/EditorRenderJoyShaderComponent.cpp
+    Source/Tools/Components/EditorRenderJoyShaderComponent.h
 )

@@ -6,7 +6,7 @@
  *
  */
 
-#include <Tools/Components/EditorRenderJoyBillboardComponent.h>
+#include <Tools/Components/EditorRenderJoyShaderComponent.h>
 #include <AzFramework/StringFunc/StringFunc.h>
 #include <AzToolsFramework/API/ToolsApplicationAPI.h>
 #include <AzToolsFramework/Entity/EditorEntityInfoBus.h>
@@ -16,19 +16,19 @@
 
 namespace RenderJoy
 {
-    void EditorRenderJoyBillboardComponent::Reflect(AZ::ReflectContext* context)
+    void EditorRenderJoyShaderComponent::Reflect(AZ::ReflectContext* context)
     {
         BaseClass::Reflect(context);
 
         if (AZ::SerializeContext* serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serializeContext->Class<EditorRenderJoyBillboardComponent, BaseClass>()
+            serializeContext->Class<EditorRenderJoyShaderComponent, BaseClass>()
                 ;
 
             if (AZ::EditContext* editContext = serializeContext->GetEditContext())
             {
-                editContext->Class<EditorRenderJoyBillboardComponent>(
-                    "RenderJoy Billboard", "The RenderJoy Billboard component")
+                editContext->Class<EditorRenderJoyShaderComponent>(
+                    "RenderJoy Shader", "The RenderJoy Shader component")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                         ->Attribute(AZ::Edit::Attributes::Category, "Graphics/RenderJoy")
                         ->Attribute(AZ::Edit::Attributes::Icon, "Icons/Components/Component_Placeholder.svg")
@@ -48,52 +48,34 @@ namespace RenderJoy
         }
     }
 
-    EditorRenderJoyBillboardComponent::EditorRenderJoyBillboardComponent()
+    EditorRenderJoyShaderComponent::EditorRenderJoyShaderComponent()
     {
     }
 
-    EditorRenderJoyBillboardComponent::EditorRenderJoyBillboardComponent(const RenderJoyBillboardComponentConfig& config)
+    EditorRenderJoyShaderComponent::EditorRenderJoyShaderComponent(const RenderJoyShaderComponentConfig& config)
         : BaseClass(config)
     {
     }
 
-    void EditorRenderJoyBillboardComponent::Activate()
+    void EditorRenderJoyShaderComponent::Activate()
     {
         BaseClass::Activate();
-        AzFramework::EntityDebugDisplayEventBus::Handler::BusConnect(GetEntityId());
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusConnect(GetEntityId());
-        AZ::TickBus::Handler::BusConnect();
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusConnect();
 
-        // AZ::u64 entityId = (AZ::u64)GetEntityId();
-        // m_controller.m_configuration.m_entityId = entityId;
+        //AZ::u64 entityId = (AZ::u64)GetEntityId();
+        //m_controller.m_configuration.m_entityId = entityId;
     }
 
-    void EditorRenderJoyBillboardComponent::Deactivate()
+    void EditorRenderJoyShaderComponent::Deactivate()
     {
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusDisconnect();
-        AZ::TickBus::Handler::BusDisconnect();
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusDisconnect();
-        AzFramework::EntityDebugDisplayEventBus::Handler::BusDisconnect();
         BaseClass::Deactivate();
     }
 
-    // EditorComponentAdapter overrides
-    AZ::u32 EditorRenderJoyBillboardComponent::OnConfigurationChanged()
-    {
-        m_controller.OnConfigurationChanged();
-        return AZ::Edit::PropertyRefreshLevels::ValuesOnly;
-    }
 
-    void EditorRenderJoyBillboardComponent::OnTick([[maybe_unused]] float deltaTime, [[maybe_unused]] AZ::ScriptTimePoint time)
-    {
-        //if (!m_controller.m_featureProcessor)
-        //{
-        //    return;
-        //}
-    }
-
-    void EditorRenderJoyBillboardComponent::OnEntityVisibilityChanged(bool visibility)
+    void EditorRenderJoyShaderComponent::OnEntityVisibilityChanged(bool visibility)
     {
         if (visibility)
         {
@@ -105,6 +87,11 @@ namespace RenderJoy
         }
     }
 
-
+    // EditorComponentAdapter overrides
+    AZ::u32 EditorRenderJoyShaderComponent::OnConfigurationChanged()
+    {
+        m_controller.OnConfigurationChanged();
+        return AZ::Edit::PropertyRefreshLevels::ValuesOnly;
+    }
 
 } // namespace RenderJoy

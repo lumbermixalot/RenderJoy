@@ -12,7 +12,8 @@
 
 #include <AzCore/RTTI/RTTI.h>
 
-#include <Components/RenderJoyBillboardComponent.h>
+#include "Components/RenderJoyBillboardComponent.h"
+#include "Components/RenderJoyShaderComponent.h"
 
 namespace RenderJoy
 {
@@ -29,6 +30,7 @@ namespace RenderJoy
                 {
                     RenderJoySystemComponent::CreateDescriptor(),
                     RenderJoyBillboardComponent::CreateDescriptor(),
+                    RenderJoyShaderComponent::CreateDescriptor(),
                 });
         }
 

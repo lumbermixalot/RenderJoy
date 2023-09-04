@@ -26,7 +26,7 @@ namespace RenderJoy
     {
         if (auto serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serializeContext->Class<RenderJoyEditorSystemComponent, RenderJoySystemComponent>()
+            serializeContext->Class<RenderJoyEditorSystemComponent, AZ::Component, BaseSystemComponent>()
                 ->Version(0);
         }
     }

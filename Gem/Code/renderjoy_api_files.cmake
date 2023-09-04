@@ -7,7 +7,9 @@
 #
 
 set(FILES
+    Include/RenderJoy/RenderJoyCommon.h
     Include/RenderJoy/RenderJoyBus.h
     Include/RenderJoy/RenderJoyTypeIds.h
     Include/RenderJoy/RenderJoyFeatureProcessorInterface.h
+    Include/RenderJoy/RenderJoyPassBus.h
 )

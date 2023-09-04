@@ -28,6 +28,10 @@ set(FILES
     Source/Components/RenderJoyBillboardComponent.cpp
     Source/Components/RenderJoyBillboardComponentController.h
     Source/Components/RenderJoyBillboardComponentController.cpp
+    Source/Components/RenderJoyShaderComponent.h
+    Source/Components/RenderJoyShaderComponent.cpp
+    Source/Components/RenderJoyShaderComponentController.h
+    Source/Components/RenderJoyShaderComponentController.cpp
     Source/Render/RenderJoyFeatureProcessor.h
     Source/Render/RenderJoyFeatureProcessor.cpp
 )
