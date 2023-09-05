@@ -20,6 +20,7 @@
 #include <Atom/RPI.Public/Scene.h>
 
 #include <RenderJoy/RenderJoyBus.h>
+#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 #include <Components/RenderJoyBillboardComponentController.h>
 
 namespace RenderJoy
@@ -102,7 +103,11 @@ namespace RenderJoy
 
         AZ::TransformNotificationBus::Handler::BusConnect(m_entityId);
 
-        m_featureProcessor = AZ::RPI::Scene::GetFeatureProcessorForEntity<RenderJoyFeatureProcessorInterface>(entityId);
+        if (!m_configuration.m_shaderEntityId.IsValid())
+        {
+            // nothing to do at the moment.
+            return;
+        }
 
         // Ask the RenderJoy system if a pass template can be created.
         auto renderJoySystem = RenderJoyInterface::Get();
@@ -110,11 +115,21 @@ namespace RenderJoy
         auto outcome = renderJoySystem->CreateRenderJoyPassTemplate(m_configuration.m_shaderEntityId);
         if (!outcome.IsSuccess())
         {
-            // See if the feature processor exists.
-
+            // Given that we can not create a proper set of Render Joy passes, let's create the RenderJoy Invalid pipeline
+            // to give a visual clue to the user. We will create a dummy pipeline. This will force the recreation of the RenderJoy Feature processor.
+            renderJoySystem->AddInvalidRendeJoyPipeline(m_entityId, m_configuration.m_shaderEntityId);
+            return;
         }
 
-        RenderJoyBus::EventResult(shaderAsset, currentPassEntity, &RenderJoyPassRequests::GetShaderAsset);
+        // We got a valid RenderJoy pipeline, let's recreate the feature processor and enjoy the view!
+        AZ::RPI::PassTemplate newRenderJoyTemplate(outcome.TakeValue());
+        renderJoySystem->AddRenderJoyPipeline(m_entityId, m_configuration.m_shaderEntityId, newRenderJoyTemplate);
+
+        //m_featureProcessor = AZ::RPI::Scene::GetFeatureProcessorForEntity<RenderJoyFeatureProcessorInterface>(entityId);
+
+
+
+        //RenderJoyBus::EventResult(shaderAsset, currentPassEntity, &RenderJoyPassRequests::GetShaderAsset);
 
         //AZ_Assert(m_featureProcessor, "RenderJoyBillboardComponentController was unable to find a RenderJoyFeatureProcessor on the EntityContext provided.");
 
@@ -142,10 +157,14 @@ namespace RenderJoy
         // {
         //     return;
         // }
+
+        auto featureProcessor = AZ::RPI::Scene::GetFeatureProcessorForEntity<RenderJoyFeatureProcessorInterface>(m_entityId);
+        featureProcessor->UpdateWorldTransform(m_entityId, world);
+
     }
 
     void RenderJoyBillboardComponentController::OnConfigurationChanged()
     {
-        AZ_P(LogName, "%s\n", __FUNCTION_
+        //AZ_Printf(LogName, "%s\n", __FUNCTION_);
     }
 }

@@ -12,6 +12,17 @@
 #include <AzCore/Component/TickBus.h>
 
 #include <RenderJoy/RenderJoyBus.h>
+#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
+
+#include "RenderJoyTemplatesFactory.h"
+
+namespace AZ
+{
+    namespace RPI
+    {
+        class Scene;
+    }
+}
 
 namespace RenderJoy
 {
@@ -35,9 +46,10 @@ namespace RenderJoy
     protected:
         ////////////////////////////////////////////////////////////////////////
         // RenderJoyRequestBus interface implementation START
-        AZ::Outcome<AZ::RPI::PassTemplate, AZStd::string> CreateRenderJoyPassTemplate(AZ::EntityId passBusEntity) override;
-        bool CreateFeatureProcessor(const AZ::RPI::PassTemplate& passTemplate) override;
-        void DestroyFeatureProcessor() override;
+        PassTemplateOutcome CreateRenderJoyPassTemplate(AZ::EntityId passBusEntity) const override;
+        bool AddInvalidRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity) override;
+        bool AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity, const AZ::RPI::PassTemplate& passTemplate) override;
+        void RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId) override;
         // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 
@@ -50,6 +62,19 @@ namespace RenderJoy
 
     private:
         static constexpr char LogName[] = "RenderJoySystemComponent";
+
+        void DestroyFeatureProcessor();
+        void CreateFeatureProcessor();
+
+        // It is assumed that all RenderJoy related passes go to the same scene.
+        AZ::RPI::Scene* m_scenePtr = nullptr;
+        RenderJoyFeatureProcessorInterface* m_featureProcessor = nullptr;
+
+        RenderJoyTemplatesFactory m_templatesFactory;
+
+        // The key is the EntityId that owns a billboard, the value is the name of the pass template
+        AZStd::unordered_map<AZ::EntityId, AZ::Name> m_passInstances;
+
 
     };
 

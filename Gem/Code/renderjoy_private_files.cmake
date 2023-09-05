@@ -6,24 +6,13 @@
 #
 #
 
-#set(FILES
-#    Source/RenderBoyModuleInterface.cpp
-#    Source/RenderBoyModuleInterface.h
-#    Source/Clients/RenderBoySystemComponent.cpp
-#    Source/Clients/RenderBoySystemComponent.h
-#    Source/Components/RenderBoyComponent.h
-#    Source/Components/RenderBoyComponent.cpp
-#    Source/Components/RenderBoyComponentController.h
-#    Source/Components/RenderBoyComponentController.cpp
-#    Source/Render/RenderBoyFeatureProcessor.h
-#    Source/Render/RenderBoyFeatureProcessor.cpp
-#)
-
 set(FILES
     Source/RenderJoyModuleInterface.cpp
     Source/RenderJoyModuleInterface.h
     Source/Clients/RenderJoySystemComponent.cpp
     Source/Clients/RenderJoySystemComponent.h
+    Source/Clients/RenderJoyTemplatesFactory.cpp
+    Source/Clients/RenderJoyTemplatesFactory.h
     Source/Components/RenderJoyBillboardComponent.h
     Source/Components/RenderJoyBillboardComponent.cpp
     Source/Components/RenderJoyBillboardComponentController.h

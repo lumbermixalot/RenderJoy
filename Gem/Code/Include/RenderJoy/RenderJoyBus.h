@@ -32,14 +32,26 @@ namespace RenderJoy
         // to instantiate the whole RenderJoy parent pass.
         // The PassTemplate is created from the Entities that own RenderJoy-related components.
         // @param passBusEntity An entity that implements the RenderJoyPassBus interface.
-        virtual PassTemplateOutcome CreateRenderJoyPassTemplate(AZ::EntityId passBusEntity) = 0;
+        virtual PassTemplateOutcome CreateRenderJoyPassTemplate(AZ::EntityId passBusEntity) const = 0;
 
-        // The RenderJoy Feature processsor is never created by default, even if you enable this Gem.
-        // Only when one of the Output-type of components is instantiated, 
-        virtual bool CreateFeatureProcessor(const AZ::RPI::PassTemplate& passTemplate) = 0;
+        // If the feature processor doesn't exist, it will create one.
+        // Adds a cosmetic billboard to the scene with a texture highlighting that the
+        // RenderJoy pipeline is invalid.
+        // Returns true if it was successful.
+        // @param pipelineEntityId The entity that owns a RenderJoy pipeline (many RenderJoy pipelines can co-exist).
+        // @param passBusEntity This is the entity that implements the RenderJoyPassBus interface, and it is assumed to be the output pass.
+        //                      This entity belongs to @pipelineEntityId.
+        virtual bool AddInvalidRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity) = 0;
 
-        // Destroy the RenderJoy Feature processor if it exists. Otherwise, does nothing.
-        virtual void DestroyFeatureProcessor() = 0;
+        // Adds one more RenderJoy render pipeline to the scene. It is assumed that @passTemplate is valid and that it was created
+        // by calling CreateRenderJoyPassTemplate().
+        // @param pipelineEntityId The entity that owns a RenderJoy pipeline (many RenderJoy pipelines can co-exist).
+        // @param passBusEntity This is the entity that implements the RenderJoyPassBus interface, and it is assumed to be the output pass.
+        //                      This entity belongs to @pipelineEntityId.
+        virtual bool AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity, const AZ::RPI::PassTemplate& passTemplate) = 0;
+
+        // Removes a particular pipeline, if no pipelines are left it will destroy the feature processor.
+        virtual void RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId) = 0;
     };
 
     class RenderJoyBusTraits
