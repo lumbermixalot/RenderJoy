@@ -52,6 +52,11 @@ namespace RenderJoy
 
         // Removes a particular pipeline, if no pipelines are left it will destroy the feature processor.
         virtual void RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId) = 0;
+
+        // Returns a list of pipeline entities.
+        virtual AZStd::vector<AZ::EntityId> GetPipelineEntities() const = 0;
+        virtual AZStd::shared_ptr<AZ::RPI::PassRequest> GetPassRequest(AZ::EntityId pipelineEntityId) const = 0;
+        virtual AZ::Name GetBillboardPassName(AZ::EntityId pipelineEntityId) const = 0;
     };
 
     class RenderJoyBusTraits

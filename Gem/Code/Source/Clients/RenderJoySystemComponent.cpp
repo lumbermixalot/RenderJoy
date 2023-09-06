@@ -117,7 +117,7 @@ namespace RenderJoy
 
     bool RenderJoySystemComponent::AddInvalidRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity)
     {
-        if (m_passInstances.contains(pipelineEntityId))
+        if (m_passRequests.contains(pipelineEntityId))
         {
             AZ_Error(LogName, false, "The RenderJoy pipeline for entity=%s already exists!", pipelineEntityId.ToString().c_str());
             return false;
@@ -130,8 +130,8 @@ namespace RenderJoy
         }
 
         auto passSystem = AZ::RPI::PassSystemInterface::Get();
-        auto passTemplate = m_templatesFactory.CreateInvalidRenderJoyParentPassTemplate(passSystem, { "Whatever" });
-        m_passInstances[pipelineEntityId] = passTemplate.m_name;
+        auto passRequest = m_templatesFactory.CreateInvalidRenderJoyParentPassRequest(passSystem, { "Whatever" });
+        m_passRequests[pipelineEntityId] = passRequest;
 
         // Time to recreate the feature processor.
         DestroyFeatureProcessor();
@@ -149,22 +149,22 @@ namespace RenderJoy
 
     void RenderJoySystemComponent::RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId)
     {
-        auto itor = m_passInstances.find(pipelineEntityId);
-        if (itor == m_passInstances.end())
+        auto itor = m_passRequests.find(pipelineEntityId);
+        if (itor == m_passRequests.end())
         {
             AZ_Warning(LogName, false, "The RenderJoy pipeline for entity=%s does not exist", pipelineEntityId.ToString().c_str());
             return;
         }
 
-        auto templateName = itor->second;
+        auto passRequest = itor->second;
         auto passSystem = AZ::RPI::PassSystemInterface::Get();
-        m_templatesFactory.RemoveTemplate(passSystem, templateName);
-        m_passInstances.erase(itor);
+        m_templatesFactory.RemoveTemplate(passSystem, passRequest->m_templateName);
+        m_passRequests.erase(itor);
 
         DestroyFeatureProcessor();
 
         // Recreate the FP only if there are RenderJoy pass instances left.
-        if (!m_passInstances.empty())
+        if (!m_passRequests.empty())
         {
             CreateFeatureProcessor();
         }

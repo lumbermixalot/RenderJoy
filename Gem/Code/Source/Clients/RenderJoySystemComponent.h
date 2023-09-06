@@ -72,9 +72,9 @@ namespace RenderJoy
 
         RenderJoyTemplatesFactory m_templatesFactory;
 
-        // The key is the EntityId that owns a billboard, the value is the name of the pass template
-        AZStd::unordered_map<AZ::EntityId, AZ::Name> m_passInstances;
-
+        // The key is the EntityId that owns a billboard, the value is the pass request that can be used
+        // to create the RenderJoy pipeline at runtime.
+        AZStd::unordered_map<AZ::EntityId, AZStd::shared_ptr<AZ::RPI::PassRequest>> m_passRequests;
 
     };
 

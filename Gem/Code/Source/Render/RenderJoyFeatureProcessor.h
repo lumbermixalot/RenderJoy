@@ -10,8 +10,13 @@
 
 #include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 
+class AZ::RPI::RenderPipeline;
+class AZ::RPI::PassRequest;
+
 namespace RenderJoy
 {
+    // This feature processor is in charge of creating all RenderJoy passes
+    // and adding them to to the main pipeline.
     class RenderJoyFeatureProcessor final
         : public RenderJoyFeatureProcessorInterface
     {
@@ -24,10 +29,30 @@ namespace RenderJoy
         RenderJoyFeatureProcessor() = default;
         virtual ~RenderJoyFeatureProcessor() = default;
 
+
+    private:
+        RenderJoyFeatureProcessor(const RenderJoyFeatureProcessor&) = delete;
+
+        static constexpr char LogName[] = "RenderJoyFeatureProcessor";
+
+        // TODO: Add to engine at C:\GIT\o3de\Gems\Atom\RPI\Code\Source\RPI.Public\RPIUtils.cpp
+        static void MyAddPassRequestToRenderPipeline(
+            AZ::RPI::RenderPipeline* renderPipeline,
+            const AZ::RPI::PassRequest* passRequest,
+            const char* referencePass,
+            bool beforeReferencePass);
+
         // FeatureProcessor overrides
         void Activate() override;
         void Deactivate() override;
         void Simulate(const FeatureProcessor::SimulatePacket& packet) override;
+        void AddRenderPasses(AZ::RPI::RenderPipeline* renderPipeline) override;
 
+        struct PipelineEntity
+        {
+            AZ::EntityId m_entityId;
+        };
+
+        AZStd::unordered_map<AZ::EntityId, PipelineEntity> m_entities;
     };
 }

@@ -14,6 +14,7 @@
 
 #include <Atom/RPI.Edit/Common/AssetUtils.h>
 #include <Atom/RPI.Public/Pass/PassSystem.h>
+#include <Atom/RPI.Reflect/Pass/RasterPassData.h>
 
 //#include <RenderJoy/RenderJoyPassBus.h>
 //#include <RenderJoy/RenderJoyCommon.h>
@@ -28,7 +29,7 @@ namespace RenderJoy
         AZ_Assert(m_createdPassTemplates.empty() && m_passRequests.empty(), "Do not forget to call RemoveAllTemplates");
     }
 
-    AZ::RPI::PassTemplate RenderJoyTemplatesFactory::CreateInvalidRenderJoyParentPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name)
+    AZStd::shared_ptr<AZ::RPI::PassTemplate> RenderJoyTemplatesFactory::CreateBillboardPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name)
     {
         //{
         //    "Type": "JsonSerialization",
@@ -52,17 +53,48 @@ namespace RenderJoy
         //            ],
         //            "PassData": {
         //                "$type": "RasterPassData",
-        //                "ShaderAsset": {
-        //                    "FilePath": "Shaders/RenderJoy/RenderJoyBillboard.shader"
-        //                },
-        //                "DrawListTag": "rjbboard",
+        //                "DrawListTag": "rjbillboard",
         //                "BindViewSrg": true
         //            }
         //        }
         //    }
         //}
+        auto passTemplate = AZStd::make_shared<AZ::RPI::PassTemplate>();
+        passTemplate->m_name = AZ::Name(name); // "RenderJoyBillboardPassTemplate"
+        passTemplate->m_passClass = AZ::Name("RasterPass");
 
+        //Two Slots
+        {
+            AZ::RPI::PassSlot passSlot;
+            passSlot.m_name = AZ::Name("ColorInputOutput");
+            passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
+            passSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::RenderTarget;
+            passTemplate->AddSlot(passSlot);
+        }
+        {
+            AZ::RPI::PassSlot passSlot;
+            passSlot.m_name = AZ::Name("DepthInputOutput");
+            passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
+            passSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::DepthStencil;
+            passTemplate->AddSlot(passSlot);
+        }
 
+        //PassData
+        auto passData = AZStd::make_shared<AZ::RPI::RasterPassData>();
+        passData->m_drawListTag = AZ::Name("rjbillboard");
+        passData->m_bindViewSrg = true;
+        passTemplate->m_passData = passData;
+
+        passSystem->AddPassTemplate(passTemplate->m_name, passTemplate);
+        m_createdPassTemplates.push_back(passTemplate->m_name);
+
+        return passTemplate;
+    }
+
+    AZStd::shared_ptr<AZ::RPI::PassTemplate> RenderJoyTemplatesFactory::CreateInvalidRenderJoyParentPassTemplate(AZ::RPI::PassSystemInterface* passSystem,
+        const AZStd::string& name)
+    {
+        auto billboardPassTemplate = CreateBillboardPassTemplate(passSystem, AZStd::string("RenderJoyBillboardPassTemplate"));
         //{
         //    "Type": "JsonSerialization",
         //    "Version": 1,
@@ -107,8 +139,55 @@ namespace RenderJoy
         //        }
         //    }
         //}
+        auto passTemplate = AZStd::make_shared<AZ::RPI::PassTemplate>();
+        passTemplate->m_name = AZ::Name(name);
+        passTemplate->m_passClass = AZ::Name("ParentPass");
 
+        // Two Slots
+        {
+            AZ::RPI::PassSlot passSlot;
+            passSlot.m_name = AZ::Name("AtomColorInputOutput");
+            passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
+            passTemplate->AddSlot(passSlot);
+        }
+        {
+            AZ::RPI::PassSlot passSlot;
+            passSlot.m_name = AZ::Name("AtomDepthInputOutput");
+            passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
+            passTemplate->AddSlot(passSlot);
+        }
 
+        // Pass Request.
+        // This parent pass only has a child, which is the Billboard pass.
+        {
+            AZ::RPI::PassRequest childPassRequest;
+            childPassRequest.m_passName = AZ::Name("RenderJoyBillboardPass");
+            childPassRequest.m_templateName = billboardPassTemplate->m_name;
+        
+            AZ::RPI::PassConnection inputConnection;
+            inputConnection.m_localSlot = AZ::Name("ColorInputOutput");
+            inputConnection.m_attachmentRef.m_pass = AZ::Name("This");
+            inputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomColorInputOutput");
+            childPassRequest.AddInputConnection(inputConnection);
+        
+            AZ::RPI::PassConnection outputConnection;
+            outputConnection.m_localSlot = AZ::Name("DepthInputOutput");
+            outputConnection.m_attachmentRef.m_pass = AZ::Name("This");
+            outputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomDepthInputOutput");
+            childPassRequest.AddInputConnection(outputConnection);
+        
+            passTemplate->AddPassRequest(childPassRequest);
+        }
+
+        passSystem->AddPassTemplate(passTemplate->m_name, passTemplate);
+        m_createdPassTemplates.push_back(passTemplate->m_name);
+
+        return passTemplate;
+    }
+
+    AZStd::shared_ptr<AZ::RPI::PassRequest> RenderJoyTemplatesFactory::CreateInvalidRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name)
+    {
+        auto parentPassTemplate = CreateInvalidRenderJoyParentPassTemplate(passSystem, name);
         //{
         //    "Type": "JsonSerialization",
         //    "Version": 1,
@@ -135,6 +214,23 @@ namespace RenderJoy
         //        ]
         //    }
         //}
+        auto passRequest = AZStd::make_shared<AZ::RPI::PassRequest>();
+        passRequest->m_passName = AZ::Name(name);
+        passRequest->m_templateName = parentPassTemplate->m_name;
+
+        AZ::RPI::PassConnection inputConnection;
+        inputConnection.m_localSlot = AZ::Name("AtomColorInputOutput");
+        inputConnection.m_attachmentRef.m_pass = AZ::Name("PostProcessPass");
+        inputConnection.m_attachmentRef.m_attachment = AZ::Name("Output");
+        passRequest->AddInputConnection(inputConnection);
+
+        AZ::RPI::PassConnection outputConnection;
+        outputConnection.m_localSlot = AZ::Name("AtomDepthInputOutput");
+        outputConnection.m_attachmentRef.m_pass = AZ::Name("DepthPrePass");
+        outputConnection.m_attachmentRef.m_attachment = AZ::Name("Depth");
+        passRequest->AddInputConnection(outputConnection);
+
+        return passRequest;
     }
 
     void RenderJoyTemplatesFactory::RemoveTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZ::Name& templateName)
