@@ -20,7 +20,8 @@ namespace RenderJoy
             serializeContext->Class<RenderJoyBillboardPassData, AZ::RPI::RenderPassData>()
                 ->Version(0)
                 ->Field("ShaderAsset", &RenderJoyBillboardPassData::m_shaderAsset)
-                ->Field("StencilRef", &RenderJoyBillboardPassData::m_stencilRef);
+                ->Field("StencilRef", &RenderJoyBillboardPassData::m_stencilRef)
+                ;
         }
     }
 } //namespace RenderJoy

@@ -119,7 +119,7 @@ namespace RenderJoy
     
         m_pipelineStateForDraw.Init(m_shader);
     
-        UpdateSrgs();
+        CreateSrgs();
     
         QueueForInitialization();
     
@@ -127,7 +127,7 @@ namespace RenderJoy
         AZ::RPI::ShaderReloadNotificationBus::Handler::BusConnect(shaderAsset.GetId());
     }
     
-    void RenderJoyBillboardPass::UpdateSrgs()
+    void RenderJoyBillboardPass::CreateSrgs()
     {
         if (!m_shader)
         {
@@ -159,13 +159,16 @@ namespace RenderJoy
         {
             m_pipelineStateForDraw.UpdateSrgVariantFallback(m_shaderResourceGroup);
         }
+
+        m_shaderConstantsNeedUpdate = true;
     }
     
     void RenderJoyBillboardPass::BuildDrawItem()
     {
         m_pipelineStateForDraw.SetOutputFromPass(this);
     
-        // No streams required
+        // No streams required, the vertex shader automatically
+        // defines the billboard coordinates.
         AZ::RHI::InputStreamLayout inputStreamLayout;
         inputStreamLayout.SetTopology(AZ::RHI::PrimitiveTopology::TriangleList);
         inputStreamLayout.Finalize();
@@ -176,21 +179,11 @@ namespace RenderJoy
         // Instead it's expected that the extended class uses a vertex shader 
         // that generates a full-screen triangle completely from vertex ids.
         AZ::RHI::DrawLinear draw = AZ::RHI::DrawLinear();
-        draw.m_vertexCount = 3;
+        draw.m_vertexCount = 6; //6-vertices, as this is a billboard that can be rendered anywhere in the world.
     
         m_item.m_arguments = AZ::RHI::DrawArguments(draw);
         m_item.m_pipelineState = m_pipelineStateForDraw.Finalize();
         m_item.m_stencilRef = static_cast<uint8_t>(m_stencilRef);
-    }
-    
-    void RenderJoyBillboardPass::UpdateShaderOptions(const AZ::RPI::ShaderOptionList& shaderOptions)
-    {
-        if (m_shader)
-        {
-            m_pipelineStateForDraw.Init(m_shader, &shaderOptions);
-            m_pipelineStateForDraw.UpdateSrgVariantFallback(m_shaderResourceGroup);
-            BuildDrawItem();
-        }
     }
     
     void RenderJoyBillboardPass::InitializeInternal()
@@ -276,6 +269,12 @@ namespace RenderJoy
     {
         if (m_shaderResourceGroup != nullptr)
         {
+            if (m_shaderConstantsNeedUpdate)
+            {
+                m_shaderResourceGroup->SetConstant(m_modelToWorldIndex, m_worldMatrix);
+                m_shaderResourceGroup->SetConstant(m_alwaysFaceCameraIndex, m_alwaysFaceCamera);
+            }
+
             BindPassSrg(context, m_shaderResourceGroup);
             m_shaderResourceGroup->Compile();
         }
@@ -298,5 +297,16 @@ namespace RenderJoy
     
         commandList->Submit(m_item);
     }
-        
+
+    void RenderJoyBillboardPass::SetWorldTransform(const AZ::Transform& worldTM)
+    {
+        m_worldMatrix = AZ::Matrix4x4::CreateFromTransform(worldTM);
+        m_shaderConstantsNeedUpdate = true;
+    }
+
+    void RenderJoyBillboardPass::SetAlwaysFaceCamera(bool alwaysFaceCamera)
+    {
+        m_alwaysFaceCamera = alwaysFaceCamera;
+        m_shaderConstantsNeedUpdate = true;
+    }
 }   // namespace RenderJoy

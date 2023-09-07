@@ -19,7 +19,6 @@
 
 #include <Atom/RPI.Public/Scene.h>
 
-#include <RenderJoy/RenderJoyBus.h>
 #include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 #include <Components/RenderJoyBillboardComponentController.h>
 

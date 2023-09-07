@@ -46,10 +46,8 @@ namespace RenderJoy
     protected:
         ////////////////////////////////////////////////////////////////////////
         // RenderJoyRequestBus interface implementation START
-        PassTemplateOutcome CreateRenderJoyPassTemplate(AZ::EntityId passBusEntity) const override;
-        bool AddInvalidRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity) override;
-        bool AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity, const AZ::RPI::PassTemplate& passTemplate) override;
-        void RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId) override;
+        bool AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity) override;
+        bool RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId) override;
         // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 

@@ -29,6 +29,7 @@ namespace RenderJoy
 
             //! Stencil reference value to use for the draw call
             uint32_t m_stencilRef = 0;
+
         };
 } // namespace RenderJoy
 

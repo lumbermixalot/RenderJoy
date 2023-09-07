@@ -25,7 +25,7 @@ namespace RenderJoy
     //! This pass is designed to work without any dedicated geometry buffers
     //! and instead issues a 3-vertex draw and relies on the vertex shader
     //! to generate a fullscreen triangle from the vertex ids.
-    class RenderJoyBillboardPass
+    class RenderJoyBillboardPass final
         : public AZ::RPI::RenderPass
         , public AZ::RPI::ShaderReloadNotificationBus::Handler
     {
@@ -35,19 +35,24 @@ namespace RenderJoy
         AZ_RTTI(RenderJoyBillboardPass, "{BBCBCA8F-4E81-4970-92A5-CA1623901F6A}", AZ::RPI::RenderPass);
         AZ_CLASS_ALLOCATOR(RenderJoyBillboardPass, AZ::SystemAllocator);
         virtual ~RenderJoyBillboardPass();
+
+        static constexpr char PassNameStr[] = "RenderJoyBillboardPass";
     
         //! Creates a RenderJoyBillboardPass
         static AZ::RPI::Ptr<RenderJoyBillboardPass> Create(const AZ::RPI::PassDescriptor& descriptor);
     
         //! Return the shader
         AZ::Data::Instance<AZ::RPI::Shader> GetShader() const;
+
+        void SetWorldTransform(const AZ::Transform& worldTM);
+        void SetAlwaysFaceCamera(bool alwaysFaceCamera);
     
-        //! Updates the shader options used in this pass
-        void UpdateShaderOptions(const AZ::RPI::ShaderOptionList& shaderOptions);
     
-    protected:
+    private:
         RenderJoyBillboardPass(const AZ::RPI::PassDescriptor& descriptor);
-    
+
+        static constexpr char BillboardShaderSourcePath[] = "Shaders/RenderJoy/Billboard.shader";
+
         // Pass behavior overrides...
         void InitializeInternal() override;
         void FrameBeginInternal(FramePrepareParams params) override;
@@ -61,6 +66,10 @@ namespace RenderJoy
         void OnShaderReinitialized(const AZ::RPI::Shader& shader) override;
         void OnShaderAssetReinitialized(const AZ::Data::Asset<AZ::RPI::ShaderAsset>& shaderAsset) override;
         void OnShaderVariantReinitialized(const AZ::RPI::ShaderVariant& shaderVariant) override;
+
+        void LoadShader();
+        void CreateSrgs();
+        void BuildDrawItem();
     
         AZ::RHI::Viewport m_viewportState;
         AZ::RHI::Scissor m_scissorState;
@@ -78,12 +87,17 @@ namespace RenderJoy
         uint32_t m_stencilRef;
     
         AZ::Data::Instance<AZ::RPI::ShaderResourceGroup> m_drawShaderResourceGroup;
-    
-    private:
-        void LoadShader();
-        void UpdateSrgs();
-        void BuildDrawItem();
+   
     
         AZ::RPI::PassDescriptor m_passDescriptor;
+
+        bool m_shaderConstantsNeedUpdate = true;
+
+        // SRG Constants Indices and the constant
+        AZ::RHI::ShaderInputNameIndex m_modelToWorldIndex = "m_modelToWorld";
+        AZ::Matrix4x4 m_worldMatrix = AZ::Matrix4x4::CreateIdentity();
+
+        AZ::RHI::ShaderInputNameIndex m_alwaysFaceCameraIndex = "m_alwaysFaceCamera";
+        bool m_alwaysFaceCamera = false;
     };
 }   // namespace RenderJoy

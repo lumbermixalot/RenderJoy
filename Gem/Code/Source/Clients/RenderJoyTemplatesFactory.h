@@ -32,9 +32,9 @@ namespace RenderJoy
 
         static constexpr char LogName[] = "RenderJoyTemplatesFactory";
         static constexpr char BillboardPassTemplateBaseName[] = "RenderJoyBillboardPassTemplate";
-        static constexpr char BillboardShaderSourcePath[] = "Shaders/RenderJoy/Billboard.shader";
+        static constexpr char InvalidPipelineTexturePath[] = "Textures/RenderJoy/InvalidPipeline.png";
 
-        AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateBillboardPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name);
+        AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateBillboardPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name, bool useRenderJoyAttachment);
 
         //! This method creates a pass template that renders a billboard with a texture that shows the user
         //! the pipeline is invalid. The template is automatically added to the pass system.

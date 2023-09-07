@@ -16,6 +16,7 @@
 #include <Atom/RPI.Public/Pass/PassSystemInterface.h>
 #include <Atom/RPI.Public/Scene.h>
 
+#include <Render/RenderJoyBillboardPass.h>
 #include <Render/RenderJoyFeatureProcessor.h>
 
 namespace RenderJoy
@@ -76,6 +77,13 @@ namespace RenderJoy
 
     void RenderJoySystemComponent::Activate()
     {
+        auto passSystem = AZ::RPI::PassSystemInterface::Get();
+        auto renderJoyBillboardPassClassName = AZ::Name(RenderJoyBillboardPass::PassNameStr);
+        if (!passSystem->HasCreatorForClass(renderJoyBillboardPassClassName))
+        {
+            passSystem->AddPassCreator(renderJoyBillboardPassClassName, &RenderJoyBillboardPass::Create);
+        }
+
         RenderJoyRequestBus::Handler::BusConnect();
         AZ::RPI::FeatureProcessorFactory::Get()->RegisterFeatureProcessor<RenderJoyFeatureProcessor>();
     }
@@ -108,14 +116,7 @@ namespace RenderJoy
 
     ////////////////////////////////////////////////////////////////////////
     // RenderJoyRequestBus interface implementation START
-    PassTemplateOutcome RenderJoySystemComponent::CreateRenderJoyPassTemplate(AZ::EntityId passBusEntity) const
-    {
-        //AZ::RPI::PassTemplate passTemplate;
-        //return AZ::Success(AZStd::move(passTemplate));
-        return AZ::Failure(AZStd::string::format("CreateRenderJoyPassTemplate failed for entity=%s", passBusEntity.ToString().c_str()));
-    }
-
-    bool RenderJoySystemComponent::AddInvalidRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity)
+    bool RenderJoySystemComponent::AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity)
     {
         if (m_passRequests.contains(pipelineEntityId))
         {
@@ -126,7 +127,9 @@ namespace RenderJoy
         if (!m_scenePtr)
         {
             m_scenePtr = AZ::RPI::Scene::GetSceneForEntityId(pipelineEntityId);
+            AZ_Error(LogName, m_scenePtr != nullptr, "The RenderJoy pipeline for entity=%s already exists!", pipelineEntityId.ToString().c_str());
             AZ_Assert(m_scenePtr != nullptr, "No scene for entity=%s", pipelineEntityId.ToString().c_str());
+            return false;
         }
 
         auto passSystem = AZ::RPI::PassSystemInterface::Get();
@@ -140,20 +143,13 @@ namespace RenderJoy
         return true;
     }
 
-    bool RenderJoySystemComponent::AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity, const AZ::RPI::PassTemplate& passTemplate)
-    {
-        AZ_Printf(LogName, "%s pipelineEntityId=%s, passBusEntity=%s, passTemplate=%s\n", __FUNCTION__,
-            pipelineEntityId.ToString().c_str(), passBusEntity.ToString().c_str(), passTemplate.m_name.GetCStr());
-        return false;
-    }
-
-    void RenderJoySystemComponent::RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId)
+    bool RenderJoySystemComponent::RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId)
     {
         auto itor = m_passRequests.find(pipelineEntityId);
         if (itor == m_passRequests.end())
         {
             AZ_Warning(LogName, false, "The RenderJoy pipeline for entity=%s does not exist", pipelineEntityId.ToString().c_str());
-            return;
+            return false;
         }
 
         auto passRequest = itor->second;
@@ -174,6 +170,7 @@ namespace RenderJoy
         }
 
         AZ_Printf(LogName, "%s pipelineEntityId=%s\n", __FUNCTION__, pipelineEntityId.ToString().c_str());
+        return true;
     }
     // RenderJoyRequestBus interface implementation END
     ////////////////////////////////////////////////////////////////////////

@@ -12,6 +12,8 @@
 #include <AzCore/Component/Component.h>
 #include <AzCore/Component/TransformBus.h>
 
+#include <RenderJoy/RenderJoyBus.h>
+
 //#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 
 namespace RenderJoy
@@ -36,6 +38,7 @@ namespace RenderJoy
     class RenderJoyBillboardComponentController final
         : public AZ::Data::AssetBus::MultiHandler
         , private AZ::TransformNotificationBus::Handler
+        , private RenderJoyNotificationBus::Handler
     {
     public:
         friend class EditorRenderJoyBillboardComponent;
@@ -65,6 +68,13 @@ namespace RenderJoy
 
         // TransformNotificationBus overrides
         void OnTransformChanged(const AZ::Transform& local, const AZ::Transform& world) override;
+
+        ///////////////////////////////////////////////////////////
+        // RenderJoyNotificationBus::Handler overrides START
+        void OnFeatureProcessorActivated() override;
+        void OnFeatureProcessorDeactivated() override;
+        // RenderJoyNotificationBus::Handler overrides END
+        ///////////////////////////////////////////////////////////
 
         void OnConfigurationChanged();
 

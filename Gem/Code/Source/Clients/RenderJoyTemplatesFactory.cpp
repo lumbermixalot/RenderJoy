@@ -19,7 +19,7 @@
 //#include <RenderJoy/RenderJoyPassBus.h>
 //#include <RenderJoy/RenderJoyCommon.h>
 
-//#include "RenderJoyTrianglePass.h"
+#include <Render/RenderJoyBillboardPassData.h>
 #include "RenderJoyTemplatesFactory.h"
 
 namespace RenderJoy
@@ -29,7 +29,7 @@ namespace RenderJoy
         AZ_Assert(m_createdPassTemplates.empty() && m_passRequests.empty(), "Do not forget to call RemoveAllTemplates");
     }
 
-    AZStd::shared_ptr<AZ::RPI::PassTemplate> RenderJoyTemplatesFactory::CreateBillboardPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name)
+    AZStd::shared_ptr<AZ::RPI::PassTemplate> RenderJoyTemplatesFactory::CreateBillboardPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name, bool useRenderJoyAttachment)
     {
         //{
         //    "Type": "JsonSerialization",
@@ -40,6 +40,13 @@ namespace RenderJoy
         //            "Name": "RenderJoyBillboardPassTemplate",
         //            "PassClass": "RasterPass",
         //            "Slots": [
+        //                //The input attachment is optional
+        //                {
+        //                    "Name": "RenderJoyImage",
+        //                    "SlotType": "Input",
+        //                    "ScopeAttachmentUsage": "Shader",
+        //                    "ShaderInputName": "m_inputTexture"
+        //                },
         //                {
         //                    "Name": "ColorInputOutput",
         //                    "SlotType": "InputOutput",
@@ -52,8 +59,7 @@ namespace RenderJoy
         //                }
         //            ],
         //            "PassData": {
-        //                "$type": "RasterPassData",
-        //                "DrawListTag": "rjbillboard",
+        //                "$type": "RenderJoyBillboardPassData",
         //                "BindViewSrg": true
         //            }
         //        }
@@ -63,7 +69,15 @@ namespace RenderJoy
         passTemplate->m_name = AZ::Name(name); // "RenderJoyBillboardPassTemplate"
         passTemplate->m_passClass = AZ::Name("RasterPass");
 
-        //Two Slots
+        //Three Slots, 1 input and 2 outputs
+        {
+            AZ::RPI::PassSlot passSlot;
+            passSlot.m_name = AZ::Name("RenderJoyImage");
+            passSlot.m_slotType = AZ::RPI::PassSlotType::Input;
+            passSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::Shader;
+            passSlot.m_shaderInputName = AZ::Name("m_inputTexture");
+            passTemplate->AddSlot(passSlot);
+        }
         {
             AZ::RPI::PassSlot passSlot;
             passSlot.m_name = AZ::Name("ColorInputOutput");
@@ -79,9 +93,24 @@ namespace RenderJoy
             passTemplate->AddSlot(passSlot);
         }
 
+        if (!useRenderJoyAttachment)
+        {
+            AZ::RPI::PassImageAttachmentDesc importedAttachmentDesc;
+            importedAttachmentDesc.m_name = AZ::Name("InvalidPipelineTexture");
+            importedAttachmentDesc.m_lifetime = AZ::RHI::AttachmentLifetimeType::Imported;
+            importedAttachmentDesc.m_assetRef.m_filePath = InvalidPipelineTexturePath;
+            passTemplate->AddImageAttachment(importedAttachmentDesc);
+
+            // Additionally we need to specify this local connection.
+            AZ::RPI::PassConnection inputConnection;
+            inputConnection.m_localSlot = AZ::Name("RenderJoyImage");
+            inputConnection.m_attachmentRef.m_pass = AZ::Name("This");
+            inputConnection.m_attachmentRef.m_attachment = AZ::Name("InvalidPipelineTexture");
+            passTemplate->AddOutputConnection(inputConnection);
+        }
+
         //PassData
-        auto passData = AZStd::make_shared<AZ::RPI::RasterPassData>();
-        passData->m_drawListTag = AZ::Name("rjbillboard");
+        auto passData = AZStd::make_shared<RenderJoyBillboardPassData>();
         passData->m_bindViewSrg = true;
         passTemplate->m_passData = passData;
 
@@ -94,7 +123,8 @@ namespace RenderJoy
     AZStd::shared_ptr<AZ::RPI::PassTemplate> RenderJoyTemplatesFactory::CreateInvalidRenderJoyParentPassTemplate(AZ::RPI::PassSystemInterface* passSystem,
         const AZStd::string& name)
     {
-        auto billboardPassTemplate = CreateBillboardPassTemplate(passSystem, AZStd::string("RenderJoyBillboardPassTemplate"));
+        constexpr bool useRendeJoyAttachment = false;
+        auto billboardPassTemplate = CreateBillboardPassTemplate(passSystem, AZStd::string("RenderJoyBillboardPassTemplate"), useRendeJoyAttachment);
         //{
         //    "Type": "JsonSerialization",
         //    "Version": 1,
