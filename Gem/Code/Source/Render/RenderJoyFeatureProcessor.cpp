@@ -19,29 +19,19 @@ namespace RenderJoy
         if (auto* serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
             serializeContext
-                ->Class<RenderJoyFeatureProcessor, FeatureProcessor>()
+                ->Class<RenderJoyFeatureProcessor, AZ::RPI::FeatureProcessor>()
                 ;
         }
     }
 
     void RenderJoyFeatureProcessor::Activate()
     {
-        // Build the list of the entities we will render.
-        // Time to get a list of the pass requests.
-        auto renderJoySystem = RenderJoyInterface::Get();
-        auto entities = renderJoySystem->GetPipelineEntities();
-        for (const auto& entityId : entities)
-        {
-            PipelineEntity pipelineEntity;
-            pipelineEntity.m_entityId = entityId;
-            m_entities.emplace(entityId, AZStd::move(pipelineEntity));
-        }
-
+        // Activation is broadcasted after all passes have been added to the main render pipeline.
     }
 
     void RenderJoyFeatureProcessor::Deactivate()
     {
-        m_entities.clear();
+        RenderJoyNotificationBus::Broadcast(&RenderJoyNotifications::OnFeatureProcessorDeactivated);
     }
 
     void RenderJoyFeatureProcessor::Simulate([[maybe_unused]] const FeatureProcessor::SimulatePacket& packet)
@@ -51,7 +41,7 @@ namespace RenderJoy
 
 
     // TODO: Add to engine at C:\GIT\o3de\Gems\Atom\RPI\Code\Source\RPI.Public\RPIUtils.cpp
-    static void MyAddPassRequestToRenderPipeline(
+    void RenderJoyFeatureProcessor::MyAddPassRequestToRenderPipeline(
         AZ::RPI::RenderPipeline* renderPipeline,
         const AZ::RPI::PassRequest* passRequest,
         const char* referencePass,
@@ -95,11 +85,13 @@ namespace RenderJoy
     void RenderJoyFeatureProcessor::AddRenderPasses(AZ::RPI::RenderPipeline* renderPipeline)
     {
         auto renderJoySystem = RenderJoyInterface::Get();
-        for (auto& itor : m_entities)
+        auto parentPassEntities = renderJoySystem->GetParentPassEntities();
+        for (const auto& entityId  : parentPassEntities)
         {
-            auto entityId = itor.first;
             auto passRequest = renderJoySystem->GetPassRequest(entityId);
             MyAddPassRequestToRenderPipeline(renderPipeline, passRequest.get(), "AuxGeomPass", true);
         }
+
+        RenderJoyNotificationBus::Broadcast(&RenderJoyNotifications::OnFeatureProcessorActivated);
     }
 }

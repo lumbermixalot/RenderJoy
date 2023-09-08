@@ -1,4 +1,4 @@
 
 set(FILES
-    Source/Tools/RenderJoyEditorModule.cpp
+    Source/Tools/EditorRenderJoyModule.cpp
 )

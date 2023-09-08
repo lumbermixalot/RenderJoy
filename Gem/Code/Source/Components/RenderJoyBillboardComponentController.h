@@ -35,6 +35,8 @@ namespace RenderJoy
 
     };
 
+    class RenderJoyBillboardPass;
+
     class RenderJoyBillboardComponentController final
         : public AZ::Data::AssetBus::MultiHandler
         , private AZ::TransformNotificationBus::Handler
@@ -85,6 +87,9 @@ namespace RenderJoy
         
         RenderJoyBillboardComponentConfig m_configuration;
         RenderJoyBillboardComponentConfig m_prevConfiguration;
+
+        // Will get the real reference once we get the OnFeatureProcessorActivated notification. 
+        RenderJoyBillboardPass* m_billboardPass = nullptr;
 
     };
 } // namespace RenderJoy

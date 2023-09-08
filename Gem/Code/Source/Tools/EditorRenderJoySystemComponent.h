@@ -18,21 +18,21 @@
 namespace RenderJoy
 {
     /// System component for RenderJoy editor
-    class RenderJoyEditorSystemComponent
+    class EditorRenderJoySystemComponent
         : public RenderJoySystemComponent
         , private AzToolsFramework::EditorEvents::Bus::Handler
     {
         using BaseSystemComponent = RenderJoySystemComponent;
     public:
-        //AZ_COMPONENT(RenderJoyEditorSystemComponent, "{24185bbf-5ac7-4008-95ce-98b3af1df39f}");
-        AZ_COMPONENT_DECL(RenderJoyEditorSystemComponent);
+        //AZ_COMPONENT(EditorRenderJoySystemComponent, "{24185bbf-5ac7-4008-95ce-98b3af1df39f}");
+        AZ_COMPONENT_DECL(EditorRenderJoySystemComponent);
 
         static void Reflect(AZ::ReflectContext* context);
 
         static constexpr char RenderJoyName[] = "RenderJoy";
 
-        RenderJoyEditorSystemComponent();
-        ~RenderJoyEditorSystemComponent() override;
+        EditorRenderJoySystemComponent();
+        ~EditorRenderJoySystemComponent() override;
 
         ////////////////////////////////////////////////////////////////////////
         // AztoolsFramework::EditorEvents::Bus::Handler overrides

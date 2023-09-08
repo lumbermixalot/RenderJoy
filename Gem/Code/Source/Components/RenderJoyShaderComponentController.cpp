@@ -6,8 +6,6 @@
 *
 */
 
-#include <Components/RenderJoyShaderComponentController.h>
-
 #include <AzCore/Asset/AssetManager.h>
 #include <AzCore/Asset/AssetManagerBus.h>
 #include <AzCore/Asset/AssetSerializer.h>
@@ -21,6 +19,8 @@
 #include <AzCore/RTTI/BehaviorContext.h>
 
 #include <Atom/RPI.Public/Scene.h>
+
+#include "RenderJoyShaderComponentController.h"
 
 namespace RenderJoy
 {
@@ -131,7 +131,7 @@ namespace RenderJoy
 
     /////////////////////////////////////////////////////////////////
     /// RenderJoyPassRequestBus::Handler overrides START
-    AZStd::vector<AZ::EntityId> RenderJoyShaderComponentController::GetEntitiesOnInputChannels()
+    AZStd::vector<AZ::EntityId> RenderJoyShaderComponentController::GetEntitiesOnInputChannels() const
     {
         AZStd::vector<AZ::EntityId> retList;
         retList.reserve(m_configuration.m_inputChannels.size());
@@ -144,17 +144,17 @@ namespace RenderJoy
         return retList;
     }
 
-    AZ::Data::Asset<AZ::RPI::ShaderAsset> RenderJoyShaderComponentController::GetShaderAsset()
+    AZ::Data::Asset<AZ::RPI::ShaderAsset> RenderJoyShaderComponentController::GetShaderAsset() const
     {
         return m_configuration.m_shaderAsset;
     }
 
-    uint32_t RenderJoyShaderComponentController::GetRenderTargetWidth()
+    uint32_t RenderJoyShaderComponentController::GetRenderTargetWidth() const
     {
         return m_configuration.m_renderTargetWidth;
     }
 
-    uint32_t RenderJoyShaderComponentController::GetRenderTargetHeight()
+    uint32_t RenderJoyShaderComponentController::GetRenderTargetHeight() const
     {
         return m_configuration.m_renderTargetHeight;
     }

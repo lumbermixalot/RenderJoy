@@ -42,7 +42,7 @@ namespace RenderJoy
 
         if (auto behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context))
         {
-            behaviorContext->ConstantProperty(RenderJoyEditorSystemComponentTypeId, BehaviorConstant(AZ::Uuid(RenderJoyEditorSystemComponentTypeId)))
+            behaviorContext->ConstantProperty(EditorRenderJoySystemComponentTypeId, BehaviorConstant(AZ::Uuid(EditorRenderJoySystemComponentTypeId)))
                 ->Attribute(AZ::Script::Attributes::Module, "render")
                 ->Attribute(AZ::Script::Attributes::Scope, AZ::Script::Attributes::ScopeFlags::Automation);
         }

@@ -18,9 +18,11 @@
 #include <AzFramework/Scene/SceneSystemInterface.h>
 
 #include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/Pass/PassFilter.h>
 
-#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
-#include <Components/RenderJoyBillboardComponentController.h>
+#include <Render/RenderJoyBillboardPass.h>
+//#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
+#include "RenderJoyBillboardComponentController.h"
 
 namespace RenderJoy
 {
@@ -41,8 +43,8 @@ namespace RenderJoy
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                     ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
                     ->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_alwaysFaceCamera, "Should this billboard always face the camera?", "")
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_shaderEntityId, "Entity with a RenderJoy shader", "")
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_alwaysFaceCamera, "Always Face Camera", "Should this billboard always face the camera?")
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_shaderEntityId, "RenderJoy Shader", "Entity with a RenderJoy shader")
                     ;
             }
         }
@@ -100,6 +102,7 @@ namespace RenderJoy
     {
         m_entityId = entityId;
 
+        RenderJoyNotificationBus::Handler::BusConnect();
         AZ::TransformNotificationBus::Handler::BusConnect(m_entityId);
 
         if (!m_configuration.m_shaderEntityId.IsValid())
@@ -111,32 +114,19 @@ namespace RenderJoy
         // Ask the RenderJoy system if a pass template can be created.
         auto renderJoySystem = RenderJoyInterface::Get();
         AZ_Assert(!!renderJoySystem, "Failed to find the RenderJoy system interface");
-        auto outcome = renderJoySystem->CreateRenderJoyPassTemplate(m_configuration.m_shaderEntityId);
-        if (!outcome.IsSuccess())
-        {
-            // Given that we can not create a proper set of Render Joy passes, let's create the RenderJoy Invalid pipeline
-            // to give a visual clue to the user. We will create a dummy pipeline. This will force the recreation of the RenderJoy Feature processor.
-            renderJoySystem->AddInvalidRendeJoyPipeline(m_entityId, m_configuration.m_shaderEntityId);
-            return;
-        }
-
-        // We got a valid RenderJoy pipeline, let's recreate the feature processor and enjoy the view!
-        AZ::RPI::PassTemplate newRenderJoyTemplate(outcome.TakeValue());
-        renderJoySystem->AddRenderJoyPipeline(m_entityId, m_configuration.m_shaderEntityId, newRenderJoyTemplate);
-
-        //m_featureProcessor = AZ::RPI::Scene::GetFeatureProcessorForEntity<RenderJoyFeatureProcessorInterface>(entityId);
-
-
-
-        //RenderJoyBus::EventResult(shaderAsset, currentPassEntity, &RenderJoyPassRequests::GetShaderAsset);
-
-        //AZ_Assert(m_featureProcessor, "RenderJoyBillboardComponentController was unable to find a RenderJoyFeatureProcessor on the EntityContext provided.");
+        const auto success = renderJoySystem->AddRenderJoyParentPass(m_entityId, m_configuration.m_shaderEntityId);
+        AZ_Error(LogName, success, "Failed to add RenderJoy Pipeline.");
 
     }
 
     void RenderJoyBillboardComponentController::Deactivate()
     {
         AZ::TransformNotificationBus::Handler::BusDisconnect();
+        RenderJoyNotificationBus::Handler::BusDisconnect();
+        
+        auto renderJoySystem = RenderJoyInterface::Get();
+        AZ_Assert(!!renderJoySystem, "Failed to find the RenderJoy system interface");
+        renderJoySystem->RemoveRenderJoyParentPass(m_entityId);
     }
 
     void RenderJoyBillboardComponentController::SetConfiguration(const RenderJoyBillboardComponentConfig& config)
@@ -157,13 +147,63 @@ namespace RenderJoy
         //     return;
         // }
 
-        auto featureProcessor = AZ::RPI::Scene::GetFeatureProcessorForEntity<RenderJoyFeatureProcessorInterface>(m_entityId);
-        featureProcessor->UpdateWorldTransform(m_entityId, world);
+        //auto featureProcessor = AZ::RPI::Scene::GetFeatureProcessorForEntity<RenderJoyFeatureProcessorInterface>(m_entityId);
+        if (m_billboardPass)
+        {
+            m_billboardPass->SetWorldTransform(world);
+        }
 
     }
 
     void RenderJoyBillboardComponentController::OnConfigurationChanged()
     {
-        //AZ_Printf(LogName, "%s\n", __FUNCTION_);
+        if (m_prevConfiguration.m_shaderEntityId != m_configuration.m_shaderEntityId)
+        {
+
+            auto renderJoySystem = RenderJoyInterface::Get();
+            AZ_Assert(!!renderJoySystem, "Failed to find the RenderJoy system interface");
+            // Because the Feature Processor will be recreated, we need to invalidate
+            // our reference to the Billboard pass.
+            m_billboardPass = nullptr;
+            renderJoySystem->AddRenderJoyParentPass(m_entityId, m_configuration.m_shaderEntityId);
+        }
+        else if (m_prevConfiguration.m_alwaysFaceCamera != m_configuration.m_alwaysFaceCamera)
+        {
+            if (m_billboardPass)
+            {
+                m_billboardPass->SetAlwaysFaceCamera(m_configuration.m_alwaysFaceCamera);
+            }
+        }
+
+        m_prevConfiguration = m_configuration;
     }
+
+    ///////////////////////////////////////////////////////////
+    // RenderJoyNotificationBus::Handler overrides START
+    void RenderJoyBillboardComponentController::OnFeatureProcessorActivated()
+    {
+        // auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(m_entityId);
+        // // Keep a reference to the billboard pass.
+        // auto renderJoySystem = RenderJoyInterface::Get();
+        // auto passName = renderJoySystem->GetBillboardPassName(m_entityId);
+        // AZ::RPI::PassFilter passFilter = AZ::RPI::PassFilter::CreateWithPassName(passName, scenePtr);
+        // AZ::RPI::Pass* existingPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(passFilter);
+        // m_billboardPass = azrtti_cast<RenderJoyBillboardPass*>(existingPass);
+        // AZ_Error(LogName, m_billboardPass != nullptr, "%s Failed to find RenderJoyBillboardPass as: %s", __FUNCTION__, passName.GetCStr());
+        // AZ_Assert(m_billboardPass != nullptr, "%s Failed to find RenderJoyBillboardPass as: %s", __FUNCTION__, passName.GetCStr());
+        // 
+        // // Update shader constant data.
+        // AZ::Transform transform = AZ::Transform::CreateIdentity();
+        // AZ::TransformBus::EventResult(transform, m_entityId, &AZ::TransformBus::Events::GetWorldTM);
+        // m_billboardPass->SetWorldTransform(transform);
+        // m_billboardPass->SetAlwaysFaceCamera(m_configuration.m_alwaysFaceCamera);
+    }
+
+    void RenderJoyBillboardComponentController::OnFeatureProcessorDeactivated()
+    {
+        // clear the reference to the billboard pass.
+        m_billboardPass = nullptr;
+    }
+    // RenderJoyNotificationBus::Handler overrides END
+    ///////////////////////////////////////////////////////////
 }

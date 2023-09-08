@@ -24,12 +24,30 @@
 
 namespace RenderJoy
 {
-    RenderJoyTemplatesFactory::~RenderJoyTemplatesFactory()
+    static AZStd::string GetUniqueEntityNameStr(AZ::EntityId entityId)
     {
-        AZ_Assert(m_createdPassTemplates.empty() && m_passRequests.empty(), "Do not forget to call RemoveAllTemplates");
+        return entityId.ToString();
     }
 
-    AZStd::shared_ptr<AZ::RPI::PassTemplate> RenderJoyTemplatesFactory::CreateBillboardPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name, bool useRenderJoyAttachment)
+    static AZStd::string GetUniqueEntityPassNameStr(const AZStd::string& passNamePrefix, AZ::EntityId entityId)
+    {
+        return AZStd::string::format("%s_%s", passNamePrefix.c_str(), GetUniqueEntityNameStr(entityId).c_str());
+    }
+
+    static AZStd::string GetUniqueEntityPassTemplateNameStr(const AZStd::string& passNamePrefix, AZ::EntityId entityId)
+    {
+        return AZStd::string::format("%s_Template", GetUniqueEntityPassNameStr(passNamePrefix, entityId).c_str());
+    }
+
+    static AZ::RPI::AssetReference GetAssetReferenceFromPath(const AZStd::string& path)
+    {
+        AZ::RPI::AssetReference assetReference;
+        assetReference.m_filePath = path;
+        assetReference.m_assetId = AZ::RPI::AssetUtils::GetAssetIdForProductPath(path.c_str());
+        return assetReference;
+    }
+
+    static AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateBillboardPassTemplate(AZ::EntityId parentEntityId, bool useRenderJoyAttachment)
     {
         //{
         //    "Type": "JsonSerialization",
@@ -65,9 +83,12 @@ namespace RenderJoy
         //        }
         //    }
         //}
+        const auto passClassNameStr = AZStd::string("RenderJoyBillboardPass");
+        const auto templateNameStr = GetUniqueEntityPassTemplateNameStr(passClassNameStr, parentEntityId);
+
         auto passTemplate = AZStd::make_shared<AZ::RPI::PassTemplate>();
-        passTemplate->m_name = AZ::Name(name); // "RenderJoyBillboardPassTemplate"
-        passTemplate->m_passClass = AZ::Name("RasterPass");
+        passTemplate->m_name = AZ::Name(templateNameStr); // "RenderJoyBillboardPassTemplate"
+        passTemplate->m_passClass = AZ::Name(passClassNameStr);
 
         //Three Slots, 1 input and 2 outputs
         {
@@ -98,7 +119,7 @@ namespace RenderJoy
             AZ::RPI::PassImageAttachmentDesc importedAttachmentDesc;
             importedAttachmentDesc.m_name = AZ::Name("InvalidPipelineTexture");
             importedAttachmentDesc.m_lifetime = AZ::RHI::AttachmentLifetimeType::Imported;
-            importedAttachmentDesc.m_assetRef.m_filePath = InvalidPipelineTexturePath;
+            importedAttachmentDesc.m_assetRef = GetAssetReferenceFromPath(AZStd::string(RenderJoyTemplatesFactory::InvalidPipelineTexturePath));
             passTemplate->AddImageAttachment(importedAttachmentDesc);
 
             // Additionally we need to specify this local connection.
@@ -114,17 +135,19 @@ namespace RenderJoy
         passData->m_bindViewSrg = true;
         passTemplate->m_passData = passData;
 
-        passSystem->AddPassTemplate(passTemplate->m_name, passTemplate);
-        m_createdPassTemplates.push_back(passTemplate->m_name);
-
         return passTemplate;
     }
 
-    AZStd::shared_ptr<AZ::RPI::PassTemplate> RenderJoyTemplatesFactory::CreateInvalidRenderJoyParentPassTemplate(AZ::RPI::PassSystemInterface* passSystem,
-        const AZStd::string& name)
+    static AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateInvalidRenderJoyParentPassTemplate(AZ::RPI::PassSystemInterface* passSystem
+        , AZ::EntityId parentEntityId
+        , AZStd::vector<AZ::Name>& createdPassTemplateNamesOut, AZ::Name& billboardPassNameOut)
     {
         constexpr bool useRendeJoyAttachment = false;
-        auto billboardPassTemplate = CreateBillboardPassTemplate(passSystem, AZStd::string("RenderJoyBillboardPassTemplate"), useRendeJoyAttachment);
+        auto billboardPassTemplate = CreateBillboardPassTemplate(parentEntityId, useRendeJoyAttachment);
+
+        passSystem->AddPassTemplate(billboardPassTemplate->m_name, billboardPassTemplate);
+        createdPassTemplateNamesOut.push_back(billboardPassTemplate->m_name);
+
         //{
         //    "Type": "JsonSerialization",
         //    "Version": 1,
@@ -169,8 +192,10 @@ namespace RenderJoy
         //        }
         //    }
         //}
+        const auto templateNameStr = GetUniqueEntityPassTemplateNameStr("RenderJoyParentPass", parentEntityId);
+
         auto passTemplate = AZStd::make_shared<AZ::RPI::PassTemplate>();
-        passTemplate->m_name = AZ::Name(name);
+        passTemplate->m_name = AZ::Name(templateNameStr);
         passTemplate->m_passClass = AZ::Name("ParentPass");
 
         // Two Slots
@@ -191,33 +216,41 @@ namespace RenderJoy
         // This parent pass only has a child, which is the Billboard pass.
         {
             AZ::RPI::PassRequest childPassRequest;
-            childPassRequest.m_passName = AZ::Name("RenderJoyBillboardPass");
+
+            const auto billboardPassClassNameStr = AZStd::string(billboardPassTemplate->m_passClass.GetCStr());
+            const auto billboardPassNameStr = GetUniqueEntityPassNameStr(billboardPassClassNameStr, parentEntityId);
+            childPassRequest.m_passName = AZ::Name(billboardPassNameStr);
             childPassRequest.m_templateName = billboardPassTemplate->m_name;
-        
+
             AZ::RPI::PassConnection inputConnection;
             inputConnection.m_localSlot = AZ::Name("ColorInputOutput");
             inputConnection.m_attachmentRef.m_pass = AZ::Name("This");
             inputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomColorInputOutput");
             childPassRequest.AddInputConnection(inputConnection);
-        
+
             AZ::RPI::PassConnection outputConnection;
             outputConnection.m_localSlot = AZ::Name("DepthInputOutput");
             outputConnection.m_attachmentRef.m_pass = AZ::Name("This");
             outputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomDepthInputOutput");
             childPassRequest.AddInputConnection(outputConnection);
-        
-            passTemplate->AddPassRequest(childPassRequest);
-        }
 
-        passSystem->AddPassTemplate(passTemplate->m_name, passTemplate);
-        m_createdPassTemplates.push_back(passTemplate->m_name);
+            passTemplate->AddPassRequest(childPassRequest);
+
+            billboardPassNameOut = childPassRequest.m_passName;
+        }
 
         return passTemplate;
     }
 
-    AZStd::shared_ptr<AZ::RPI::PassRequest> RenderJoyTemplatesFactory::CreateInvalidRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name)
+    static bool CreateInvalidRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem
+        , AZ::EntityId parentEntityId
+        , RenderJoyTemplatesFactory::ParentEntityTemplates& parentEntityTemplates)
     {
-        auto parentPassTemplate = CreateInvalidRenderJoyParentPassTemplate(passSystem, name);
+        auto parentPassTemplate = CreateInvalidRenderJoyParentPassTemplate(passSystem, parentEntityId
+            , parentEntityTemplates.m_createdPassTemplates, parentEntityTemplates.m_billboardPassName);
+        passSystem->AddPassTemplate(parentPassTemplate->m_name, parentPassTemplate);
+        parentEntityTemplates.m_createdPassTemplates.push_back(parentPassTemplate->m_name);
+
         //{
         //    "Type": "JsonSerialization",
         //    "Version": 1,
@@ -244,8 +277,10 @@ namespace RenderJoy
         //        ]
         //    }
         //}
+        const auto passNameStr = GetUniqueEntityPassNameStr("RenderJoyParentPass", parentEntityId);
+
         auto passRequest = AZStd::make_shared<AZ::RPI::PassRequest>();
-        passRequest->m_passName = AZ::Name(name);
+        passRequest->m_passName = AZ::Name(passNameStr);
         passRequest->m_templateName = parentPassTemplate->m_name;
 
         AZ::RPI::PassConnection inputConnection;
@@ -260,25 +295,74 @@ namespace RenderJoy
         outputConnection.m_attachmentRef.m_attachment = AZ::Name("Depth");
         passRequest->AddInputConnection(outputConnection);
 
-        return passRequest;
+        parentEntityTemplates.m_passRequest = passRequest;
+
+        return true;
     }
 
-    void RenderJoyTemplatesFactory::RemoveTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZ::Name& templateName)
+    RenderJoyTemplatesFactory::~RenderJoyTemplatesFactory()
     {
-        passSystem->RemovePassTemplate(templateName);
-        m_createdPassTemplates.erase(&templateName);
-        m_passRequests.erase(templateName);
+        AZ_Assert(m_parentEntities.empty(), "Do not forget to call RemoveAllTemplates");
+    }
+
+
+    bool RenderJoyTemplatesFactory::CreateRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId, [[maybe_unused]] AZ::EntityId passBusEntity)
+    {
+        // Attempt to remove any previously created pass template.
+        RemoveTemplates(passSystem, parentPassEntityId);
+        
+        ParentEntityTemplates parentEntityTemplates = {};
+        m_parentEntities.emplace(parentPassEntityId, parentEntityTemplates);
+        ParentEntityTemplates& structRef = m_parentEntities.at(parentPassEntityId);
+
+        return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
+    }
+
+    void RenderJoyTemplatesFactory::RemoveTemplates(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId)
+    {
+        auto itor = m_parentEntities.find(parentPassEntityId);
+        if (itor == m_parentEntities.end())
+        {
+            return;
+        }
+        for (const auto& templateName : itor->second.m_createdPassTemplates)
+        {
+            passSystem->RemovePassTemplate(templateName);
+        }
+        itor->second.m_createdPassTemplates.clear();
+        m_parentEntities.erase(itor);
     }
 
     // Wholesale removes all RenderJoy related templates from the pass system.
     void RenderJoyTemplatesFactory::RemoveAllTemplates(AZ::RPI::PassSystemInterface* passSystem)
     {
-        for (const auto &templateName : m_createdPassTemplates)
+        const auto parentEntities = GetParentPassEntities();
+        for (const auto &entityId : parentEntities)
         {
-            passSystem->RemovePassTemplate(templateName);
+            RemoveTemplates(passSystem, entityId);
         }
-        m_createdPassTemplates.clear();
-        m_passRequests.clear();
+    }
+
+    AZStd::vector<AZ::EntityId> RenderJoyTemplatesFactory::GetParentPassEntities() const
+    {
+        AZStd::vector<AZ::EntityId> retList;
+        for (const auto &itor : m_parentEntities)
+        {
+            retList.push_back(itor.first);
+        }
+        return retList;
+    }
+
+    AZStd::shared_ptr<AZ::RPI::PassRequest> RenderJoyTemplatesFactory::GetParentPassRequest(AZ::EntityId parentPassEntityId) const
+    {
+        const auto itor = m_parentEntities.find(parentPassEntityId);
+        return (itor != m_parentEntities.end()) ? itor->second.m_passRequest : nullptr;
+    }
+
+    AZ::Name RenderJoyTemplatesFactory::GetBillboardPassName(AZ::EntityId parentPassEntityId) const
+    {
+        const auto itor = m_parentEntities.find(parentPassEntityId);
+        return (itor != m_parentEntities.end()) ? itor->second.m_billboardPassName : AZ::Name();
     }
 
     // bool RenderJoyTemplatesFactory::Create(AZ::RPI::PassSystemInterface* passSystem)

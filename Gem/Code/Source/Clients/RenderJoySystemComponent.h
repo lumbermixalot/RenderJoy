@@ -46,8 +46,11 @@ namespace RenderJoy
     protected:
         ////////////////////////////////////////////////////////////////////////
         // RenderJoyRequestBus interface implementation START
-        bool AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity) override;
-        bool RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId) override;
+        bool AddRenderJoyParentPass(AZ::EntityId parentPassEntityId, AZ::EntityId passBusEntity) override;
+        bool RemoveRenderJoyParentPass(AZ::EntityId parentPassEntityId) override;
+        AZStd::vector<AZ::EntityId> GetParentPassEntities() const override;
+        AZStd::shared_ptr<AZ::RPI::PassRequest> GetPassRequest(AZ::EntityId parentPassEntityId) const override;
+        AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const override;
         // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 
@@ -69,11 +72,6 @@ namespace RenderJoy
         RenderJoyFeatureProcessorInterface* m_featureProcessor = nullptr;
 
         RenderJoyTemplatesFactory m_templatesFactory;
-
-        // The key is the EntityId that owns a billboard, the value is the pass request that can be used
-        // to create the RenderJoy pipeline at runtime.
-        AZStd::unordered_map<AZ::EntityId, AZStd::shared_ptr<AZ::RPI::PassRequest>> m_passRequests;
-
     };
 
 } // namespace RenderJoy

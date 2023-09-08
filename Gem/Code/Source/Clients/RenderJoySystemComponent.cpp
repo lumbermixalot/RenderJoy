@@ -85,7 +85,7 @@ namespace RenderJoy
         }
 
         RenderJoyRequestBus::Handler::BusConnect();
-        AZ::RPI::FeatureProcessorFactory::Get()->RegisterFeatureProcessor<RenderJoyFeatureProcessor>();
+        AZ::RPI::FeatureProcessorFactory::Get()->RegisterFeatureProcessorWithInterface<RenderJoyFeatureProcessor, RenderJoyFeatureProcessorInterface>();
     }
 
     void RenderJoySystemComponent::Deactivate()
@@ -99,11 +99,11 @@ namespace RenderJoy
 
     void RenderJoySystemComponent::DestroyFeatureProcessor()
     {
-        if (!m_scenePtr || !m_featureProcessor)
+        if (!m_scenePtr)
         {
             return;
         }
-        m_scenePtr->DisableFeatureProcessor<RenderJoyFeatureProcessorInterface>();
+        m_scenePtr->DisableFeatureProcessor<RenderJoyFeatureProcessor>();
         m_featureProcessor = nullptr;
     }
 
@@ -111,56 +111,44 @@ namespace RenderJoy
     {
         AZ_Assert(m_scenePtr != nullptr, "First define the scene!");
         AZ_Assert(m_featureProcessor == nullptr, "Can not create if still exists!");
-        m_featureProcessor = m_scenePtr->EnableFeatureProcessor<RenderJoyFeatureProcessorInterface>();
+        m_featureProcessor = m_scenePtr->EnableFeatureProcessor<RenderJoyFeatureProcessor>();
     }
 
     ////////////////////////////////////////////////////////////////////////
     // RenderJoyRequestBus interface implementation START
-    bool RenderJoySystemComponent::AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity)
+    bool RenderJoySystemComponent::AddRenderJoyParentPass(AZ::EntityId parentPassEntityId, AZ::EntityId passBusEntity)
     {
-        if (m_passRequests.contains(pipelineEntityId))
-        {
-            AZ_Error(LogName, false, "The RenderJoy pipeline for entity=%s already exists!", pipelineEntityId.ToString().c_str());
-            return false;
-        }
-
         if (!m_scenePtr)
         {
-            m_scenePtr = AZ::RPI::Scene::GetSceneForEntityId(pipelineEntityId);
-            AZ_Error(LogName, m_scenePtr != nullptr, "The RenderJoy pipeline for entity=%s already exists!", pipelineEntityId.ToString().c_str());
-            AZ_Assert(m_scenePtr != nullptr, "No scene for entity=%s", pipelineEntityId.ToString().c_str());
-            return false;
+            m_scenePtr = AZ::RPI::Scene::GetSceneForEntityId(parentPassEntityId);
+            AZ_Error(LogName, m_scenePtr != nullptr, "The RenderJoy pipeline for entity=%s already exists!", parentPassEntityId.ToString().c_str());
+            AZ_Assert(m_scenePtr != nullptr, "No scene for entity=%s", parentPassEntityId.ToString().c_str());
+            if (!m_scenePtr)
+            {
+                return false;
+            }
         }
 
         auto passSystem = AZ::RPI::PassSystemInterface::Get();
-        auto passRequest = m_templatesFactory.CreateInvalidRenderJoyParentPassRequest(passSystem, { "Whatever" });
-        m_passRequests[pipelineEntityId] = passRequest;
+        m_templatesFactory.CreateRenderJoyParentPassRequest(passSystem, parentPassEntityId, passBusEntity);
 
         // Time to recreate the feature processor.
+        // Later, when the feature processor is activated, it will query all the existing pass requests.
         DestroyFeatureProcessor();
         CreateFeatureProcessor();
 
         return true;
     }
 
-    bool RenderJoySystemComponent::RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId)
+    bool RenderJoySystemComponent::RemoveRenderJoyParentPass(AZ::EntityId parentPassEntityId)
     {
-        auto itor = m_passRequests.find(pipelineEntityId);
-        if (itor == m_passRequests.end())
-        {
-            AZ_Warning(LogName, false, "The RenderJoy pipeline for entity=%s does not exist", pipelineEntityId.ToString().c_str());
-            return false;
-        }
-
-        auto passRequest = itor->second;
         auto passSystem = AZ::RPI::PassSystemInterface::Get();
-        m_templatesFactory.RemoveTemplate(passSystem, passRequest->m_templateName);
-        m_passRequests.erase(itor);
+        m_templatesFactory.RemoveTemplates(passSystem, parentPassEntityId);
 
         DestroyFeatureProcessor();
 
         // Recreate the FP only if there are RenderJoy pass instances left.
-        if (!m_passRequests.empty())
+        if (!m_templatesFactory.GetParentPassEntities().empty())
         {
             CreateFeatureProcessor();
         }
@@ -169,8 +157,23 @@ namespace RenderJoy
             m_scenePtr = nullptr;
         }
 
-        AZ_Printf(LogName, "%s pipelineEntityId=%s\n", __FUNCTION__, pipelineEntityId.ToString().c_str());
+        //AZ_Printf(LogName, "%s parentPassEntityId=%s\n", __FUNCTION__, parentPassEntityId.ToString().c_str());
         return true;
+    }
+
+    AZStd::vector<AZ::EntityId> RenderJoySystemComponent::GetParentPassEntities() const
+    {
+        return m_templatesFactory.GetParentPassEntities();
+    }
+
+    AZStd::shared_ptr<AZ::RPI::PassRequest> RenderJoySystemComponent::GetPassRequest(AZ::EntityId parentPassEntityId) const
+    {
+        return m_templatesFactory.GetParentPassRequest(parentPassEntityId);
+    }
+
+    AZ::Name RenderJoySystemComponent::GetBillboardPassName(AZ::EntityId parentPassEntityId) const
+    {
+        return m_templatesFactory.GetBillboardPassName(parentPassEntityId);
     }
     // RenderJoyRequestBus interface implementation END
     ////////////////////////////////////////////////////////////////////////

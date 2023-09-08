@@ -18,7 +18,7 @@
 
 namespace RenderJoy
 {
-    using PassTemplateOutcome = AZ::Outcome<AZ::RPI::PassTemplate, AZStd::string>;
+    //using PassTemplateOutcome = AZ::Outcome<AZ::RPI::PassTemplate, AZStd::string>;
 
     class RenderJoyRequests
     {
@@ -28,23 +28,23 @@ namespace RenderJoy
         
         // Put your public methods here
 
-        // Adds one more RenderJoy render pipeline to the scene.
-        // Returns true if the pipeline was created successfully.
-        // @param pipelineEntityId The entity that owns a RenderJoy pipeline (many RenderJoy pipelines can co-exist).
+        // Adds one RenderJoy parent pass to the scene.
+        // Returns true if the parent pass was created successfully.
+        // Replaces an existing parent pass if its entityId was found.
+        // @param parentPassEntityId The entity that owns a RenderJoy parent pass (many RenderJoy parent passes can co-exist).
         // @param passBusEntity This is the entity that implements the RenderJoyPassBus interface, and it is assumed to be the output pass.
-        //                      This entity belongs to @pipelineEntityId.
-        // REMARK: If the RenderJoy pipeline is not properly configured this function may still succeed because it will attempt
-        //         to create a dummy pipeline that shows a billboard with a texture saying that the pipeline is invalid.
-        virtual bool AddRenderJoyPipeline(AZ::EntityId pipelineEntityId, AZ::EntityId passBusEntity) = 0;
+        //                      This entity belongs to @parentPassEntityId.
+        // REMARK: If the RenderJoy parent pass is not properly configured this function may still succeed because it will attempt
+        //         to create a dummy parent pass that shows a billboard with a texture saying that the parent pass is invalid.
+        virtual bool AddRenderJoyParentPass(AZ::EntityId parentPassEntityId, AZ::EntityId passBusEntity) = 0;
 
-        // Removes a particular pipeline, if no pipelines are left it will destroy the feature processor.
-        // Returns false if @pipelineEntityId was not previously added.
-        virtual bool RemoveRenderJoyPipeline(AZ::EntityId pipelineEntityId) = 0;
+        // Removes a particular parent pass, if no parent passes are left it will destroy the feature processor.
+        // Returns false if @parentPassEntityId was not previously added.
+        virtual bool RemoveRenderJoyParentPass(AZ::EntityId parentPassEntityId) = 0;
 
-        // Returns a list of pipeline entities.
-        virtual AZStd::vector<AZ::EntityId> GetPipelineEntities() const = 0;
-        virtual AZStd::shared_ptr<AZ::RPI::PassRequest> GetPassRequest(AZ::EntityId pipelineEntityId) const = 0;
-        virtual AZ::Name GetBillboardPassName(AZ::EntityId pipelineEntityId) const = 0;
+        virtual AZStd::vector<AZ::EntityId> GetParentPassEntities() const = 0;
+        virtual AZStd::shared_ptr<AZ::RPI::PassRequest> GetPassRequest(AZ::EntityId parentPassEntityId) const = 0;
+        virtual AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const = 0;
     };
 
     class RenderJoyBusTraits

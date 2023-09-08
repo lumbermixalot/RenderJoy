@@ -19,8 +19,8 @@ set(FILES
     Include/RenderJoy/RenderJoyPassBus.h
     Include/RenderJoy/IRenderJoySrgDataProvider.h
     Include/RenderJoy/RenderJoyKeyboardBus.h
-    Source/Tools/RenderJoyEditorSystemComponent.cpp
-    Source/Tools/RenderJoyEditorSystemComponent.h
+    Source/Tools/EditorRenderJoySystemComponent.cpp
+    Source/Tools/EditorRenderJoySystemComponent.h
     Source/Tools/Components/EditorRenderJoyBillboardComponent.cpp
     Source/Tools/Components/EditorRenderJoyBillboardComponent.h
     Source/Tools/Components/EditorRenderJoyShaderComponent.cpp

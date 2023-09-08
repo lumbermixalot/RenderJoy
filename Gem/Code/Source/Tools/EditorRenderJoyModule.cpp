@@ -6,7 +6,7 @@
 #include "Components/EditorRenderJoyBillboardComponent.h"
 #include "Components/EditorRenderJoyShaderComponent.h"
 
-#include "RenderJoyEditorSystemComponent.h"
+#include "EditorRenderJoySystemComponent.h"
 
 // #include "Components/RenderJoyTextureEditorComponent.h"
 // #include "Components/RenderJoyKeyboardEditorComponent.h"
@@ -15,23 +15,26 @@
 
 namespace RenderJoy
 {
-    class RenderJoyEditorModule
+    class EditorRenderJoyModule
         : public AZ::Module
     {
     public:
-        AZ_RTTI(RenderJoyEditorModule, "{a041cb2d-dbba-4841-8c3a-0d2d50ea5c41}", AZ::Module);
-        AZ_CLASS_ALLOCATOR(RenderJoyEditorModule, AZ::SystemAllocator, 0);
+        AZ_RTTI(EditorRenderJoyModule, "{a041cb2d-dbba-4841-8c3a-0d2d50ea5c41}", AZ::Module);
+        AZ_CLASS_ALLOCATOR(EditorRenderJoyModule, AZ::SystemAllocator, 0);
 
-        RenderJoyEditorModule()
+        EditorRenderJoyModule()
         {
             // Push results of [MyComponent]::CreateDescriptor() into m_descriptors here.
             // Add ALL components descriptors associated with this gem to m_descriptors.
             // This will associate the AzTypeInfo information for the components with the the SerializeContext, BehaviorContext and EditContext.
             // This happens through the [MyComponent]::Reflect() function.
             m_descriptors.insert(m_descriptors.end(), {
-                RenderJoyEditorSystemComponent::CreateDescriptor(),
+                RenderJoySystemComponent::CreateDescriptor(),
+                EditorRenderJoySystemComponent::CreateDescriptor(),
+                
                 RenderJoyBillboardComponent::CreateDescriptor(),
                 EditorRenderJoyBillboardComponent::CreateDescriptor(),
+                
                 RenderJoyShaderComponent::CreateDescriptor(),
                 EditorRenderJoyShaderComponent::CreateDescriptor(),
                 //RenderJoyTextureEditorComponent::CreateDescriptor(),
@@ -48,10 +51,10 @@ namespace RenderJoy
         AZ::ComponentTypeList GetRequiredSystemComponents() const override
         {
             return AZ::ComponentTypeList {
-                azrtti_typeid<RenderJoyEditorSystemComponent>(),
+                azrtti_typeid<EditorRenderJoySystemComponent>(),
             };
         }
     };
 }// namespace RenderJoy
 
-AZ_DECLARE_MODULE_CLASS(Gem_RenderJoy, RenderJoy::RenderJoyEditorModule)
+AZ_DECLARE_MODULE_CLASS(Gem_RenderJoy, RenderJoy::EditorRenderJoyModule)

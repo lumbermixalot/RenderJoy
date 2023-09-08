@@ -27,27 +27,41 @@ namespace RenderJoy
         RenderJoyTemplatesFactory() = default;
         ~RenderJoyTemplatesFactory();
 
+        static constexpr char InvalidPipelineTexturePath[] = "textures/renderjoy/invalidpipeline.png.streamingimage"; //"Textures/RenderJoy/InvalidPipeline.png";
+
+        // The parent pass name can be extracted from m_passRequest.
+        struct ParentEntityTemplates
+        {
+            // At the very least a pipeline EntityId owns a Parent Pass, that has always one child pass
+            // that renders something visible in the screen, typically a RenderJoyBillboardPass.
+            AZStd::vector<AZ::Name> m_createdPassTemplates;
+            AZStd::shared_ptr<AZ::RPI::PassRequest> m_passRequest;
+            AZ::Name m_billboardPassName; 
+        };
+
     private:
         friend class RenderJoySystemComponent;
 
         static constexpr char LogName[] = "RenderJoyTemplatesFactory";
-        static constexpr char BillboardPassTemplateBaseName[] = "RenderJoyBillboardPassTemplate";
-        static constexpr char InvalidPipelineTexturePath[] = "Textures/RenderJoy/InvalidPipeline.png";
 
-        AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateBillboardPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name, bool useRenderJoyAttachment);
-
-        //! This method creates a pass template that renders a billboard with a texture that shows the user
-        //! the pipeline is invalid. The template is automatically added to the pass system.
-        AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateInvalidRenderJoyParentPassTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name);
-
-        //! This method creates a pass request that renders a billboard with a texture that shows the user
-        //! the pipeline is invalid.
-        AZStd::shared_ptr<AZ::RPI::PassRequest> CreateInvalidRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, const AZStd::string& name);
-
-        void RemoveTemplate(AZ::RPI::PassSystemInterface* passSystem, const AZ::Name& templateName);
+        bool CreateRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId, AZ::EntityId passBusEntity);
+        
+        // Removes all templates created on behalf of a pipeline EntityId
+        void RemoveTemplates(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId);
 
         // Wholesale removes all RenderJoy related templates from the pass system.
         void RemoveAllTemplates(AZ::RPI::PassSystemInterface* passSystem);
+
+        AZStd::vector<AZ::EntityId> GetParentPassEntities() const;
+
+        AZStd::shared_ptr<AZ::RPI::PassRequest> GetParentPassRequest(AZ::EntityId parentPassEntityId) const;
+
+        AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const;
+
+        //////////////////////////////////////////////////////////////////////////
+        // Helper Functions Start ...
+
+
 
         // //! A recursive function, creates all templates. The idea is that an entity that owns a RenderJoyPassEditorComponent
         // //! will have its own pass template registered with its own, unique name. Later we will use each created template
@@ -64,13 +78,9 @@ namespace RenderJoy
         // AZ::Name m_outputPassName;
         // AZ::Name m_outputPassTemplateName;
 
-        // This list contains the name of all pass templates that have been created by this factory.
-        AZStd::vector<AZ::Name> m_createdPassTemplates;
-        // For each RenderJoy parent pass, we keep a list of the names of the children templates. 
-        AZStd::unordered_map<AZ::Name, AZStd::vector<AZ::Name>> m_childTemplates;
 
-        // Used to prevent a pass request from being created twice.
-        AZStd::unordered_set<AZ::Name> m_passRequests;
+        // For each RenderJoy parent pass, we keep a list of the names of the children templates. 
+        AZStd::unordered_map<AZ::EntityId, ParentEntityTemplates> m_parentEntities;
     };
 
 } //namespace RenderJoy

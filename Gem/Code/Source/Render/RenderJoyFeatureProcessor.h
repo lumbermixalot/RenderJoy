@@ -11,7 +11,7 @@
 #include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 
 class AZ::RPI::RenderPipeline;
-class AZ::RPI::PassRequest;
+struct AZ::RPI::PassRequest;
 
 namespace RenderJoy
 {
@@ -34,7 +34,7 @@ namespace RenderJoy
         RenderJoyFeatureProcessor(const RenderJoyFeatureProcessor&) = delete;
 
         static constexpr char LogName[] = "RenderJoyFeatureProcessor";
-
+        
         // TODO: Add to engine at C:\GIT\o3de\Gems\Atom\RPI\Code\Source\RPI.Public\RPIUtils.cpp
         static void MyAddPassRequestToRenderPipeline(
             AZ::RPI::RenderPipeline* renderPipeline,
@@ -48,11 +48,5 @@ namespace RenderJoy
         void Simulate(const FeatureProcessor::SimulatePacket& packet) override;
         void AddRenderPasses(AZ::RPI::RenderPipeline* renderPipeline) override;
 
-        struct PipelineEntity
-        {
-            AZ::EntityId m_entityId;
-        };
-
-        AZStd::unordered_map<AZ::EntityId, PipelineEntity> m_entities;
     };
 }

@@ -11,7 +11,7 @@
 // #include <AzToolsFramework/API/ViewPaneOptions.h>
 // #include <LyViewPaneNames.h>
 
-#include "RenderJoyEditorSystemComponent.h"
+#include "EditorRenderJoySystemComponent.h"
 // #include "MainWindow.h"
 // #include <RenderJoy/RenderJoySettingsBus.h>
 
@@ -19,55 +19,55 @@
 
 namespace RenderJoy
 {
-    AZ_COMPONENT_IMPL(RenderJoyEditorSystemComponent, "RenderJoyEditorSystemComponent",
-        RenderJoyEditorSystemComponentTypeId, BaseSystemComponent);
+    AZ_COMPONENT_IMPL(EditorRenderJoySystemComponent, "EditorRenderJoySystemComponent",
+        EditorRenderJoySystemComponentTypeId, BaseSystemComponent);
 
-    void RenderJoyEditorSystemComponent::Reflect(AZ::ReflectContext* context)
+    void EditorRenderJoySystemComponent::Reflect(AZ::ReflectContext* context)
     {
         if (auto serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serializeContext->Class<RenderJoyEditorSystemComponent, AZ::Component, BaseSystemComponent>()
+            serializeContext->Class<EditorRenderJoySystemComponent, AZ::Component, BaseSystemComponent>()
                 ->Version(0);
         }
     }
 
-    RenderJoyEditorSystemComponent::RenderJoyEditorSystemComponent() = default;
+    EditorRenderJoySystemComponent::EditorRenderJoySystemComponent() = default;
 
-    RenderJoyEditorSystemComponent::~RenderJoyEditorSystemComponent()
+    EditorRenderJoySystemComponent::~EditorRenderJoySystemComponent()
     {
         // AzToolsFramework::CloseViewPane(RenderJoyName);
         // AzToolsFramework::UnregisterViewPane(RenderJoyName);
     }
 
-    void RenderJoyEditorSystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided)
+    void EditorRenderJoySystemComponent::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided)
     {
         BaseSystemComponent::GetProvidedServices(provided);
         provided.push_back(AZ_CRC_CE("RenderJoySystemEditorService"));
     }
 
-    void RenderJoyEditorSystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible)
+    void EditorRenderJoySystemComponent::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible)
     {
         BaseSystemComponent::GetIncompatibleServices(incompatible);
         incompatible.push_back(AZ_CRC_CE("RenderJoySystemEditorService"));
     }
 
-    void RenderJoyEditorSystemComponent::GetRequiredServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& required)
+    void EditorRenderJoySystemComponent::GetRequiredServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& required)
     {
         BaseSystemComponent::GetRequiredServices(required);
     }
 
-    void RenderJoyEditorSystemComponent::GetDependentServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& dependent)
+    void EditorRenderJoySystemComponent::GetDependentServices([[maybe_unused]] AZ::ComponentDescriptor::DependencyArrayType& dependent)
     {
         BaseSystemComponent::GetDependentServices(dependent);
     }
 
-    void RenderJoyEditorSystemComponent::Activate()
+    void EditorRenderJoySystemComponent::Activate()
     {
         RenderJoySystemComponent::Activate();
         AzToolsFramework::EditorEvents::Bus::Handler::BusConnect();
     }
 
-    void RenderJoyEditorSystemComponent::Deactivate()
+    void EditorRenderJoySystemComponent::Deactivate()
     {
         AzToolsFramework::EditorEvents::Bus::Handler::BusDisconnect();
         RenderJoySystemComponent::Deactivate();
@@ -75,7 +75,7 @@ namespace RenderJoy
 
     ////////////////////////////////////////////////////////////////////////
     // AztoolsFramework::EditorEvents::Bus::Handler overrides
-    void RenderJoyEditorSystemComponent::NotifyRegisterViews()
+    void EditorRenderJoySystemComponent::NotifyRegisterViews()
     {
         // AZ::Vector2 size(1280, 720);
         // RenderJoySettingsRequestBus::BroadcastResult(size, &RenderJoySettingsRequests::GetRenderTargetSize);
