@@ -9,9 +9,12 @@
 #include <Atom/RPI.Public/Pass/PassUtils.h>
 #include <Atom/RPI.Public/RPIUtils.h>
 #include <Atom/RPI.Public/Shader/ShaderReloadDebugTracker.h>
+#include <Atom/RPI.Public/RenderPipeline.h>
+#include <Atom/RPI.Public/Scene.h>
 
 #include <Atom/RPI.Reflect/Pass/PassTemplate.h>
 #include <Atom/RPI.Reflect/Shader/ShaderAsset.h>
+#include <Atom/RPI.Reflect/Asset/AssetUtils.h>
 
 #include <Atom/RHI/Factory.h>
 #include <Atom/RHI/FrameScheduler.h>
@@ -21,7 +24,8 @@
 #include <AzCore/Asset/AssetManagerBus.h>
 #include <AzCore/std/algorithm.h>
 
-
+#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
+#include <RenderJoy/RenderJoyBus.h>
 #include "RenderJoyBillboardPassData.h"
 #include "RenderJoyBillboardPass.h"
 
@@ -78,30 +82,19 @@ namespace RenderJoy
             return;
         }
     
-        AZ::Data::AssetId shaderAssetId = passData->m_shaderAsset.m_assetId;
-        if (!shaderAssetId.IsValid())
-        {
-            // This case may happen when PassData comes from a PassRequest defined inside an *.azasset.
-            // Unlike the PassBuilder, the AnyAssetBuilder doesn't record the AssetId, so we have to discover the asset id at runtime.
-            AZStd::string azshaderPath = passData->m_shaderAsset.m_filePath;
-            AZ::StringFunc::Path::ReplaceExtension(azshaderPath, "azshader");
-            AZ::Data::AssetCatalogRequestBus::BroadcastResult(
-                shaderAssetId, &AZ::Data::AssetCatalogRequestBus::Events::GetAssetIdByPath, azshaderPath.c_str(),
-                azrtti_typeid<AZ::RPI::ShaderAsset>(), false /*autoRegisterIfNotFound*/);
-        }
-    
         // Load Shader
         AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset;
+        AZ::Data::AssetId shaderAssetId = AZ::RPI::AssetUtils::GetAssetIdForProductPath(BillboardShaderProductPath);
         if (shaderAssetId.IsValid())
         {
-            shaderAsset = AZ::RPI::FindShaderAsset(shaderAssetId, passData->m_shaderAsset.m_filePath);
+            shaderAsset = AZ::RPI::FindShaderAsset(shaderAssetId, AZStd::string(BillboardShaderProductPath));
         }
     
         if (!shaderAsset.GetId().IsValid())
         {
-            AZ_Error("PassSystem", false, "[RenderJoyBillboardPass '%s']: Failed to load shader '%s'!",
+            AZ_Error("PassSystem", false, "[RenderJoyBillboardPass '%s']: Failed to load shader asset '%s'!",
                 GetPathName().GetCStr(),
-                passData->m_shaderAsset.m_filePath.data());
+                BillboardShaderProductPath);
             return;
         }
     
@@ -110,18 +103,27 @@ namespace RenderJoy
         {
             AZ_Error("PassSystem", false, "[RenderJoyBillboardPass '%s']: Failed to load shader '%s'!",
                 GetPathName().GetCStr(),
-                passData->m_shaderAsset.m_filePath.data());
+                BillboardShaderProductPath);
             return;
         }
     
         // Store stencil reference value for the draw call
         m_stencilRef = passData->m_stencilRef;
+
+        m_inputTextureIsAttachment = passData->m_inputTextureIsAttachment;
+        if (!m_inputTextureIsAttachment)
+        {
+            auto renderJoySystem = RenderJoyInterface::Get();
+            m_inputTextureImage = renderJoySystem->GetInvalidParentPassTexture();
+        }
     
         m_pipelineStateForDraw.Init(m_shader);
     
         CreateSrgs();
     
         QueueForInitialization();
+
+        m_shaderConstantsNeedUpdate = true;
     
         AZ::RPI::ShaderReloadNotificationBus::Handler::BusDisconnect();
         AZ::RPI::ShaderReloadNotificationBus::Handler::BusConnect(shaderAsset.GetId());
@@ -140,11 +142,11 @@ namespace RenderJoy
         {
             m_shaderResourceGroup = AZ::RPI::ShaderResourceGroup::Create(m_shader->GetAsset(), m_shader->GetSupervariantIndex(), passSrgLayout->GetName());
     
-            [[maybe_unused]] const RenderJoyBillboardPassData* passData = AZ::RPI::PassUtils::GetPassData<RenderJoyBillboardPassData>(m_passDescriptor);
+            //[[maybe_unused]] const RenderJoyBillboardPassData* passData = AZ::RPI::PassUtils::GetPassData<RenderJoyBillboardPassData>(m_passDescriptor);
     
             AZ_Assert(m_shaderResourceGroup, "[RenderJoyBillboardPass '%s']: Failed to create SRG from shader asset '%s'",
                 GetPathName().GetCStr(),
-                passData->m_shaderAsset.m_filePath.data());
+                BillboardShaderProductPath);
     
             AZ::RPI::PassUtils::BindDataMappingsToSrg(m_passDescriptor, m_shaderResourceGroup.get());
         }
@@ -199,6 +201,12 @@ namespace RenderJoy
         }
     
         BuildDrawItem();
+
+        // Notify the feature processor
+        AZ::RPI::Scene* scene = m_pipeline->GetScene();
+        auto* fp = scene->GetFeatureProcessor<RenderJoyFeatureProcessorInterface>();
+        fp->OnBillboardPassReady(GetName());
+
     }
     
     void RenderJoyBillboardPass::FrameBeginInternal(FramePrepareParams params)
@@ -271,6 +279,15 @@ namespace RenderJoy
         {
             if (m_shaderConstantsNeedUpdate)
             {
+                if (!m_inputTextureIsAttachment && !m_inputTextureImage)
+                {
+                    auto renderJoySystem = RenderJoyInterface::Get();
+                    m_inputTextureImage = renderJoySystem->GetInvalidParentPassTexture();
+                }
+                if (m_inputTextureImage)
+                {
+                    m_shaderResourceGroup->SetImage(m_inputTextureImageIndex, m_inputTextureImage);
+                }
                 m_shaderResourceGroup->SetConstant(m_modelToWorldIndex, m_worldMatrix);
                 m_shaderResourceGroup->SetConstant(m_alwaysFaceCameraIndex, m_alwaysFaceCamera);
             }

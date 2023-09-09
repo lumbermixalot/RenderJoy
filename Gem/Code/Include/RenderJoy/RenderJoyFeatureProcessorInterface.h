@@ -20,5 +20,8 @@ namespace RenderJoy
     public:
         AZ_RTTI(RenderJoyFeatureProcessorInterface, "{96DDAA2F-C947-42BA-A664-453C440D7DAE}", AZ::RPI::FeatureProcessor);
 
+        // Called by each billboard pass when it becomes active.
+        virtual void OnBillboardPassReady(const AZ::Name& billboardPassName) = 0;
+
     };
 }

@@ -62,7 +62,7 @@ namespace RenderJoy
         BaseClass::Activate();
         AzFramework::EntityDebugDisplayEventBus::Handler::BusConnect(GetEntityId());
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusConnect(GetEntityId());
-        AZ::TickBus::Handler::BusConnect();
+        //AZ::TickBus::Handler::BusConnect();
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusConnect();
 
         // AZ::u64 entityId = (AZ::u64)GetEntityId();
@@ -72,7 +72,7 @@ namespace RenderJoy
     void EditorRenderJoyBillboardComponent::Deactivate()
     {
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusDisconnect();
-        AZ::TickBus::Handler::BusDisconnect();
+        //AZ::TickBus::Handler::BusDisconnect();
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusDisconnect();
         AzFramework::EntityDebugDisplayEventBus::Handler::BusDisconnect();
         BaseClass::Deactivate();

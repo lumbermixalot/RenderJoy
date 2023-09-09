@@ -27,8 +27,6 @@ namespace RenderJoy
         RenderJoyTemplatesFactory() = default;
         ~RenderJoyTemplatesFactory();
 
-        static constexpr char InvalidPipelineTexturePath[] = "textures/renderjoy/invalidpipeline.png.streamingimage"; //"Textures/RenderJoy/InvalidPipeline.png";
-
         // The parent pass name can be extracted from m_passRequest.
         struct ParentEntityTemplates
         {

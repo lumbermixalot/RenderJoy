@@ -10,6 +10,7 @@
 
 //#include <AzCore/Component/Component.h>
 #include <AzToolsFramework/API/ToolsApplicationAPI.h>
+#include <AzToolsFramework/Entity/EditorEntityContextBus.h>
 
 #include <Clients/RenderJoySystemComponent.h>
 
@@ -21,6 +22,7 @@ namespace RenderJoy
     class EditorRenderJoySystemComponent
         : public RenderJoySystemComponent
         , private AzToolsFramework::EditorEvents::Bus::Handler
+        , private AzToolsFramework::EditorEntityContextNotificationBus::Handler
     {
         using BaseSystemComponent = RenderJoySystemComponent;
     public:
@@ -48,5 +50,12 @@ namespace RenderJoy
         // AZ::Component
         void Activate() override;
         void Deactivate() override;
+
+        //////////////////////////////////////////////////////////////////////////////////////
+        // AzToolsFramework::EditorEntityContextNotificationBus::Handler overrides START
+        void OnStartPlayInEditorBegin() override;
+        // AzToolsFramework::EditorEntityContextNotificationBus::Handler overrides END
+        //////////////////////////////////////////////////////////////////////////////////////
+
     };
 } // namespace RenderJoy

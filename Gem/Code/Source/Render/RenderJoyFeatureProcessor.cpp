@@ -27,6 +27,7 @@ namespace RenderJoy
     void RenderJoyFeatureProcessor::Activate()
     {
         // Activation is broadcasted after all passes have been added to the main render pipeline.
+        static constexpr char InvalidPipelineTexturePath[] = "textures/renderjoy/invalidpipeline.png.streamingimage"; //"Textures/RenderJoy/InvalidPipeline.png";
     }
 
     void RenderJoyFeatureProcessor::Deactivate()
@@ -74,7 +75,7 @@ namespace RenderJoy
         if (!success)
         {
             AZ_Error(
-                "RPIUtils",
+                LogName,
                 false,
                 "Failed to add pass [%s] to render pipeline [%s].",
                 newPass->GetName().GetCStr(),
@@ -86,12 +87,23 @@ namespace RenderJoy
     {
         auto renderJoySystem = RenderJoyInterface::Get();
         auto parentPassEntities = renderJoySystem->GetParentPassEntities();
+        m_parentPassCount = static_cast<uint32_t>(parentPassEntities.size());
+        m_activedParentPassCount = 0;
         for (const auto& entityId  : parentPassEntities)
         {
             auto passRequest = renderJoySystem->GetPassRequest(entityId);
             MyAddPassRequestToRenderPipeline(renderPipeline, passRequest.get(), "AuxGeomPass", true);
         }
+    }
 
-        RenderJoyNotificationBus::Broadcast(&RenderJoyNotifications::OnFeatureProcessorActivated);
+    // RenderJoyFeatureProcessorInterface overrides
+    void RenderJoyFeatureProcessor::OnBillboardPassReady(const AZ::Name& billboardPassName)
+    {
+        AZ_Printf(LogName, "%s pass name=%s.\n", __FUNCTION__, billboardPassName.GetCStr());
+        m_activedParentPassCount++;
+        if (m_activedParentPassCount == m_parentPassCount)
+        {
+            RenderJoyNotificationBus::Broadcast(&RenderJoyNotifications::OnFeatureProcessorActivated);
+        }
     }
 }

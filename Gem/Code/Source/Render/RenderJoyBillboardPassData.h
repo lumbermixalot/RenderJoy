@@ -24,8 +24,9 @@ namespace RenderJoy
 
             static void Reflect(AZ::ReflectContext* context);
 
-            //! Reference to the shader asset used by the fullscreen triangle pass
-            AZ::RPI::AssetReference m_shaderAsset;
+            //! If this is true the "PassSrg::m_inputTexture" SRV is actually an attachment.
+            //! Otherwise it is just a regular shader constant SRV. 
+            bool m_inputTextureIsAttachment = false;
 
             //! Stencil reference value to use for the draw call
             uint32_t m_stencilRef = 0;

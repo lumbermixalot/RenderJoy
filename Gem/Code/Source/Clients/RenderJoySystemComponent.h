@@ -11,6 +11,9 @@
 #include <AzCore/Component/Component.h>
 #include <AzCore/Component/TickBus.h>
 
+#include <Atom/RPI.Reflect/Asset/AssetUtils.h>
+#include <Atom/RPI.Public/Image/StreamingImage.h>
+
 #include <RenderJoy/RenderJoyBus.h>
 #include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 
@@ -51,6 +54,7 @@ namespace RenderJoy
         AZStd::vector<AZ::EntityId> GetParentPassEntities() const override;
         AZStd::shared_ptr<AZ::RPI::PassRequest> GetPassRequest(AZ::EntityId parentPassEntityId) const override;
         AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const override;
+        AZ::Data::Instance<AZ::RPI::Image> GetInvalidParentPassTexture() const override;
         // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 
@@ -63,6 +67,7 @@ namespace RenderJoy
 
     private:
         static constexpr char LogName[] = "RenderJoySystemComponent";
+        static constexpr char InvalidPipelineTexturePath[] =  "textures/renderjoy/invalidpipeline.png.streamingimage"; //"Textures/RenderJoy/InvalidPipeline.png"; 
 
         void DestroyFeatureProcessor();
         void CreateFeatureProcessor();
@@ -70,6 +75,10 @@ namespace RenderJoy
         // It is assumed that all RenderJoy related passes go to the same scene.
         AZ::RPI::Scene* m_scenePtr = nullptr;
         RenderJoyFeatureProcessorInterface* m_featureProcessor = nullptr;
+
+        mutable AZ::RPI::AssetUtils::AsyncAssetLoader m_asyncAssetLoader;
+        mutable bool m_asyncLoadStarted = false;
+        mutable AZ::Data::Instance<AZ::RPI::StreamingImage> m_invalidParentPassTexture;
 
         RenderJoyTemplatesFactory m_templatesFactory;
     };

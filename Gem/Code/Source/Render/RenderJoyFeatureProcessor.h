@@ -48,5 +48,11 @@ namespace RenderJoy
         void Simulate(const FeatureProcessor::SimulatePacket& packet) override;
         void AddRenderPasses(AZ::RPI::RenderPipeline* renderPipeline) override;
 
+        // RenderJoyFeatureProcessorInterface overrides
+        void OnBillboardPassReady(const AZ::Name& billboardPassName) override;
+
+        uint32_t m_parentPassCount = 0;
+        uint32_t m_activedParentPassCount = 0;
+
     };
 }

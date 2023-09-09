@@ -51,7 +51,7 @@ namespace RenderJoy
     private:
         RenderJoyBillboardPass(const AZ::RPI::PassDescriptor& descriptor);
 
-        static constexpr char BillboardShaderSourcePath[] = "Shaders/RenderJoy/Billboard.shader";
+        static constexpr char BillboardShaderProductPath[] = "shaders/renderjoy/billboard.azshader"; //"Shaders/RenderJoy/Billboard.shader";
 
         // Pass behavior overrides...
         void InitializeInternal() override;
@@ -90,6 +90,7 @@ namespace RenderJoy
    
     
         AZ::RPI::PassDescriptor m_passDescriptor;
+        bool m_inputTextureIsAttachment = false; // Cached from @m_passDescriptor.
 
         bool m_shaderConstantsNeedUpdate = true;
 
@@ -99,5 +100,10 @@ namespace RenderJoy
 
         AZ::RHI::ShaderInputNameIndex m_alwaysFaceCameraIndex = "m_alwaysFaceCamera";
         bool m_alwaysFaceCamera = false;
+
+        // We only use this directly when this billboard is not connected to other
+        // RenderJoy passes.
+        AZ::RHI::ShaderInputNameIndex m_inputTextureImageIndex = "m_inputTexture";
+        AZ::Data::Instance<AZ::RPI::Image> m_inputTextureImage = nullptr;
     };
 }   // namespace RenderJoy

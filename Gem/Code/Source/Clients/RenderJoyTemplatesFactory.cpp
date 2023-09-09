@@ -39,13 +39,13 @@ namespace RenderJoy
         return AZStd::string::format("%s_Template", GetUniqueEntityPassNameStr(passNamePrefix, entityId).c_str());
     }
 
-    static AZ::RPI::AssetReference GetAssetReferenceFromPath(const AZStd::string& path)
-    {
-        AZ::RPI::AssetReference assetReference;
-        assetReference.m_filePath = path;
-        assetReference.m_assetId = AZ::RPI::AssetUtils::GetAssetIdForProductPath(path.c_str());
-        return assetReference;
-    }
+    // static AZ::RPI::AssetReference GetAssetReferenceFromPath(const AZStd::string& path)
+    // {
+    //     AZ::RPI::AssetReference assetReference;
+    //     assetReference.m_filePath = path;
+    //     assetReference.m_assetId = AZ::RPI::AssetUtils::GetAssetIdForProductPath(path.c_str());
+    //     return assetReference;
+    // }
 
     static AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateBillboardPassTemplate(AZ::EntityId parentEntityId, bool useRenderJoyAttachment)
     {
@@ -90,7 +90,8 @@ namespace RenderJoy
         passTemplate->m_name = AZ::Name(templateNameStr); // "RenderJoyBillboardPassTemplate"
         passTemplate->m_passClass = AZ::Name(passClassNameStr);
 
-        //Three Slots, 1 input and 2 outputs
+        //Three Slots, 1 optional input and 2 required outputs
+        if (useRenderJoyAttachment)
         {
             AZ::RPI::PassSlot passSlot;
             passSlot.m_name = AZ::Name("RenderJoyImage");
@@ -112,22 +113,6 @@ namespace RenderJoy
             passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
             passSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::DepthStencil;
             passTemplate->AddSlot(passSlot);
-        }
-
-        if (!useRenderJoyAttachment)
-        {
-            AZ::RPI::PassImageAttachmentDesc importedAttachmentDesc;
-            importedAttachmentDesc.m_name = AZ::Name("InvalidPipelineTexture");
-            importedAttachmentDesc.m_lifetime = AZ::RHI::AttachmentLifetimeType::Imported;
-            importedAttachmentDesc.m_assetRef = GetAssetReferenceFromPath(AZStd::string(RenderJoyTemplatesFactory::InvalidPipelineTexturePath));
-            passTemplate->AddImageAttachment(importedAttachmentDesc);
-
-            // Additionally we need to specify this local connection.
-            AZ::RPI::PassConnection inputConnection;
-            inputConnection.m_localSlot = AZ::Name("RenderJoyImage");
-            inputConnection.m_attachmentRef.m_pass = AZ::Name("This");
-            inputConnection.m_attachmentRef.m_attachment = AZ::Name("InvalidPipelineTexture");
-            passTemplate->AddOutputConnection(inputConnection);
         }
 
         //PassData
@@ -224,13 +209,13 @@ namespace RenderJoy
 
             AZ::RPI::PassConnection inputConnection;
             inputConnection.m_localSlot = AZ::Name("ColorInputOutput");
-            inputConnection.m_attachmentRef.m_pass = AZ::Name("This");
+            inputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
             inputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomColorInputOutput");
             childPassRequest.AddInputConnection(inputConnection);
 
             AZ::RPI::PassConnection outputConnection;
             outputConnection.m_localSlot = AZ::Name("DepthInputOutput");
-            outputConnection.m_attachmentRef.m_pass = AZ::Name("This");
+            outputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
             outputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomDepthInputOutput");
             childPassRequest.AddInputConnection(outputConnection);
 
