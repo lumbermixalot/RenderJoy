@@ -100,6 +100,8 @@ namespace RenderJoy
 
     void RenderJoyBillboardComponentController::Activate(AZ::EntityId entityId)
     {
+        AZ_Printf(LogName, "%s for entity=%s.\n", __FUNCTION__, entityId.ToString().c_str());
+
         m_entityId = entityId;
         m_prevConfiguration = m_configuration;
 
@@ -122,6 +124,8 @@ namespace RenderJoy
 
     void RenderJoyBillboardComponentController::Deactivate()
     {
+        AZ_Printf(LogName, "%s for entity=%s.\n", __FUNCTION__, m_entityId.ToString().c_str());
+
         AZ::TransformNotificationBus::Handler::BusDisconnect();
         RenderJoyNotificationBus::Handler::BusDisconnect();
         

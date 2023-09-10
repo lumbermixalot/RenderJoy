@@ -65,10 +65,12 @@ namespace RenderJoy
     {
         RenderJoySystemComponent::Activate();
         AzToolsFramework::EditorEvents::Bus::Handler::BusConnect();
+        AzToolsFramework::EditorEntityContextNotificationBus::Handler::BusConnect();
     }
 
     void EditorRenderJoySystemComponent::Deactivate()
     {
+        AzToolsFramework::EditorEntityContextNotificationBus::Handler::BusDisconnect();
         AzToolsFramework::EditorEvents::Bus::Handler::BusDisconnect();
         RenderJoySystemComponent::Deactivate();
     }
@@ -88,5 +90,16 @@ namespace RenderJoy
         // AzToolsFramework::RegisterViewPane<RenderJoy::MainWindow>(RenderJoyName, LyViewPane::CategoryOther, options);
     }
     ////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////////////////
+    // AzToolsFramework::EditorEntityContextNotificationBus::Handler overrides START
+    void EditorRenderJoySystemComponent::OnStartPlayInEditorBegin()
+    {
+        // When entering game mode, the Editor components will get deactivated and they should not recreate
+        // the feature processor.
+        m_shouldRecreateFeatureProcessor = false;
+    }
+    // AzToolsFramework::EditorEntityContextNotificationBus::Handler overrides END
+    //////////////////////////////////////////////////////////////////////////////////////
 
 } // namespace RenderJoy

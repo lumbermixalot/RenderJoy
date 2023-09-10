@@ -8,13 +8,10 @@
 
 #include <AzCore/Component/Component.h>
 
-//#include <AzToolsFramework/Entity/EditorEntityHelpers.h>
-
-//#include <Atom/RPI.Reflect/Pass/FullscreenTrianglePassData.h>
-
 #include <Atom/RPI.Edit/Common/AssetUtils.h>
 #include <Atom/RPI.Public/Pass/PassSystem.h>
-#include <Atom/RPI.Reflect/Pass/RasterPassData.h>
+#include <Atom/RPI.Public/Pass/PassFilter.h>
+#include <Atom/RPI.Public/Scene.h>
 
 //#include <RenderJoy/RenderJoyPassBus.h>
 //#include <RenderJoy/RenderJoyCommon.h>
@@ -328,6 +325,11 @@ namespace RenderJoy
         }
     }
 
+    size_t RenderJoyTemplatesFactory::GetParentPassCount() const
+    {
+        return m_parentEntities.size();
+    }
+
     AZStd::vector<AZ::EntityId> RenderJoyTemplatesFactory::GetParentPassEntities() const
     {
         AZStd::vector<AZ::EntityId> retList;
@@ -348,6 +350,22 @@ namespace RenderJoy
     {
         const auto itor = m_parentEntities.find(parentPassEntityId);
         return (itor != m_parentEntities.end()) ? itor->second.m_billboardPassName : AZ::Name();
+    }
+
+    bool RenderJoyTemplatesFactory::EntityHasActivePasses(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId) const
+    {
+        if (!m_parentEntities.contains(parentPassEntityId))
+        {
+            return false;
+        }
+
+        const ParentEntityTemplates& templatesData = m_parentEntities.at(parentPassEntityId);
+        const auto& parentPassName = templatesData.m_passRequest->m_passName;
+
+        const auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(parentPassEntityId);
+        AZ::RPI::PassFilter passFilter = AZ::RPI::PassFilter::CreateWithPassName(parentPassName, scenePtr);
+        AZ::RPI::Pass* existingPass = passSystem->FindFirstPass(passFilter);
+        return existingPass != nullptr;
     }
 
     // bool RenderJoyTemplatesFactory::Create(AZ::RPI::PassSystemInterface* passSystem)

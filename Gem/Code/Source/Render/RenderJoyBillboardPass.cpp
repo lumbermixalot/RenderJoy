@@ -33,6 +33,7 @@ namespace RenderJoy
 {
     AZ::RPI::Ptr<RenderJoyBillboardPass> RenderJoyBillboardPass::Create(const AZ::RPI::PassDescriptor& descriptor)
     {
+        AZ_Printf(PassNameStr, "%s\n", __FUNCTION__);
         AZ::RPI::Ptr<RenderJoyBillboardPass> pass = aznew RenderJoyBillboardPass(descriptor);
         return pass;
     }
@@ -46,6 +47,7 @@ namespace RenderJoy
     
     RenderJoyBillboardPass::~RenderJoyBillboardPass()
     {
+        AZ_Printf(PassNameStr, "%s\n", __FUNCTION__);
         AZ::RPI::ShaderReloadNotificationBus::Handler::BusDisconnect();
     }
     
@@ -77,7 +79,7 @@ namespace RenderJoy
         const RenderJoyBillboardPassData* passData = AZ::RPI::PassUtils::GetPassData<RenderJoyBillboardPassData>(m_passDescriptor);
         if (passData == nullptr)
         {
-            AZ_Error("PassSystem", false, "[RenderJoyBillboardPass '%s']: Trying to construct without valid RenderJoyBillboardPassData!",
+            AZ_Error(PassNameStr, false, "[RenderJoyBillboardPass '%s']: Trying to construct without valid RenderJoyBillboardPassData!",
                 GetPathName().GetCStr());
             return;
         }
@@ -92,7 +94,7 @@ namespace RenderJoy
     
         if (!shaderAsset.GetId().IsValid())
         {
-            AZ_Error("PassSystem", false, "[RenderJoyBillboardPass '%s']: Failed to load shader asset '%s'!",
+            AZ_Error(PassNameStr, false, "[RenderJoyBillboardPass '%s']: Failed to load shader asset '%s'!",
                 GetPathName().GetCStr(),
                 BillboardShaderProductPath);
             return;
@@ -101,7 +103,7 @@ namespace RenderJoy
         m_shader = AZ::RPI::Shader::FindOrCreate(shaderAsset);
         if (m_shader == nullptr)
         {
-            AZ_Error("PassSystem", false, "[RenderJoyBillboardPass '%s']: Failed to load shader '%s'!",
+            AZ_Error(PassNameStr, false, "[RenderJoyBillboardPass '%s']: Failed to load shader '%s'!",
                 GetPathName().GetCStr(),
                 BillboardShaderProductPath);
             return;
@@ -196,7 +198,7 @@ namespace RenderJoy
     
         if (m_shader == nullptr)
         {
-            AZ_Error("PassSystem", false, "[RenderJoyBillboardPass]: Shader not loaded!");
+            AZ_Error(PassNameStr, false, "[RenderJoyBillboardPass]: Shader not loaded!");
             return;
         }
     

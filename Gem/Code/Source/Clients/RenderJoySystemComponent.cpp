@@ -92,6 +92,7 @@ namespace RenderJoy
 
     void RenderJoySystemComponent::Deactivate()
     {
+        AZ::SystemTickBus::Handler::BusDisconnect();
         AZ::RPI::FeatureProcessorFactory::Get()->UnregisterFeatureProcessor<RenderJoyFeatureProcessor>();
         RenderJoyRequestBus::Handler::BusDisconnect();
 
@@ -105,13 +106,18 @@ namespace RenderJoy
         {
             return;
         }
-        m_scenePtr->DisableFeatureProcessor<RenderJoyFeatureProcessor>();
-        m_featureProcessor = nullptr;
+        if (m_scenePtr->GetFeatureProcessor<RenderJoyFeatureProcessor>())
+        {
+            m_scenePtr->DisableFeatureProcessor<RenderJoyFeatureProcessor>();
+            m_featureProcessor = nullptr;
+        }
+
     }
 
     void RenderJoySystemComponent::CreateFeatureProcessor()
     {
         AZ_Assert(m_scenePtr != nullptr, "First define the scene!");
+        m_featureProcessor = m_scenePtr->GetFeatureProcessor<RenderJoyFeatureProcessor>();
         if (!m_featureProcessor)
         {
             m_featureProcessor = m_scenePtr->EnableFeatureProcessor<RenderJoyFeatureProcessor>();
@@ -136,16 +142,22 @@ namespace RenderJoy
         // We can not remove pass templates while the Feature Processor is still active.
         DestroyFeatureProcessor();
 
-        auto notifyTextureReadyFn = [parentPassEntityId = parentPassEntityId, passBusEntity = passBusEntity, this]()
-            {
-                auto passSystem = AZ::RPI::PassSystemInterface::Get();
-                m_templatesFactory.CreateRenderJoyParentPassRequest(passSystem, parentPassEntityId, passBusEntity);
+        m_entitiesToProcess.emplace(parentPassEntityId, passBusEntity);
+        if (!AZ::SystemTickBus::Handler::BusIsConnected())
+        {
+            AZ::SystemTickBus::Handler::BusConnect();
+        }
 
-                // Time to recreate the feature processor.
-                // Later, when the feature processor is activated, it will query all the existing pass requests.
-                CreateFeatureProcessor();
-            };
-        AZ::TickBus::QueueFunction(AZStd::move(notifyTextureReadyFn));
+        //auto notifyTextureReadyFn = [parentPassEntityId = parentPassEntityId, passBusEntity = passBusEntity, this]()
+        //    {
+        //        auto passSystem = AZ::RPI::PassSystemInterface::Get();
+        //        m_templatesFactory.CreateRenderJoyParentPassRequest(passSystem, parentPassEntityId, passBusEntity);
+        //
+        //        // Time to recreate the feature processor.
+        //        // Later, when the feature processor is activated, it will query all the existing pass requests.
+        //        CreateFeatureProcessor();
+        //    };
+        //AZ::TickBus::QueueFunction(AZStd::move(notifyTextureReadyFn));
 
         return true;
     }
@@ -155,24 +167,32 @@ namespace RenderJoy
         // The feature processor needs to be destroyed before we can remove pass templates.
         DestroyFeatureProcessor();
 
-        // Defer template removal and recretation of the feature processor in the next cycle.
-        auto notifyTextureReadyFn = [parentPassEntityId = parentPassEntityId, this]()
-            {
-                auto passSystem = AZ::RPI::PassSystemInterface::Get();
-                m_templatesFactory.RemoveTemplates(passSystem, parentPassEntityId);
+        m_entitiesToProcess.emplace(parentPassEntityId, AZ::EntityId());
+        if (!AZ::SystemTickBus::Handler::BusIsConnected())
+        {
+            AZ::SystemTickBus::Handler::BusConnect();
+        }
 
-                // Recreate the FP only if there are RenderJoy pass instances left.
-                if (!m_templatesFactory.GetParentPassEntities().empty())
-                {
-                    CreateFeatureProcessor();
-                }
-                else
-                {
-                    m_scenePtr = nullptr;
-                }
-            };
-        AZ::TickBus::QueueFunction(AZStd::move(notifyTextureReadyFn));
-
+        //// Defer template removal and recretation of the feature processor in the next cycle.
+        //auto notifyTextureReadyFn = [parentPassEntityId = parentPassEntityId, this]()
+        //    {
+        //        auto passSystem = AZ::RPI::PassSystemInterface::Get();
+        //        m_templatesFactory.RemoveTemplates(passSystem, parentPassEntityId);
+        //
+        //        if (m_shouldRecreateFeatureProcessor)
+        //        {
+        //            // Recreate the FP only if there are RenderJoy pass instances left.
+        //            if (!m_templatesFactory.GetParentPassEntities().empty())
+        //            {
+        //                CreateFeatureProcessor();
+        //            }
+        //            else
+        //            {
+        //                m_scenePtr = nullptr;
+        //            }
+        //        }
+        //    };
+        //AZ::TickBus::QueueFunction(AZStd::move(notifyTextureReadyFn));
 
         //AZ_Printf(LogName, "%s parentPassEntityId=%s\n", __FUNCTION__, parentPassEntityId.ToString().c_str());
         return true;
@@ -218,5 +238,57 @@ namespace RenderJoy
     }
     // RenderJoyRequestBus interface implementation END
     ////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // SystemTickBus
+    void RenderJoySystemComponent::OnSystemTick()
+    {
+        auto passSystem = AZ::RPI::PassSystemInterface::Get();
+
+        if (m_entitiesToProcess.empty())
+        {
+            // If we have registered entities, it is time to stop looping and recreate the Feature processor.
+            AZ::SystemTickBus::Handler::BusDisconnect();
+            if (m_templatesFactory.GetParentPassCount())
+            {
+                CreateFeatureProcessor();
+                return;
+            }
+        }
+
+        // In this vector we'll store the data that we should remove from @m_entitiesToProcess.
+        AZStd::vector<AZ::EntityId> removeList;
+
+        // First we'll process passTemplate removals.
+        for (auto const& [parentPassEntityId, passBusEntity] : m_entitiesToProcess)
+        {
+            // We always have to remove the parentPassEntityId templates first (even if later we are supposed
+            // to add a new version).
+            if (m_templatesFactory.EntityHasActivePasses(passSystem, parentPassEntityId))
+            {
+                // Try next tick.
+                // The pass system is still in the process of destroying the feature processor.
+                break;
+            }
+            else
+            {
+                m_templatesFactory.RemoveTemplates(passSystem, parentPassEntityId);
+            }
+
+            if (passBusEntity.IsValid())
+            {
+                m_templatesFactory.CreateRenderJoyParentPassRequest(passSystem, parentPassEntityId, passBusEntity);
+            }
+
+            removeList.push_back(parentPassEntityId);
+        }
+
+        for (const auto & entityId : removeList)
+        {
+            m_entitiesToProcess.erase(entityId);
+        }
+
+    }
+    //////////////////////////////////////////////////////////////////////////
 
 } // namespace RenderJoy

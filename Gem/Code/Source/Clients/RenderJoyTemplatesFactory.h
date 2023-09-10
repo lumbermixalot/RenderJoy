@@ -50,11 +50,15 @@ namespace RenderJoy
         // Wholesale removes all RenderJoy related templates from the pass system.
         void RemoveAllTemplates(AZ::RPI::PassSystemInterface* passSystem);
 
+        size_t GetParentPassCount() const;
+
         AZStd::vector<AZ::EntityId> GetParentPassEntities() const;
 
         AZStd::shared_ptr<AZ::RPI::PassRequest> GetParentPassRequest(AZ::EntityId parentPassEntityId) const;
 
         AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const;
+
+        bool EntityHasActivePasses(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId) const;
 
         //////////////////////////////////////////////////////////////////////////
         // Helper Functions Start ...

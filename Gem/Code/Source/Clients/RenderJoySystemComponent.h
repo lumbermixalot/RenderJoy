@@ -32,6 +32,7 @@ namespace RenderJoy
     class RenderJoySystemComponent
         : public AZ::Component
         , public RenderJoyRequestBus::Handler
+        , public AZ::SystemTickBus::Handler
     {
     public:
         AZ_COMPONENT_DECL(RenderJoySystemComponent);
@@ -58,12 +59,19 @@ namespace RenderJoy
         // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 
+        //////////////////////////////////////////////////////////////////////////
+        // SystemTickBus
+        void OnSystemTick() override;
+        //////////////////////////////////////////////////////////////////////////
+
         ////////////////////////////////////////////////////////////////////////
         // AZ::Component interface implementation
         void Init() override;
         void Activate() override;
         void Deactivate() override;
         ////////////////////////////////////////////////////////////////////////
+
+        bool m_shouldRecreateFeatureProcessor = true;
 
     private:
         static constexpr char LogName[] = "RenderJoySystemComponent";
@@ -81,6 +89,11 @@ namespace RenderJoy
         mutable AZ::Data::Instance<AZ::RPI::StreamingImage> m_invalidParentPassTexture;
 
         RenderJoyTemplatesFactory m_templatesFactory;
+
+        // We need to queue removal and addition because we have to serially and safely destroy and recreate the feature processor.
+        // Key: parentPassEntityId, Value: passBusEntity
+        // If passBusEntity is invalid, then we will remove parentPassEntityId.
+        AZStd::map<AZ::EntityId, AZ::EntityId> m_entitiesToProcess;
     };
 
 } // namespace RenderJoy

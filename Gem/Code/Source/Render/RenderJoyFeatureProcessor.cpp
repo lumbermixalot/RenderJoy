@@ -26,12 +26,13 @@ namespace RenderJoy
 
     void RenderJoyFeatureProcessor::Activate()
     {
+        AZ_Printf(LogName, "%s\n", __FUNCTION__);
         // Activation is broadcasted after all passes have been added to the main render pipeline.
-        static constexpr char InvalidPipelineTexturePath[] = "textures/renderjoy/invalidpipeline.png.streamingimage"; //"Textures/RenderJoy/InvalidPipeline.png";
     }
 
     void RenderJoyFeatureProcessor::Deactivate()
     {
+        AZ_Printf(LogName, "%s\n", __FUNCTION__);
         RenderJoyNotificationBus::Broadcast(&RenderJoyNotifications::OnFeatureProcessorDeactivated);
     }
 
