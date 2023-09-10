@@ -26,7 +26,7 @@
 #include <Atom/RHI/PipelineState.h>
 
 #include <RenderJoy/IRenderJoySrgDataProvider.h>
-#include "RenderJoyTrianglePass.h"
+#include "RenderJoyShaderPass.h"
 
 namespace RenderJoy
 {
@@ -35,13 +35,13 @@ namespace RenderJoy
         return streamingImage->GetRHIImage()->GetDescriptor().m_size;
     }
 
-    AZ::RPI::Ptr<RenderJoyTrianglePass> RenderJoyTrianglePass::Create(const AZ::RPI::PassDescriptor& descriptor)
+    AZ::RPI::Ptr<RenderJoyShaderPass> RenderJoyShaderPass::Create(const AZ::RPI::PassDescriptor& descriptor)
     {
-        AZ::RPI::Ptr<RenderJoyTrianglePass> pass = aznew RenderJoyTrianglePass(descriptor);
+        AZ::RPI::Ptr<RenderJoyShaderPass> pass = aznew RenderJoyShaderPass(descriptor);
         return pass;
     }
 
-    RenderJoyTrianglePass::RenderJoyTrianglePass(const AZ::RPI::PassDescriptor& descriptor)
+    RenderJoyShaderPass::RenderJoyShaderPass(const AZ::RPI::PassDescriptor& descriptor)
         : AZ::RPI::RenderPass(descriptor)
         , m_passDescriptor(descriptor)
     {
@@ -72,7 +72,7 @@ namespace RenderJoy
         RenderJoyPassNotificationBus::Handler::BusConnect(m_entityId);
     }
 
-    RenderJoyTrianglePass::~RenderJoyTrianglePass()
+    RenderJoyShaderPass::~RenderJoyShaderPass()
     {
         RenderJoyTextureProviderNotificationBus::MultiHandler::BusDisconnect();
         RenderJoyPassNotificationBus::Handler::BusDisconnect();
@@ -81,29 +81,29 @@ namespace RenderJoy
 
     ///////////////////////////////////////////////////////////////////
     // ShaderReloadNotificationBus overrides...
-    void RenderJoyTrianglePass::OnShaderReinitialized(const AZ::RPI::Shader&)
+    void RenderJoyShaderPass::OnShaderReinitialized(const AZ::RPI::Shader&)
     {
         LoadShader();
     }
 
-    void RenderJoyTrianglePass::OnShaderAssetReinitialized(const AZ::Data::Asset<AZ::RPI::ShaderAsset>&)
+    void RenderJoyShaderPass::OnShaderAssetReinitialized(const AZ::Data::Asset<AZ::RPI::ShaderAsset>&)
     {
         LoadShader();
     }
 
-    void RenderJoyTrianglePass::OnShaderVariantReinitialized(const AZ::RPI::ShaderVariant&)
+    void RenderJoyShaderPass::OnShaderVariantReinitialized(const AZ::RPI::ShaderVariant&)
     {
         LoadShader();
     }
     ///////////////////////////////////////////////////////////////////
 
-    void RenderJoyTrianglePass::LoadShader()
+    void RenderJoyShaderPass::LoadShader()
     {
         // Load FullscreenTrianglePassData
         const AZ::RPI::FullscreenTrianglePassData* passData = AZ::RPI::PassUtils::GetPassData<AZ::RPI::FullscreenTrianglePassData>(m_passDescriptor);
         if (passData == nullptr)
         {
-            AZ_Error(LogName, false, "[RenderJoyTrianglePass '%s']: Trying to construct without valid FullscreenTrianglePassData!",
+            AZ_Error(LogName, false, "[RenderJoyShaderPass '%s']: Trying to construct without valid FullscreenTrianglePassData!",
                 GetPathName().GetCStr());
             return;
         }
@@ -117,7 +117,7 @@ namespace RenderJoy
 
         if (!shaderAsset.GetId().IsValid())
         {
-            AZ_Error(LogName, false, "[RenderJoyTrianglePass '%s']: Failed to load shader '%s'!",
+            AZ_Error(LogName, false, "[RenderJoyShaderPass '%s']: Failed to load shader '%s'!",
                 GetPathName().GetCStr(),
                 passData->m_shaderAsset.m_filePath.data());
             return;
@@ -126,7 +126,7 @@ namespace RenderJoy
         m_shader = AZ::RPI::Shader::FindOrCreate(shaderAsset);
         if (m_shader == nullptr)
         {
-            AZ_Error(LogName, false, "[RenderJoyTrianglePass '%s']: Failed to load shader '%s'!",
+            AZ_Error(LogName, false, "[RenderJoyShaderPass '%s']: Failed to load shader '%s'!",
                 GetPathName().GetCStr(),
                 passData->m_shaderAsset.m_filePath.data());
             return;
@@ -138,7 +138,7 @@ namespace RenderJoy
         {
             m_shaderResourceGroup = AZ::RPI::ShaderResourceGroup::Create(shaderAsset, m_shader->GetSupervariantIndex(), passSrgLayout->GetName());
 
-            AZ_Assert(m_shaderResourceGroup, "[RenderJoyTrianglePass '%s']: Failed to create SRG from shader asset '%s'",
+            AZ_Assert(m_shaderResourceGroup, "[RenderJoyShaderPass '%s']: Failed to create SRG from shader asset '%s'",
                 GetPathName().GetCStr(),
                 passData->m_shaderAsset.m_filePath.c_str());
 
@@ -155,7 +155,7 @@ namespace RenderJoy
         AZ::RPI::ShaderReloadNotificationBus::Handler::BusConnect(shaderAsset.GetId());
     }
 
-    void RenderJoyTrianglePass::Init()
+    void RenderJoyShaderPass::Init()
     {
         // This draw item purposefully does not reference any geometry buffers.
         // Instead it's expected that the extended class uses a vertex shader 
@@ -187,7 +187,7 @@ namespace RenderJoy
         m_initialized = true;
     }
 
-    void RenderJoyTrianglePass::FrameBeginInternal(AZ::RPI::Pass::FramePrepareParams params)
+    void RenderJoyShaderPass::FrameBeginInternal(AZ::RPI::Pass::FramePrepareParams params)
     {
         if (!m_initialized)
         {
@@ -205,10 +205,10 @@ namespace RenderJoy
             outputAttachment = GetInputOutputBinding(0).GetAttachment().get();
         }
 
-        AZ_Assert(outputAttachment != nullptr, "[RenderJoyTrianglePass %s] has no valid output or input/output attachments.", GetPathName().GetCStr());
+        AZ_Assert(outputAttachment != nullptr, "[RenderJoyShaderPass %s] has no valid output or input/output attachments.", GetPathName().GetCStr());
 
         AZ_Assert(outputAttachment->GetAttachmentType() == AZ::RHI::AttachmentType::Image,
-            "[RenderJoyTrianglePass %s] output of RenderJoyTrianglePass must be an image", GetPathName().GetCStr());
+            "[RenderJoyShaderPass %s] output of RenderJoyShaderPass must be an image", GetPathName().GetCStr());
 
         AZ::RHI::Size targetImageSize = outputAttachment->m_descriptor.m_image.m_size;
 
@@ -257,7 +257,7 @@ namespace RenderJoy
         RenderPass::FrameBeginInternal(params);
     }
 
-    void RenderJoyTrianglePass::BuildInternal()
+    void RenderJoyShaderPass::BuildInternal()
     {
         if (m_inputChannelIndexForPrevFrameOutputAsInput == InvalidInputChannelIndex)
         {
@@ -291,13 +291,13 @@ namespace RenderJoy
 
     // Scope producer functions
 
-    void RenderJoyTrianglePass::SetupFrameGraphDependencies(AZ::RHI::FrameGraphInterface frameGraph)
+    void RenderJoyShaderPass::SetupFrameGraphDependencies(AZ::RHI::FrameGraphInterface frameGraph)
     {
         AZ::RPI::RenderPass::SetupFrameGraphDependencies(frameGraph);
         frameGraph.SetEstimatedItemCount(2);
     }
 
-    void RenderJoyTrianglePass::CompileResources(const AZ::RHI::FrameGraphCompileContext& context)
+    void RenderJoyShaderPass::CompileResources(const AZ::RHI::FrameGraphCompileContext& context)
     {
         if (m_shaderResourceGroup != nullptr)
         {
@@ -311,7 +311,7 @@ namespace RenderJoy
     }
 
     // RenderPass functions...
-    void RenderJoyTrianglePass::BuildCommandListInternal(const AZ::RHI::FrameGraphExecuteContext& context)
+    void RenderJoyShaderPass::BuildCommandListInternal(const AZ::RHI::FrameGraphExecuteContext& context)
     {
         AZ::RHI::CommandList* commandList = context.GetCommandList();
 
@@ -328,12 +328,12 @@ namespace RenderJoy
         }
     }
 
-    void RenderJoyTrianglePass::Invalidate()
+    void RenderJoyShaderPass::Invalidate()
     {
         m_initialized = false;
     }
 
-    void RenderJoyTrianglePass::CacheRenderJoySrgConstantsIndices()
+    void RenderJoyShaderPass::CacheRenderJoySrgConstantsIndices()
     {
         AZ_Assert(!!m_shaderResourceGroup, "Don't call this if there's no PassSrg");
         const auto srgLayout = m_shaderResourceGroup->GetLayout();
@@ -397,7 +397,7 @@ namespace RenderJoy
         }
     }
 
-    bool RenderJoyTrianglePass::SetImageAssetForChannel(uint32_t channelIndex, AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset)
+    bool RenderJoyShaderPass::SetImageAssetForChannel(uint32_t channelIndex, AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset)
     {
         auto streamingImageInstance = AZ::Data::InstanceDatabase<AZ::RPI::StreamingImage>::Instance().FindOrCreate(imageAsset);
         if (!!streamingImageInstance)
@@ -410,7 +410,7 @@ namespace RenderJoy
         return false;
     }
 
-    bool RenderJoyTrianglePass::SetMutableImageForChannel(AZ::EntityId entityId, uint32_t channelIndex)
+    bool RenderJoyShaderPass::SetMutableImageForChannel(AZ::EntityId entityId, uint32_t channelIndex)
     {
         const void* pixels = nullptr;
         RenderJoyTextureProviderBus::EventResult(pixels, entityId, &RenderJoyTextureProvider::GetPixelBuffer);
@@ -445,7 +445,7 @@ namespace RenderJoy
         return true;
     }
 
-    void RenderJoyTrianglePass::SetDefaultImageForChannel(uint32_t imageChannelIdx)
+    void RenderJoyShaderPass::SetDefaultImageForChannel(uint32_t imageChannelIdx)
     {
         AZStd::string imageName = AZStd::string::format("renderjoy_m_channel%u", imageChannelIdx);
         uint32_t color;
@@ -459,7 +459,7 @@ namespace RenderJoy
         CreateImageForChannel(imageChannelIdx, imageName, 256, 256, color);
     }
 
-    void RenderJoyTrianglePass::CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color)
+    void RenderJoyShaderPass::CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color)
     {
         auto streamingImageInstance = AZ::Data::InstanceDatabase<AZ::RPI::StreamingImage>::Instance().Find(AZ::Data::InstanceId::CreateName(imageName.c_str()));
         if (!!streamingImageInstance)
@@ -487,13 +487,13 @@ namespace RenderJoy
         m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(width), aznumeric_cast<float>(height), 1.0f, 0.0f);
     }
 
-    void RenderJoyTrianglePass::RemoveImageForChannel(uint32_t imageChannelIdx)
+    void RenderJoyShaderPass::RemoveImageForChannel(uint32_t imageChannelIdx)
     {
         m_imageChannels[imageChannelIdx] = nullptr;
         m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4::CreateZero();
     }
 
-    uint32_t RenderJoyTrianglePass::GetInputChannelIndexFromEntityId(const AZ::EntityId& entityId)
+    uint32_t RenderJoyShaderPass::GetInputChannelIndexFromEntityId(const AZ::EntityId& entityId)
     {
         for (uint32_t channelIndex = 0; channelIndex < ImageChannelsCount; ++channelIndex)
         {
@@ -506,7 +506,7 @@ namespace RenderJoy
         return ImageChannelsCount;
     }
 
-    void RenderJoyTrianglePass::SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context)
+    void RenderJoyShaderPass::SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context)
     {
         AZ::RHI::CopyImageDescriptor copyDesc;
 
@@ -522,7 +522,7 @@ namespace RenderJoy
         m_currentOutputCopyItem = copyDesc;
     }
 
-    void RenderJoyTrianglePass::UpdatePixelDataForChannel(
+    void RenderJoyShaderPass::UpdatePixelDataForChannel(
         uint32_t channelIndex, const void* pixels, const AZ::RHI::Size& imageSize, uint32_t bytesPerRow)
     {
         AZ::RHI::ImageUpdateRequest updateRequest;
@@ -541,17 +541,17 @@ namespace RenderJoy
 
     ///////////////////////////////////////////////////////////////////
     // RenderJoyPassNotificationBus overrides...
-    void RenderJoyTrianglePass::OnOutputPassChanged([[maybe_unused]] bool isOutputPass)
+    void RenderJoyShaderPass::OnOutputPassChanged([[maybe_unused]] bool isOutputPass)
     {
 
     }
 
-    void RenderJoyTrianglePass::OnShaderAssetChanged([[maybe_unused]] AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset)
+    void RenderJoyShaderPass::OnShaderAssetChanged([[maybe_unused]] AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset)
     {
 
     }
 
-    void RenderJoyTrianglePass::OnInputChannelEntityChanged(
+    void RenderJoyShaderPass::OnInputChannelEntityChanged(
         [[maybe_unused]] uint32_t inputChannelIndex, [[maybe_unused]] AZ::EntityId newEntityId)
     {
 
@@ -560,7 +560,7 @@ namespace RenderJoy
 
     ///////////////////////////////////////////////////////////////////
     // RenderJoyTextureProviderNotificationBus overrides...
-    void RenderJoyTrianglePass::OnStreamingImageAssetChanged(AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset)
+    void RenderJoyShaderPass::OnStreamingImageAssetChanged(AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset)
     {
         const AZ::EntityId* entityId = RenderJoyTextureProviderNotificationBus::GetCurrentBusId();
         auto channelIndex = GetInputChannelIndexFromEntityId(*entityId);
@@ -579,7 +579,7 @@ namespace RenderJoy
             m_imageChannelResolutionsIndex, m_imageChannelResolutions[channelIndex], channelIndex);
     }
 
-    void RenderJoyTrianglePass::OnPixelBufferChanged(const void* pixels, AZ::RHI::Size imageSize, uint32_t bytesPerRow)
+    void RenderJoyShaderPass::OnPixelBufferChanged(const void* pixels, AZ::RHI::Size imageSize, uint32_t bytesPerRow)
     {
         const AZ::EntityId* entityId = RenderJoyTextureProviderNotificationBus::GetCurrentBusId();
         auto channelIndex = GetInputChannelIndexFromEntityId(*entityId);

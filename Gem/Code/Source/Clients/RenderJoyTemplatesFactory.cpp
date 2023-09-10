@@ -13,10 +13,11 @@
 #include <Atom/RPI.Public/Pass/PassFilter.h>
 #include <Atom/RPI.Public/Scene.h>
 
-//#include <RenderJoy/RenderJoyPassBus.h>
-//#include <RenderJoy/RenderJoyCommon.h>
+#include <RenderJoy/RenderJoyCommon.h>
+#include <RenderJoy/RenderJoyPassBus.h>
 
 #include <Render/RenderJoyBillboardPassData.h>
+//#include <Render/RenderJoyShaderPassData.h>
 #include "RenderJoyTemplatesFactory.h"
 
 namespace RenderJoy
@@ -296,6 +297,9 @@ namespace RenderJoy
         ParentEntityTemplates parentEntityTemplates = {};
         m_parentEntities.emplace(parentPassEntityId, parentEntityTemplates);
         ParentEntityTemplates& structRef = m_parentEntities.at(parentPassEntityId);
+
+        // Does passBusEntity implements RenderJoyPassBus?
+        if ()
 
         return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
     }

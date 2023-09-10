@@ -26,28 +26,28 @@ namespace RenderJoy
 {
     class IRenderJoySrgDataProvider;
 
-    //! A pass that renders to the entire screen using a single triangle.
+    //! A pass that renders to the entire image attachment using a single triangle.
     //! This pass is designed to work without any dedicated geometry buffers
     //! and instead issues a 3-vertex draw and relies on the vertex shader
     //! to generate a fullscreen triangle from the vertex ids.
-    class RenderJoyTrianglePass final
+    class RenderJoyShaderPass final
         : public AZ::RPI::RenderPass
         , public AZ::RPI::ShaderReloadNotificationBus::Handler
-        , public RenderJoyPassNotificationBus::Handler
+        //, public RenderJoyPassNotificationBus::Handler
         , public RenderJoyTextureProviderNotificationBus::MultiHandler
     {
-        AZ_RPI_PASS(RenderJoyTrianglePass);
+        AZ_RPI_PASS(RenderJoyShaderPass);
 
     public:
         static constexpr uint32_t InvalidInputChannelIndex = static_cast<uint32_t>(-1);
-        static constexpr char LogName[] = "RenderJoyTrianglePass";
+        static constexpr char ClassNameStr[] = "RenderJoyShaderPass";
 
-        AZ_RTTI(RenderJoyTrianglePass, "{37F1C0D0-6168-410F-AA70-04154A937545}", AZ::RPI::RenderPass);
-        AZ_CLASS_ALLOCATOR(RenderJoyTrianglePass, AZ::SystemAllocator, 0);
-        virtual ~RenderJoyTrianglePass();
+        AZ_RTTI(RenderJoyShaderPass, "{37F1C0D0-6168-410F-AA70-04154A937545}", AZ::RPI::RenderPass);
+        AZ_CLASS_ALLOCATOR(RenderJoyShaderPass, AZ::SystemAllocator, 0);
+        virtual ~RenderJoyShaderPass();
 
-        //! Creates a RenderJoyTrianglePass
-        static AZ::RPI::Ptr<RenderJoyTrianglePass> Create(const AZ::RPI::PassDescriptor& descriptor);
+        //! Creates a RenderJoyShaderPass
+        static AZ::RPI::Ptr<RenderJoyShaderPass> Create(const AZ::RPI::PassDescriptor& descriptor);
 
         // Clears the initialized flag so that the next time PrepareFrameInternal is called, it will update the pipeline state
         void Invalidate();
@@ -61,7 +61,7 @@ namespace RenderJoy
         static constexpr size_t ImageChannelsCount = 4;
 
     private:
-        RenderJoyTrianglePass(const AZ::RPI::PassDescriptor& descriptor);
+        RenderJoyShaderPass(const AZ::RPI::PassDescriptor& descriptor);
         void Init();
 
         // Pass behavior overrides...
@@ -97,9 +97,8 @@ namespace RenderJoy
 
         ///////////////////////////////////////////////////////////////////
         // RenderJoyPassNotificationBus overrides...
-        void OnOutputPassChanged(bool isOutputPass) override;
-        void OnShaderAssetChanged(AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset) override;
-        void OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId) override;
+        // void OnShaderAssetChanged(AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset) override;
+        // void OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId) override;
         ///////////////////////////////////////////////////////////////////
 
         ///////////////////////////////////////////////////////////////////

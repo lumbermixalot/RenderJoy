@@ -27,4 +27,8 @@ set(FILES
     Source/Render/RenderJoyBillboardPassData.cpp
     Source/Render/RenderJoyBillboardPass.h
     Source/Render/RenderJoyBillboardPass.cpp
+    Source/Render/RenderJoyShaderPassData.h
+    Source/Render/RenderJoyShaderPassData.cpp
+    Source/Render/RenderJoyShaderPass.h
+    Source/Render/RenderJoyShaderPass.cpp
 )

@@ -27,6 +27,8 @@ namespace RenderJoy
         RenderJoyTemplatesFactory() = default;
         ~RenderJoyTemplatesFactory();
 
+        static constexpr char LogName[] = "RenderJoyTemplatesFactory";
+
         // The parent pass name can be extracted from m_passRequest.
         struct ParentEntityTemplates
         {
@@ -39,8 +41,6 @@ namespace RenderJoy
 
     private:
         friend class RenderJoySystemComponent;
-
-        static constexpr char LogName[] = "RenderJoyTemplatesFactory";
 
         bool CreateRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId, AZ::EntityId passBusEntity);
         
