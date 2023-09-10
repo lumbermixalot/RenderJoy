@@ -8,7 +8,6 @@
 
 #include <AzCore/Serialization/SerializeContext.h>
 
-
 #include "RenderJoyBillboardPassData.h"
 
 namespace RenderJoy

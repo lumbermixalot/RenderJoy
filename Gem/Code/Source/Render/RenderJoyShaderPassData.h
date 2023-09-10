@@ -1,37 +1,34 @@
 /*
- * Copyright (c) Contributors to the Open 3D Engine Project.
- * For complete copyright and license terms please see the LICENSE at the root of this distribution.
- *
- * SPDX-License-Identifier: Apache-2.0 OR MIT
- *
- */
+* Copyright (c) Galib Arrieta (aka 'lumbermixalot@github', aka 'galibzon@github').
+* For complete copyright and license terms please see the LICENSE at the root of this distribution.
+*
+* SPDX-License-Identifier: Apache-2.0 OR MIT
+*
+*/
 #pragma once
 
 #include <Atom/RPI.Reflect/Asset/AssetReference.h>
 #include <Atom/RPI.Reflect/Pass/RenderPassData.h>
 
-namespace AZ
+namespace RenderJoy
 {
-    namespace RPI
-    {
         //! Custom data for the FullscreenTrianglePass. Should be specified in the PassRequest.
-        struct FullscreenTrianglePassData
-            : public RenderPassData
+        struct RenderJoyShaderPassData
+            : public AZ::RPI::RenderPassData
         {
-            AZ_RTTI(FullscreenTrianglePassData, "{564738A1-9690-4446-8CC1-615EA2567434}", RenderPassData);
-            AZ_CLASS_ALLOCATOR(FullscreenTrianglePassData, SystemAllocator);
+            AZ_RTTI(RenderJoyShaderPassData, "{B29491DA-E55D-462B-BB2C-9AA0F3A01366}", AZ::RPI::RenderPassData);
+            AZ_CLASS_ALLOCATOR(RenderJoyShaderPassData, SystemAllocator);
 
-            FullscreenTrianglePassData() = default;
-            virtual ~FullscreenTrianglePassData() = default;
+            RenderJoyShaderPassData() = default;
+            virtual ~RenderJoyShaderPassData() = default;
 
-            static void Reflect(ReflectContext* context);
+            static void Reflect(AZ::ReflectContext* context);
 
             //! Reference to the shader asset used by the fullscreen triangle pass
-            AssetReference m_shaderAsset;
+            AZ::RPI::AssetReference m_shaderAsset;
 
             //! Stencil reference value to use for the draw call
             uint32_t m_stencilRef = 0;
         };
-    } // namespace RPI
-} // namespace AZ
+} // namespace RenderJoy
 

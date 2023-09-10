@@ -12,12 +12,15 @@
 #include <Atom/RPI.Public/Pass/PassSystem.h>
 #include <Atom/RPI.Public/Pass/PassFilter.h>
 #include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/ViewportContext.h>
+#include <Atom/RPI.Public/ViewportContextBus.h>
 
 #include <RenderJoy/RenderJoyCommon.h>
 #include <RenderJoy/RenderJoyPassBus.h>
 
 #include <Render/RenderJoyBillboardPassData.h>
-//#include <Render/RenderJoyShaderPassData.h>
+#include <Render/RenderJoyShaderPassData.h>
+#include <Render/RenderJoyShaderPass.h>
 #include "RenderJoyTemplatesFactory.h"
 
 namespace RenderJoy
@@ -283,6 +286,192 @@ namespace RenderJoy
         return true;
     }
 
+    //! Returns true if the entity is a render joy pass (Contains a component that implements RenderJoyPassRequests)
+    static bool IsRenderJoyPass(AZ::EntityId entityId)
+    {
+        if (!entityId.IsValid())
+        {
+            return false;
+        }
+    
+        bool result = false;
+        RenderJoyPassRequestBus::EnumerateHandlersId(entityId, [&](RenderJoyPassRequests* /*renderJoyPassRequest*/) -> bool
+        {
+            result = true;
+            return true; // We expect only one handler anyways.
+        });
+    
+        return result;
+    }
+
+    static void GetRenderJoyTargetSize(AZ::EntityId currentPassEntity, uint32_t& widthOut, uint32_t& heightOut)
+    {
+        widthOut = 0; heightOut = 0;
+        RenderJoyPassRequestBus::EventResult(widthOut, currentPassEntity, &RenderJoyPassRequestBus::Handler::GetRenderTargetWidth);
+        RenderJoyPassRequestBus::EventResult(heightOut, currentPassEntity, &RenderJoyPassRequestBus::Handler::GetRenderTargetHeight);
+
+        if (!widthOut || !heightOut)
+        {
+            // Define width and height from the viewport size.
+            auto viewportContextInterface = AZ::Interface<AZ::RPI::ViewportContextRequestsInterface>::Get();
+            const auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(currentPassEntity);
+            auto viewportContext = viewportContextInterface->GetViewportContextByScene(scenePtr);
+            const auto viewportSize = viewportContext->GetViewportSize();
+            widthOut = viewportSize.m_width;
+            heightOut = viewportSize.m_height;
+        }
+    }
+
+    static bool CreateRenderJoyPassTemplatesRecursive(AZ::EntityId currentPassEntity
+        , AZStd::map<AZ::EntityId, AZStd::shared_ptr<AZ::RPI::PassTemplate>>& passTemplatesOut)
+    {
+        static constexpr auto LogName = RenderJoyTemplatesFactory::LogName;
+
+        // Make sure the pass has a valid shader asset.
+        AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset;
+        RenderJoyPassRequestBus::EventResult(shaderAsset, currentPassEntity, &RenderJoyPassRequests::GetShaderAsset);
+        if (!shaderAsset.GetId().IsValid())
+        {
+            AZ_Error(LogName, false, "Failed to create pass template because the entity %s is missing the shader asset reference",
+                currentPassEntity.ToString().c_str());
+            return false;
+        }
+
+
+        AZStd::vector<AZ::EntityId> entitiesOnInputChannels;
+        RenderJoyPassRequestBus::EventResult(entitiesOnInputChannels, currentPassEntity, &RenderJoyPassRequests::GetEntitiesOnInputChannels);
+        for (const auto& entityId : entitiesOnInputChannels)
+        {
+            if (IsRenderJoyPass(entityId) && (currentPassEntity != entityId))
+            {
+                if (!CreateRenderJoyPassTemplatesRecursive(entityId, passTemplatesOut))
+                {
+                    return false;
+                }
+            }
+        }
+
+        const char passClassStr[] = "RenderJoyShaderPass";
+        const auto PassNameStr = GetUniqueEntityPassNameStr(passClassStr, currentPassEntity);
+        const auto PassTemplateNameStr = GetUniqueEntityPassTemplateNameStr(passClassStr, currentPassEntity);
+        const auto newTemplateName = AZ::Name(PassTemplateNameStr);
+    
+        auto passTemplate = AZStd::make_shared<AZ::RPI::PassTemplate>();
+        passTemplate->m_name = newTemplateName;
+        passTemplate->m_passClass = AZ::Name(passClassStr);
+    
+        ////////////////////////////////////////////////////
+        // Slots
+        // - Input slots
+        //AZ::u32 channelIndexPrevFrameOutputAsInput = RenderJoyShaderPass::InvalidInputChannelIndex;
+        AZ::u32 channelIndex = 0;
+        for (const auto& entityId : entitiesOnInputChannels)
+        {
+            //if (m_outputPassEntity == entityId)
+            //{
+            //    AZ_Error(
+            //        LogName, false,
+            //        "Failed to create pass template [%s] because the Output Pass entity with name [%s] is referring itself at channel [%u], "
+            //        "which is only allowed for non-output passes",
+            //        newTemplateName.GetCStr(), GetPassNameFromEntityName(currentPassEntity).c_str(), channelIndex);
+            //    return false;
+            //}
+
+            AZ_Assert(currentPassEntity != entityId, "Recursive output attachments not supported yet.");
+            
+            //if ((currentPassEntity == entityId) || IsRenderJoyPass(entityId))
+            if (IsRenderJoyPass(entityId))
+            {
+                AZStd::string slotNameStr = AZStd::string::format("Input%u", channelIndex);
+                AZ::RPI::PassSlot inputSlot;
+                inputSlot.m_name = AZ::Name(slotNameStr);
+                inputSlot.m_slotType = AZ::RPI::PassSlotType::Input;
+                inputSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::Shader;
+                inputSlot.m_shaderInputName = AZ::Name("m_channel");
+                inputSlot.m_shaderInputArrayIndex = aznumeric_caster(channelIndex);
+                passTemplate->AddSlot(inputSlot);
+            }
+            ++channelIndex;
+        }
+    
+        // - Output slot
+        AZ::RPI::PassSlot outputSlot;
+    
+        outputSlot.m_name = AZ::Name("Output");
+        outputSlot.m_slotType = AZ::RPI::PassSlotType::Output;
+        outputSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::RenderTarget;
+        outputSlot.m_loadStoreAction.m_clearValue = AZ::RHI::ClearValue::CreateVector4Float(0.0f, 0.0f, 0.0f, 0.0f);
+        outputSlot.m_loadStoreAction.m_loadAction = AZ::RHI::AttachmentLoadAction::Clear;
+        passTemplate->AddSlot(outputSlot);
+        /////////////////////////////////////////////////////
+    
+        uint32_t renderTargetWidth = 0; uint32_t renderTargetHeight = 0;
+        GetRenderJoyTargetSize(currentPassEntity, renderTargetWidth, renderTargetHeight);
+
+        // Attachments:
+    
+        // - define the output target as transient attachment.
+        // Non-output passes, aka BufferA...D in ShaderToy have R32G32B32A32_FLOAT
+        // render target format
+        AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
+        transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
+        transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
+        transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
+        transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
+        passTemplate->AddImageAttachment(transientAttachmentDesc);
+    
+        // In case we need the output of the previous frame to become an input image
+        // we need to specify such attachment.
+        // REMARK1: This attachment is here specified as transient, but at runtime we'll change it to persistent.
+        // REMARK2: The output pass doesn't support recursive references to itself on input channels,
+        //          only non-output passes do... Just like in ShaderToy.
+        // if (channelIndexPrevFrameOutputAsInput != RenderJoyTrianglePass::InvalidInputChannelIndex)
+        // {
+        //     AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
+        //     transientAttachmentDesc.m_name = AZ::Name("PreviousFrameImage");
+        //     transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
+        //     if (renderTargetWidth && renderTargetHeight)
+        //     {
+        //         transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
+        //         transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
+        //     }
+        //     else
+        //     {
+        //         transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
+        //         transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
+        //     }
+        //     passTemplate->AddImageAttachment(transientAttachmentDesc);
+        // }
+    
+        // - Connections:
+        // if (channelIndexPrevFrameOutputAsInput != RenderJoyTrianglePass::InvalidInputChannelIndex)
+        // {
+        //     AZ::RPI::PassConnection connection;
+        //     connection.m_localSlot = AZ::Name(AZStd::string::format("Input%u", channelIndexPrevFrameOutputAsInput));
+        //     connection.m_attachmentRef.m_pass = AZ::Name("This");
+        //     connection.m_attachmentRef.m_attachment = AZ::Name("PreviousFrameImage");
+        //     passTemplate->AddOutputConnection(connection);
+        // }
+    
+        //Connect the local "Output" slot with the transient attachment.
+        AZ::RPI::PassConnection connection;
+        connection.m_localSlot = AZ::Name("Output");
+        connection.m_attachmentRef.m_pass = AZ::Name("This");
+        connection.m_attachmentRef.m_attachment = AZ::Name("OutputAttachment");
+        passTemplate->AddOutputConnection(connection);
+    
+        // - PassData.
+        auto passData = AZStd::make_shared<RenderJoyShaderPassData>();
+        passData->m_shaderAsset.m_filePath = AZ::RPI::AssetUtils::GetSourcePathByAssetId(shaderAsset.GetId());
+        passData->m_shaderAsset.m_assetId = shaderAsset.GetId();
+        passData->m_stencilRef = 1;
+        passData->m_bindViewSrg = false;
+        passTemplate->m_passData = passData;
+    
+        passTemplatesOut.emplace(currentPassEntity, passTemplate);
+        return true;
+    }
+
     RenderJoyTemplatesFactory::~RenderJoyTemplatesFactory()
     {
         AZ_Assert(m_parentEntities.empty(), "Do not forget to call RemoveAllTemplates");
@@ -299,9 +488,19 @@ namespace RenderJoy
         ParentEntityTemplates& structRef = m_parentEntities.at(parentPassEntityId);
 
         // Does passBusEntity implements RenderJoyPassBus?
-        if ()
+        if (!IsRenderJoyPass(passBusEntity))
+        {
+            return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
+        }
 
-        return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
+        AZStd::map<AZ::EntityId, AZStd::shared_ptr<AZ::RPI::PassTemplate>> passTemplates;
+        if (!CreateRenderJoyPassTemplatesRecursive(passBusEntity, passTemplates))
+        {
+            return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
+        }
+
+        // Time to create the passRequests.
+        
     }
 
     void RenderJoyTemplatesFactory::RemoveTemplates(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId)
@@ -446,188 +645,7 @@ namespace RenderJoy
     //     return passSystem->AddPassTemplate(passTemplateName, passTemplate);
     // }
     // 
-    // bool RenderJoyTemplatesFactory::CreateRenderJoyPassTemplates(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId currentPassEntity)
-    // {
-    //     // Let's define the template name from the entity name.
-    //     AZ::Name newTemplateName(GetPassTemplateNameFromEntityName(currentPassEntity));
-    //     // Make sure a template with this name doesn't exist already.
-    //     const auto& templatePtr = passSystem->GetPassTemplate(newTemplateName);
-    //     if (templatePtr.get() != nullptr)
-    //     {
-    //         //AZ_Error(
-    //         //    LogName, false,
-    //         //    "A PassTemplate with name [%s] already exists, please change the name of entityId=([%s] named=[%s]) to something else, and
-    //         //    " "verify there are no indirect recursive loops within the RenderJoy passes\n", newTemplateName.GetCStr(),
-    //         //    currentPassEntity.ToString().c_str(), GetPassNameFromEntityName(currentPassEntity).c_str());
-    //         return true;
-    //     }
-    // 
-    //     // Make sure the pass has a valid shader asset.
-    //     AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset;
-    //     RenderJoyPassRequestBus::EventResult(shaderAsset, currentPassEntity, &RenderJoyPassRequests::GetShaderAsset);
-    //     if (!shaderAsset.GetId().IsValid())
-    //     {
-    //         AZ_Error(LogName, false, "Failed to create pass template [%s] because the entity with name [%s] is missing the shader asset reference",
-    //             newTemplateName.GetCStr(), GetPassNameFromEntityName(currentPassEntity).c_str());
-    //         return false;
-    //     }
-    // 
-    // 
-    //     AZStd::vector<AZ::EntityId> entitiesOnInputChannels;
-    //     RenderJoyPassRequestBus::EventResult(entitiesOnInputChannels, currentPassEntity, &RenderJoyPassRequests::GetEntitiesOnInputChannels);
-    //     for (const auto& entityId : entitiesOnInputChannels)
-    //     {
-    //         if (RenderJoyPassRequestBusUtils::IsRenderJoyPass(entityId) && (currentPassEntity != entityId))
-    //         {
-    //             if (!CreateRenderJoyPassTemplates(passSystem, entityId))
-    //             {
-    //                 return false;
-    //             }
-    //         }
-    //     }
-    // 
-    //     auto passTemplate = AZStd::make_shared<AZ::RPI::PassTemplate>();
-    //     passTemplate->m_name = newTemplateName;
-    //     passTemplate->m_passClass = AZ::Name("RenderJoyTrianglePass");
-    // 
-    //     ////////////////////////////////////////////////////
-    //     // Slots
-    //     // - Input slots
-    //     AZ::u32 channelIndexPrevFrameOutputAsInput = RenderJoyTrianglePass::InvalidInputChannelIndex;
-    //     AZ::u32 channelIndex = 0;
-    //     for (const auto& entityId : entitiesOnInputChannels)
-    //     {
-    //         if (m_outputPassEntity == entityId)
-    //         {
-    //             AZ_Error(
-    //                 LogName, false,
-    //                 "Failed to create pass template [%s] because the Output Pass entity with name [%s] is referring itself at channel [%u], "
-    //                 "which is only allowed for non-output passes",
-    //                 newTemplateName.GetCStr(), GetPassNameFromEntityName(currentPassEntity).c_str(), channelIndex);
-    //             return false;
-    //         }
-    //         if ((currentPassEntity == entityId) || RenderJoyPassRequestBusUtils::IsRenderJoyPass(entityId))
-    //         {
-    //             if (currentPassEntity == entityId)
-    //             {
-    //                 channelIndexPrevFrameOutputAsInput = channelIndex;
-    //             }
-    //             AZStd::string slotNameStr = AZStd::string::format("Input%u", channelIndex);
-    //             AZ::RPI::PassSlot inputSlot;
-    //             inputSlot.m_name = AZ::Name(slotNameStr);
-    //             inputSlot.m_slotType = AZ::RPI::PassSlotType::Input;
-    //             inputSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::Shader;
-    //             inputSlot.m_shaderInputName = AZ::Name("m_channel");
-    //             inputSlot.m_shaderInputArrayIndex = aznumeric_caster(channelIndex);
-    //             passTemplate->AddSlot(inputSlot);
-    //         }
-    //         ++channelIndex;
-    //     }
-    // 
-    //     // - Output slot
-    //     AZ::RPI::PassSlot outputSlot;
-    // 
-    //     outputSlot.m_name = AZ::Name("Output");
-    //     outputSlot.m_slotType = AZ::RPI::PassSlotType::Output;
-    //     outputSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::RenderTarget;
-    //     outputSlot.m_loadStoreAction.m_clearValue = AZ::RHI::ClearValue::CreateVector4Float(0.0f, 0.0f, 0.0f, 0.0f);
-    //     outputSlot.m_loadStoreAction.m_loadAction = AZ::RHI::AttachmentLoadAction::Clear;
-    //     passTemplate->AddSlot(outputSlot);
-    //     /////////////////////////////////////////////////////
-    // 
-    //     uint32_t renderTargetWidth = 0;
-    //     RenderJoyPassRequestBus::EventResult(renderTargetWidth, currentPassEntity, &RenderJoyPassRequestBus::Handler::GetRenderTargetWidth);
-    //     uint32_t renderTargetHeight = 0;
-    //     RenderJoyPassRequestBus::EventResult(renderTargetHeight, currentPassEntity, &RenderJoyPassRequestBus::Handler::GetRenderTargetHeight);
-    //     // Attachments:
-    // 
-    //     // - define the output target as transient attachment.
-    //     if (currentPassEntity == m_outputPassEntity)
-    //     {
-    //         // The output pass, equivalent to "Image" shader in ShaderToy
-    //         // has the same color format as the SwapChainOutput (most likely R8G8B8A8_UNORM).
-    //         AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
-    //         transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
-    //         transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-    //         transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
-    //         transientAttachmentDesc.m_formatSource.m_pass = AZ::Name("Parent");
-    //         transientAttachmentDesc.m_formatSource.m_attachment = AZ::Name("PipelineOutput");
-    //         passTemplate->AddImageAttachment(transientAttachmentDesc);
-    //     }
-    //     else
-    //     {
-    //         // Non-output passes, aka BufferA...D in ShaderToy have R32G32B32A32_FLOAT
-    //         // render target format. By the way, ShaderToy limits the user with 4 Buffer shaders (passes),
-    //         // in ShaderToy there's no such limitation,
-    //         AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
-    //         transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
-    //         transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
-    // 
-    //         if (renderTargetWidth && renderTargetHeight)
-    //         {
-    //             transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
-    //             transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
-    //         }
-    //         else
-    //         {
-    //             transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-    //             transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
-    //         }
-    // 
-    //         passTemplate->AddImageAttachment(transientAttachmentDesc);
-    //     }
-    // 
-    //     // In case we need the output of the previous frame to become an input image
-    //     // we need to specify such attachment.
-    //     // REMARK1: This attachment is here specified as transient, but at runtime we'll change it to persistent.
-    //     // REMARK2: The output pass doesn't support recursive references to itself on input channels,
-    //     //          only non-output passes do... Just like in ShaderToy.
-    //     if (channelIndexPrevFrameOutputAsInput != RenderJoyTrianglePass::InvalidInputChannelIndex)
-    //     {
-    //         AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
-    //         transientAttachmentDesc.m_name = AZ::Name("PreviousFrameImage");
-    //         transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
-    //         if (renderTargetWidth && renderTargetHeight)
-    //         {
-    //             transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
-    //             transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
-    //         }
-    //         else
-    //         {
-    //             transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-    //             transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
-    //         }
-    //         passTemplate->AddImageAttachment(transientAttachmentDesc);
-    //     }
-    // 
-    //     // - Connections:
-    //     if (channelIndexPrevFrameOutputAsInput != RenderJoyTrianglePass::InvalidInputChannelIndex)
-    //     {
-    //         AZ::RPI::PassConnection connection;
-    //         connection.m_localSlot = AZ::Name(AZStd::string::format("Input%u", channelIndexPrevFrameOutputAsInput));
-    //         connection.m_attachmentRef.m_pass = AZ::Name("This");
-    //         connection.m_attachmentRef.m_attachment = AZ::Name("PreviousFrameImage");
-    //         passTemplate->AddOutputConnection(connection);
-    //     }
-    // 
-    //     //Connect the local "Output" slot with the transient attachment.
-    //     AZ::RPI::PassConnection connection;
-    //     connection.m_localSlot = AZ::Name("Output");
-    //     connection.m_attachmentRef.m_pass = AZ::Name("This");
-    //     connection.m_attachmentRef.m_attachment = AZ::Name("OutputAttachment");
-    //     passTemplate->AddOutputConnection(connection);
-    // 
-    //     // - PassData.
-    //     auto passData = AZStd::make_shared<AZ::RPI::FullscreenTrianglePassData>();
-    //     passData->m_shaderAsset.m_filePath = AZ::RPI::AssetUtils::GetSourcePathByAssetId(shaderAsset.GetId());
-    //     passData->m_shaderAsset.m_assetId = shaderAsset.GetId();
-    //     passData->m_stencilRef = 1;
-    //     passData->m_pipelineViewTag = AZ::Name("RenderJoyViewTag");
-    //     passTemplate->m_passData = passData;
-    // 
-    //     m_createdPassTemplates.push_back(newTemplateName);
-    //     return passSystem->AddPassTemplate(newTemplateName, passTemplate);
-    // }
+
     // 
     // bool RenderJoyTemplatesFactory::CreateRenderJoyPassRequests(
     //     AZ::RPI::PassTemplate& parentPassTemplate, AZ::EntityId currentPassEntity)
@@ -719,23 +737,7 @@ namespace RenderJoy
     //         return theOutputPass;
     //     }
     // 
-    //     //! Returns true if the entity is a render joy pass (Contains a component that implements RenderJoyPassRequests)
-    //     bool IsRenderJoyPass(AZ::EntityId entityId)
-    //     {
-    //         if (!entityId.IsValid())
-    //         {
-    //             return false;
-    //         }
-    // 
-    //         bool result = false;
-    //         RenderJoyPassRequestBus::EnumerateHandlersId(entityId, [&](RenderJoyPassRequests* /*renderJoyPassRequest*/) -> bool
-    //         {
-    //             result = true;
-    //             return true; // We expect only one handler anyways.
-    //         });
-    // 
-    //         return result;
-    //     }
+
     // 
     //     bool IsRenderJoyTextureProvider(AZ::EntityId entityId)
     //     {
