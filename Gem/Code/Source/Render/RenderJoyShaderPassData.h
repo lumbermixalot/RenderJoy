@@ -17,7 +17,7 @@ namespace RenderJoy
             : public AZ::RPI::RenderPassData
         {
             AZ_RTTI(RenderJoyShaderPassData, "{B29491DA-E55D-462B-BB2C-9AA0F3A01366}", AZ::RPI::RenderPassData);
-            AZ_CLASS_ALLOCATOR(RenderJoyShaderPassData, SystemAllocator);
+            AZ_CLASS_ALLOCATOR(RenderJoyShaderPassData, AZ::SystemAllocator);
 
             RenderJoyShaderPassData() = default;
             virtual ~RenderJoyShaderPassData() = default;
