@@ -18,7 +18,10 @@ namespace RenderJoy
             serializeContext->Class<RenderJoyShaderPassData, AZ::RPI::RenderPassData>()
                 ->Version(0)
                 ->Field("ShaderAsset", &RenderJoyShaderPassData::m_shaderAsset)
-                ->Field("StencilRef", &RenderJoyShaderPassData::m_stencilRef);
+                ->Field("StencilRef", &RenderJoyShaderPassData::m_stencilRef)
+                ->Field("RenderTargetWidth", &RenderJoyShaderPassData::m_renderTargetWidth)
+                ->Field("RenderTargetHeight", &RenderJoyShaderPassData::m_renderTargetHeight)
+                ;
         }
     }
 } // namespace RenderJoy

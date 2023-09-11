@@ -8,7 +8,6 @@
 
 #include <AzCore/Component/Component.h>
 
-#include <Atom/RPI.Edit/Common/AssetUtils.h>
 #include <Atom/RPI.Public/Pass/PassSystem.h>
 #include <Atom/RPI.Public/Pass/PassFilter.h>
 #include <Atom/RPI.Public/Scene.h>
@@ -39,14 +38,6 @@ namespace RenderJoy
     {
         return AZStd::string::format("%s_Template", GetUniqueEntityPassNameStr(passNamePrefix, entityId).c_str());
     }
-
-    // static AZ::RPI::AssetReference GetAssetReferenceFromPath(const AZStd::string& path)
-    // {
-    //     AZ::RPI::AssetReference assetReference;
-    //     assetReference.m_filePath = path;
-    //     assetReference.m_assetId = AZ::RPI::AssetUtils::GetAssetIdForProductPath(path.c_str());
-    //     return assetReference;
-    // }
 
     static AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateBillboardPassTemplate(AZ::EntityId parentEntityId, bool useRenderJoyAttachment)
     {
@@ -457,24 +448,6 @@ namespace RenderJoy
         return passRequest;
     }
 
-    //! Returns true if the entity is a render joy pass (Contains a component that implements RenderJoyPassRequests)
-    static bool IsRenderJoyPass(AZ::EntityId entityId)
-    {
-        if (!entityId.IsValid())
-        {
-            return false;
-        }
-    
-        bool result = false;
-        RenderJoyPassRequestBus::EnumerateHandlersId(entityId, [&](RenderJoyPassRequests* /*renderJoyPassRequest*/) -> bool
-        {
-            result = true;
-            return true; // We expect only one handler anyways.
-        });
-    
-        return result;
-    }
-
     static void GetRenderJoyTargetSize(AZ::EntityId currentPassEntity, uint32_t& widthOut, uint32_t& heightOut)
     {
         widthOut = 0; heightOut = 0;
@@ -513,7 +486,7 @@ namespace RenderJoy
         RenderJoyPassRequestBus::EventResult(entitiesOnInputChannels, currentPassEntity, &RenderJoyPassRequests::GetEntitiesOnInputChannels);
         for (const auto& entityId : entitiesOnInputChannels)
         {
-            if (IsRenderJoyPass(entityId) && (currentPassEntity != entityId))
+            if (Utils::IsRenderJoyPass(entityId) && (currentPassEntity != entityId))
             {
                 if (!CreateRenderJoyShaderPassTemplatesRecursive(entityId, passTemplatesOut))
                 {
@@ -550,7 +523,7 @@ namespace RenderJoy
             AZ_Assert(currentPassEntity != entityId, "Recursive output attachments not supported yet.");
             
             //if ((currentPassEntity == entityId) || IsRenderJoyPass(entityId))
-            if (IsRenderJoyPass(entityId))
+            if (Utils::IsRenderJoyPass(entityId))
             {
                 AZStd::string slotNameStr = AZStd::string::format("Input%u", channelIndex);
                 AZ::RPI::PassSlot inputSlot;
@@ -632,9 +605,11 @@ namespace RenderJoy
     
         // - PassData.
         auto passData = AZStd::make_shared<RenderJoyShaderPassData>();
-        passData->m_shaderAsset.m_filePath = AZ::RPI::AssetUtils::GetSourcePathByAssetId(shaderAsset.GetId());
+        passData->m_shaderAsset.m_filePath = shaderAsset.GetHint();
         passData->m_shaderAsset.m_assetId = shaderAsset.GetId();
         passData->m_stencilRef = 1;
+        passData->m_renderTargetWidth = renderTargetWidth;
+        passData->m_renderTargetHeight = renderTargetHeight;
         passData->m_bindViewSrg = false;
         passTemplate->m_passData = passData;
     
@@ -653,7 +628,7 @@ namespace RenderJoy
         {
             AZ_Assert(currentPassEntity != entityId, "Recursive attachments not supported yet!");
 
-            if (IsRenderJoyPass(entityId))
+            if (Utils::IsRenderJoyPass(entityId))
             {
                 if (!CreateRenderJoyShaderPassRequestsRecursive(parentPassTemplate, entityId, passTemplatesDB))
                 {
@@ -675,7 +650,7 @@ namespace RenderJoy
         AZ::u32 channelIndex = 0;
         for (const auto& entityId : entitiesOnInputChannels)
         {
-            if (IsRenderJoyPass(entityId))
+            if (Utils::IsRenderJoyPass(entityId))
             {
                 auto slotName = AZ::Name(AZStd::string::format("Input%u", channelIndex));
                 AZ::RPI::PassConnection inputConnection;
@@ -706,7 +681,7 @@ namespace RenderJoy
         ParentEntityTemplates& structRef = m_parentEntities.at(parentPassEntityId);
 
         // Does passBusEntity implements RenderJoyPassBus?
-        if (!IsRenderJoyPass(passBusEntity))
+        if (!Utils::IsRenderJoyPass(passBusEntity))
         {
             return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
         }
@@ -891,26 +866,7 @@ namespace RenderJoy
     // }
     // 
 
-    // 
-    // 
-    // AZStd::string RenderJoyTemplatesFactory::GetPassNameFromEntityName(AZ::EntityId entityId)
-    // {
-    //     return AzToolsFramework::GetEntityName(entityId);
-    // }
-    // 
-    // AZStd::string RenderJoyTemplatesFactory::GetPassTemplateNameFromEntityName(AZ::EntityId entityId)
-    // {
-    //     return GetPassNameFromEntityName(entityId) + "Template";
-    // }
-    // 
-    // void RenderJoyTemplatesFactory::RemoveTemplates(AZ::RPI::PassSystemInterface* passSystem)
-    // {
-    //     for (const auto &templateName : m_createdPassTemplates)
-    //     {
-    //         passSystem->RemovePassTemplate(templateName);
-    //     }
-    //     m_createdPassTemplates.clear();
-    // }
+
     // 
     // namespace RenderJoyPassRequestBusUtils
     // {

@@ -33,11 +33,9 @@ namespace RenderJoy
     class RenderJoyShaderPass final
         : public AZ::RPI::RenderPass
         , public AZ::RPI::ShaderReloadNotificationBus::Handler
-        //, public RenderJoyPassNotificationBus::Handler
+        , public RenderJoyPassNotificationBus::Handler
         , public RenderJoyTextureProviderNotificationBus::MultiHandler
     {
-        AZ_RPI_PASS(RenderJoyShaderPass);
-
     public:
         static constexpr uint32_t InvalidInputChannelIndex = static_cast<uint32_t>(-1);
         static constexpr char ClassNameStr[] = "RenderJoyShaderPass";
@@ -97,8 +95,8 @@ namespace RenderJoy
 
         ///////////////////////////////////////////////////////////////////
         // RenderJoyPassNotificationBus overrides...
-        // void OnShaderAssetChanged(AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset) override;
-        // void OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId) override;
+        void OnShaderAssetChanged(AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset) override;
+        void OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId) override;
         ///////////////////////////////////////////////////////////////////
 
         ///////////////////////////////////////////////////////////////////
@@ -112,7 +110,7 @@ namespace RenderJoy
         bool SetImageAssetForChannel(uint32_t channelIndex, AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset);
         bool SetMutableImageForChannel(AZ::EntityId entityId, uint32_t channelIndex);
         void SetDefaultImageForChannel(uint32_t imageChannelIdx);
-        void CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color);
+        //void CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color);
         void RemoveImageForChannel(uint32_t imageChannelIdx);
         void SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context);
         void UpdatePixelDataForChannel(uint32_t channelIndex, const void* pixels, const AZ::RHI::Size& imageSize, uint32_t bytesPerRow);
@@ -149,6 +147,10 @@ namespace RenderJoy
         AZ::Data::Instance<AZ::RPI::AttachmentImage> m_prevFrameOutputAsInput;
         uint32_t m_inputChannelIndexForPrevFrameOutputAsInput = InvalidInputChannelIndex;
         AZ::RHI::CopyItem m_currentOutputCopyItem;
+
+        // Cached from the passDescriptor.
+        uint32_t m_renderTargetWidth = 0;
+        uint32_t m_renderTargetHeight = 0;
 
         // The RenderJoySrg constants
         AZ::RHI::ShaderInputConstantIndex m_resolutionIndex;

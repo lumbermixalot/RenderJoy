@@ -11,13 +11,18 @@
 #include <RenderJoy/RenderJoyTypeIds.h>
 
 #include <AzCore/Serialization/SerializeContext.h>
+#include <AzCore/StringFunc/StringFunc.h>
 
 #include <Atom/RPI.Public/FeatureProcessorFactory.h>
 #include <Atom/RPI.Public/Pass/PassSystemInterface.h>
 #include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/Image/ImageSystemInterface.h>
 #include <Atom/RPI.Reflect/Image/StreamingImageAsset.h>
 
+#include <RenderJoy/RenderJoyPassBus.h>
+#include <RenderJoy/RenderJoyTextureProviderBus.h>
 #include <Render/RenderJoyBillboardPass.h>
+#include <Render/RenderJoyShaderPass.h>
 #include <Render/RenderJoyFeatureProcessor.h>
 
 namespace RenderJoy
@@ -84,6 +89,11 @@ namespace RenderJoy
         if (!passSystem->HasCreatorForClass(renderJoyBillboardPassClassName))
         {
             passSystem->AddPassCreator(renderJoyBillboardPassClassName, &RenderJoyBillboardPass::Create);
+        }
+        auto renderJoyShaderPassClassName = AZ::Name(RenderJoyShaderPass::ClassNameStr);
+        if (!passSystem->HasCreatorForClass(renderJoyShaderPassClassName))
+        {
+            passSystem->AddPassCreator(renderJoyShaderPassClassName, &RenderJoyShaderPass::Create);
         }
 
         RenderJoyRequestBus::Handler::BusConnect();
@@ -236,6 +246,40 @@ namespace RenderJoy
         }
         return m_invalidParentPassTexture;
     }
+
+    AZ::Data::Instance<AZ::RPI::Image> RenderJoySystemComponent::GetDefaultInputTexture(uint32_t channelIndex) const
+    {
+        AZ::RPI::SystemImage imageEnumId = static_cast<AZ::RPI::SystemImage>(channelIndex);
+        imageEnumId = (imageEnumId >= AZ::RPI::SystemImage::Count) ? AZ::RPI::SystemImage::Black : imageEnumId;
+        return AZ::RPI::ImageSystemInterface::Get()->GetSystemImage(imageEnumId);
+    }
+
+    AZ::EntityId RenderJoySystemComponent::GetEntityIdFromPassName(const AZ::Name& passName) const
+    {
+        // All Pass names are unique, and in the form: "<Pass Class Name>_[%llu]" where %llu is a 64bit EntityId number
+        static const AZStd::string EntityIdStartStr("_[");
+        static const AZStd::string EntityIdEndStr("]");
+
+        const AZStd::string passNameStr(passName.GetCStr());
+        constexpr bool reverse = false;
+        constexpr bool caseSensitive = true;
+        size_t startPos = AZ::StringFunc::Find(passNameStr, EntityIdStartStr, /*size_t pos*/ 0, reverse, caseSensitive);
+        if (startPos == AZStd::string::npos)
+        {
+            return AZ::EntityId();
+        }
+        startPos += EntityIdStartStr.size();
+        size_t endPos = AZ::StringFunc::Find(passNameStr, EntityIdEndStr, startPos, reverse, caseSensitive);
+        if (endPos == AZStd::string::npos)
+        {
+            return AZ::EntityId();
+        }
+        const AZStd::string entityIdStr = passNameStr.substr(startPos, endPos - startPos);
+        char* end;
+        const uint64_t uEntityId = strtoull( entityIdStr.c_str(), &end, 10);
+        return AZ::EntityId(uEntityId);
+    }
+
     // RenderJoyRequestBus interface implementation END
     ////////////////////////////////////////////////////////////////////////
 
@@ -290,5 +334,43 @@ namespace RenderJoy
 
     }
     //////////////////////////////////////////////////////////////////////////
+
+    namespace Utils
+    {
+        // Declared in RenderJoyPassBus.h
+        bool IsRenderJoyPass(AZ::EntityId entityId)
+        {
+            if (!entityId.IsValid())
+            {
+                return false;
+            }
+
+            bool result = false;
+            RenderJoyPassRequestBus::EnumerateHandlersId(entityId, [&](RenderJoyPassRequests* /*renderJoyPassRequest*/) -> bool
+                {
+                    result = true;
+                    return true; // We expect only one handler anyways.
+                });
+
+            return result;
+        }
+
+        // Declared in RenderJoyTextureProviderBus.h
+        bool IsRenderJoyTextureProvider(AZ::EntityId entityId)
+        {
+            if (!entityId.IsValid())
+            {
+                return false;
+            }
+        
+            bool result = false;
+            RenderJoyTextureProviderBus::EnumerateHandlersId(entityId, [&](RenderJoyTextureProvider * /*renderJoyPassRequest*/) -> bool {
+                result = true;
+                return true; // We expect only one handler anyways.
+            });
+        
+            return result;
+        }
+    }
 
 } // namespace RenderJoy

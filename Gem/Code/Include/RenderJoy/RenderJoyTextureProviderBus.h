@@ -66,4 +66,9 @@ namespace RenderJoy
     };
     using RenderJoyTextureProviderNotificationBus = AZ::EBus<RenderJoyTextureProviderNotification>;
 
+    namespace Utils
+    {
+        // Returns true is the entity implements the RenderJoyTextureProviderBus.
+        bool IsRenderJoyTextureProvider(AZ::EntityId entityId);
+    }
 } // namespace RenderJoy

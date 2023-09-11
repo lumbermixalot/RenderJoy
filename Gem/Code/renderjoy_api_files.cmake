@@ -12,4 +12,5 @@ set(FILES
     Include/RenderJoy/RenderJoyTypeIds.h
     Include/RenderJoy/RenderJoyFeatureProcessorInterface.h
     Include/RenderJoy/RenderJoyPassBus.h
+    Include/RenderJoy/RenderJoyTextureProviderBus.h
 )

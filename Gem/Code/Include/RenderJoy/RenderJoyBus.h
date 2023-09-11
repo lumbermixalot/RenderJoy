@@ -49,6 +49,9 @@ namespace RenderJoy
 
         // This is the texture we display on a billboard or output pass when a RenderJoy ParentPass is invalid.
         virtual AZ::Data::Instance<AZ::RPI::Image> GetInvalidParentPassTexture() const = 0;
+        virtual AZ::Data::Instance<AZ::RPI::Image> GetDefaultInputTexture(uint32_t channelIndex) const = 0;
+
+        virtual AZ::EntityId GetEntityIdFromPassName(const AZ::Name& passName) const = 0;
     };
 
     class RenderJoyBusTraits

@@ -17,7 +17,6 @@
 #include <Atom/RPI.Public/Image/StreamingImagePool.h>
 #include <Atom/RPI.Public/Image/ImageSystemInterface.h>
 
-#include <Atom/RPI.Reflect/Pass/FullscreenTrianglePassData.h>
 #include <Atom/RPI.Reflect/Pass/PassTemplate.h>
 #include <Atom/RPI.Reflect/Shader/ShaderAsset.h>
 
@@ -25,14 +24,16 @@
 #include <Atom/RHI/FrameScheduler.h>
 #include <Atom/RHI/PipelineState.h>
 
+#include <RenderJoy/RenderJoyBus.h>
 #include <RenderJoy/IRenderJoySrgDataProvider.h>
+#include <Render/RenderJoyShaderPassData.h>
 #include "RenderJoyShaderPass.h"
 
 namespace RenderJoy
 {
-    static AZ::RHI::Size GetImageDimensions(AZ::Data::Instance<AZ::RPI::StreamingImage> streamingImage)
+    static AZ::RHI::Size GetImageDimensions(AZ::Data::Instance<AZ::RPI::Image> image)
     {
-        return streamingImage->GetRHIImage()->GetDescriptor().m_size;
+        return image->GetRHIImage()->GetDescriptor().m_size;
     }
 
     AZ::RPI::Ptr<RenderJoyShaderPass> RenderJoyShaderPass::Create(const AZ::RPI::PassDescriptor& descriptor)
@@ -45,8 +46,9 @@ namespace RenderJoy
         : AZ::RPI::RenderPass(descriptor)
         , m_passDescriptor(descriptor)
     {
-        m_entityId = RenderJoyPassRequestBusUtils::GetEntityIdFromPassName(GetName());
-        AZ_Assert(m_entityId.IsValid(), "A RenderJoy entity with name %s is supposed to exist", GetName().GetCStr());
+        auto renderJoySystem = RenderJoyInterface::Get();
+        m_entityId = renderJoySystem->GetEntityIdFromPassName(GetName());
+        AZ_Assert(m_entityId.IsValid(), "A RenderJoy entity from pass name %s is supposed to exist", GetName().GetCStr());
 
         m_renderJoySrgDataProvider = AZ::Interface<IRenderJoySrgDataProvider>::Get();
         AZ_Assert(!!m_renderJoySrgDataProvider, "What happened with IRenderJoySrgDataProvider?");
@@ -61,12 +63,17 @@ namespace RenderJoy
             {
                 m_inputChannelIndexForPrevFrameOutputAsInput = channelIndex;
             }
-            else if (RenderJoyPassRequestBusUtils::IsRenderJoyTextureProvider(entityId))
+            else if (Utils::IsRenderJoyTextureProvider(entityId))
             {
                 RenderJoyTextureProviderNotificationBus::MultiHandler::BusConnect(entityId);
             }
             ++channelIndex;
         }
+
+        const RenderJoyShaderPassData* passData = AZ::RPI::PassUtils::GetPassData<RenderJoyShaderPassData>(m_passDescriptor);
+        m_renderTargetWidth = passData->m_renderTargetWidth;
+        m_renderTargetHeight = passData->m_renderTargetHeight;
+        AZ_Assert(m_renderTargetWidth && m_renderTargetHeight, "Invalid render target width or height from RenderJoyShaderPassData");
 
         LoadShader();
         RenderJoyPassNotificationBus::Handler::BusConnect(m_entityId);
@@ -100,10 +107,10 @@ namespace RenderJoy
     void RenderJoyShaderPass::LoadShader()
     {
         // Load FullscreenTrianglePassData
-        const AZ::RPI::FullscreenTrianglePassData* passData = AZ::RPI::PassUtils::GetPassData<AZ::RPI::FullscreenTrianglePassData>(m_passDescriptor);
+        const RenderJoyShaderPassData* passData = AZ::RPI::PassUtils::GetPassData<RenderJoyShaderPassData>(m_passDescriptor);
         if (passData == nullptr)
         {
-            AZ_Error(LogName, false, "[RenderJoyShaderPass '%s']: Trying to construct without valid FullscreenTrianglePassData!",
+            AZ_Error(ClassNameStr, false, "['%s']: Trying to construct without valid RenderJoyShaderPassData!",
                 GetPathName().GetCStr());
             return;
         }
@@ -117,7 +124,7 @@ namespace RenderJoy
 
         if (!shaderAsset.GetId().IsValid())
         {
-            AZ_Error(LogName, false, "[RenderJoyShaderPass '%s']: Failed to load shader '%s'!",
+            AZ_Error(ClassNameStr, false, "['%s']: Failed to load shader '%s'!",
                 GetPathName().GetCStr(),
                 passData->m_shaderAsset.m_filePath.data());
             return;
@@ -126,7 +133,7 @@ namespace RenderJoy
         m_shader = AZ::RPI::Shader::FindOrCreate(shaderAsset);
         if (m_shader == nullptr)
         {
-            AZ_Error(LogName, false, "[RenderJoyShaderPass '%s']: Failed to load shader '%s'!",
+            AZ_Error(ClassNameStr, false, "['%s']: Failed to load shader '%s'!",
                 GetPathName().GetCStr(),
                 passData->m_shaderAsset.m_filePath.data());
             return;
@@ -138,7 +145,7 @@ namespace RenderJoy
         {
             m_shaderResourceGroup = AZ::RPI::ShaderResourceGroup::Create(shaderAsset, m_shader->GetSupervariantIndex(), passSrgLayout->GetName());
 
-            AZ_Assert(m_shaderResourceGroup, "[RenderJoyShaderPass '%s']: Failed to create SRG from shader asset '%s'",
+            AZ_Assert(m_shaderResourceGroup, "['%s']: Failed to create SRG from shader asset '%s'",
                 GetPathName().GetCStr(),
                 passData->m_shaderAsset.m_filePath.c_str());
 
@@ -165,8 +172,6 @@ namespace RenderJoy
 
         AZ::RHI::PipelineStateDescriptorForDraw pipelineStateDescriptor;
 
-        // [GFX TODO][ATOM-872] The pass should be able to drive the shader variant
-        // This is a pattern that should be established somewhere.
         auto shaderVariant = m_shader->GetVariant(AZ::RPI::RootShaderVariantStableId);
         shaderVariant.ConfigurePipelineState(pipelineStateDescriptor);
 
@@ -194,29 +199,61 @@ namespace RenderJoy
             Init();
         }
 
-        const AZ::RPI::PassAttachment* outputAttachment = nullptr;
+        RenderPass::FrameBeginInternal(params);
+    }
 
-        if (GetOutputCount() > 0)
-        {
-            outputAttachment = GetOutputBinding(0).GetAttachment().get();
-        }
-        else if (GetInputOutputCount() > 0)
-        {
-            outputAttachment = GetInputOutputBinding(0).GetAttachment().get();
-        }
-
-        AZ_Assert(outputAttachment != nullptr, "[RenderJoyShaderPass %s] has no valid output or input/output attachments.", GetPathName().GetCStr());
-
-        AZ_Assert(outputAttachment->GetAttachmentType() == AZ::RHI::AttachmentType::Image,
-            "[RenderJoyShaderPass %s] output of RenderJoyShaderPass must be an image", GetPathName().GetCStr());
-
-        AZ::RHI::Size targetImageSize = outputAttachment->m_descriptor.m_image.m_size;
-
+    void RenderJoyShaderPass::BuildInternal()
+    {
         // Base viewport and scissor off of target attachment
-        const float viewWidth = static_cast<float>(targetImageSize.m_width);
-        const float viewHeight = static_cast<float>(targetImageSize.m_height);
+        const float viewWidth = static_cast<float>(m_renderTargetWidth);
+        const float viewHeight = static_cast<float>(m_renderTargetHeight);
         m_viewportState = AZ::RHI::Viewport(0, viewWidth, 0, viewHeight);
-        m_scissorState = AZ::RHI::Scissor(0, 0, targetImageSize.m_width, targetImageSize.m_height);
+        m_scissorState = AZ::RHI::Scissor(0, 0, m_renderTargetWidth, m_renderTargetHeight);
+
+        if (m_inputChannelIndexForPrevFrameOutputAsInput == InvalidInputChannelIndex)
+        {
+            return;
+        }
+
+        AZ::Data::Instance<AZ::RPI::AttachmentImagePool> pool = AZ::RPI::ImageSystemInterface::Get()->GetSystemAttachmentPool();
+
+        AZ::RPI::Ptr<AZ::RPI::PassAttachment> prevFrameImageAttachment = FindOwnedAttachment(AZ::Name("PreviousFrameImage"));
+        AZ_Assert(prevFrameImageAttachment.get(), "Failed to get PreviousFrameImage attachment");
+
+        // update the image attachment descriptor to sync up size and format
+        prevFrameImageAttachment->Update();
+
+        AZ::RHI::ImageDescriptor& imageDesc = prevFrameImageAttachment->m_descriptor.m_image;
+
+        // change the lifetime since we want it to live between frames
+        prevFrameImageAttachment->m_lifetime = AZ::RHI::AttachmentLifetimeType::Imported;
+
+        // set the bind flags
+        imageDesc.m_bindFlags |= AZ::RHI::ImageBindFlags::ShaderRead | AZ::RHI::ImageBindFlags::CopyWrite;
+
+        // create the image attachment
+        AZ::RHI::ClearValue clearValue = AZ::RHI::ClearValue::CreateVector4Float(0, 1, 0, 0);
+        m_prevFrameOutputAsInput = AZ::RPI::AttachmentImage::Create(
+            *pool.get(), imageDesc, AZ::Name(prevFrameImageAttachment->m_path.GetCStr()), &clearValue, nullptr);
+
+        prevFrameImageAttachment->m_path = m_prevFrameOutputAsInput->GetAttachmentId();
+        prevFrameImageAttachment->m_importedResource = m_prevFrameOutputAsInput;
+
+    }
+
+    // Scope producer functions
+
+    void RenderJoyShaderPass::SetupFrameGraphDependencies(AZ::RHI::FrameGraphInterface frameGraph)
+    {
+        AZ::RPI::RenderPass::SetupFrameGraphDependencies(frameGraph);
+        frameGraph.SetEstimatedItemCount(2);
+    }
+
+    void RenderJoyShaderPass::CompileResources(const AZ::RHI::FrameGraphCompileContext& context)
+    {
+        // Base viewport and scissor off of target attachment
+        const float viewWidth = static_cast<float>(m_renderTargetWidth);
+        const float viewHeight = static_cast<float>(m_renderTargetHeight);
 
         if (m_resolutionIndex.IsValid())
         {
@@ -248,62 +285,15 @@ namespace RenderJoy
                 bool isLeftButtonClick;
                 m_renderJoySrgDataProvider->GetMouseData(currentPos, clickPos, isLeftButtonDown, isLeftButtonClick);
                 AZ::Vector4 encodedMouseData(currentPos.GetX(), currentPos.GetY(),
-                                             isLeftButtonDown ? clickPos.GetX() : -clickPos.GetX(),
-                                             isLeftButtonClick ? clickPos.GetY() : -clickPos.GetY());
+                    isLeftButtonDown ? clickPos.GetX() : -clickPos.GetX(),
+                    isLeftButtonClick ? clickPos.GetY() : -clickPos.GetY());
                 m_shaderResourceGroup->SetConstant<AZ::Vector4>(m_mouseIndex, encodedMouseData);
             }
         }
 
-        RenderPass::FrameBeginInternal(params);
-    }
+        BindPassSrg(context, m_shaderResourceGroup);
+        m_shaderResourceGroup->Compile();
 
-    void RenderJoyShaderPass::BuildInternal()
-    {
-        if (m_inputChannelIndexForPrevFrameOutputAsInput == InvalidInputChannelIndex)
-        {
-            return;
-        }
-
-        AZ::Data::Instance<AZ::RPI::AttachmentImagePool> pool = AZ::RPI::ImageSystemInterface::Get()->GetSystemAttachmentPool();
-
-        AZ::RPI::Ptr<AZ::RPI::PassAttachment> prevFrameImageAttachment = FindOwnedAttachment(AZ::Name("PreviousFrameImage"));
-        AZ_Assert(prevFrameImageAttachment.get(), "Failed to get PreviousFrameImage attachment");
-
-        // update the image attachment descriptor to sync up size and format
-        prevFrameImageAttachment->Update();
-
-        AZ::RHI::ImageDescriptor& imageDesc = prevFrameImageAttachment->m_descriptor.m_image;
-
-        // change the lifetime since we want it to live between frames
-        prevFrameImageAttachment->m_lifetime = AZ::RHI::AttachmentLifetimeType::Imported;
-
-        // set the bind flags
-        imageDesc.m_bindFlags |= AZ::RHI::ImageBindFlags::ShaderRead | AZ::RHI::ImageBindFlags::CopyWrite;
-
-        // create the image attachment
-        AZ::RHI::ClearValue clearValue = AZ::RHI::ClearValue::CreateVector4Float(0, 1, 0, 0);
-        m_prevFrameOutputAsInput = AZ::RPI::AttachmentImage::Create(
-            *pool.get(), imageDesc, AZ::Name(prevFrameImageAttachment->m_path.GetCStr()), &clearValue, nullptr);
-
-        prevFrameImageAttachment->m_path = m_prevFrameOutputAsInput->GetAttachmentId();
-        prevFrameImageAttachment->m_importedResource = m_prevFrameOutputAsInput;
-    }
-
-    // Scope producer functions
-
-    void RenderJoyShaderPass::SetupFrameGraphDependencies(AZ::RHI::FrameGraphInterface frameGraph)
-    {
-        AZ::RPI::RenderPass::SetupFrameGraphDependencies(frameGraph);
-        frameGraph.SetEstimatedItemCount(2);
-    }
-
-    void RenderJoyShaderPass::CompileResources(const AZ::RHI::FrameGraphCompileContext& context)
-    {
-        if (m_shaderResourceGroup != nullptr)
-        {
-            BindPassSrg(context, m_shaderResourceGroup);
-            m_shaderResourceGroup->Compile();
-        }
         if (m_inputChannelIndexForPrevFrameOutputAsInput != InvalidInputChannelIndex)
         {
             SetupCopyImageItem(context);
@@ -353,7 +343,7 @@ namespace RenderJoy
             for (uint32_t imageIdx = 0; imageIdx < ImageChannelsCount; ++imageIdx)
             {
                 auto entityId = m_entitiesOnInputChannels[imageIdx];
-                if ((m_entityId == entityId) || !RenderJoyPassRequestBusUtils::IsRenderJoyTextureProvider(entityId))
+                if ((m_entityId == entityId) || !Utils::IsRenderJoyTextureProvider(entityId))
                 {
                     continue;
                 }
@@ -376,7 +366,7 @@ namespace RenderJoy
                     if (imageAsset && imageAsset.IsReady())
                     {
                         const bool success = gotValidTextureProvider = SetImageAssetForChannel(imageIdx, imageAsset);
-                        AZ_Error(LogName, success, "Failed to instantiate streaming image for channel %u from asset %s. Will try default image.",
+                        AZ_Error(ClassNameStr, success, "Failed to instantiate streaming image for channel %u from asset %s. Will try default image.",
                             imageIdx, imageAsset.GetHint().c_str());
                     }
                 }
@@ -447,45 +437,51 @@ namespace RenderJoy
 
     void RenderJoyShaderPass::SetDefaultImageForChannel(uint32_t imageChannelIdx)
     {
-        AZStd::string imageName = AZStd::string::format("renderjoy_m_channel%u", imageChannelIdx);
-        uint32_t color;
-        switch (imageChannelIdx)
-        {
-        case 0: color = 0xFF0000FF; break; //Red
-        case 1: color = 0xFF00FF00; break; //Green
-        case 2: color = 0xFFFF0000; break; //Blue
-        default: color = 0xFF808080; break; //Gray
-        }
-        CreateImageForChannel(imageChannelIdx, imageName, 256, 256, color);
+        auto renderJoySystem = RenderJoyInterface::Get();
+        auto image = renderJoySystem->GetDefaultInputTexture(imageChannelIdx);
+        AZ::RHI::Size imageSize = GetImageDimensions(image);
+        m_imageChannels[imageChannelIdx] = image;
+        m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(imageSize.m_width), aznumeric_cast<float>(imageSize.m_height), 1.0f, 0.0f);
+
+        // AZStd::string imageName = AZStd::string::format("renderjoy_m_channel%u", imageChannelIdx);
+        // uint32_t color;
+        // switch (imageChannelIdx)
+        // {
+        // case 0: color = 0xFF0000FF; break; //Red
+        // case 1: color = 0xFF00FF00; break; //Green
+        // case 2: color = 0xFFFF0000; break; //Blue
+        // default: color = 0xFF808080; break; //Gray
+        // }
+        // CreateImageForChannel(imageChannelIdx, imageName, 256, 256, color);
     }
 
-    void RenderJoyShaderPass::CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color)
-    {
-        auto streamingImageInstance = AZ::Data::InstanceDatabase<AZ::RPI::StreamingImage>::Instance().Find(AZ::Data::InstanceId::CreateName(imageName.c_str()));
-        if (!!streamingImageInstance)
-        {
-            AZ::RHI::Size imageSize = GetImageDimensions(streamingImageInstance);
-            m_imageChannels[imageChannelIdx] = streamingImageInstance;
-            m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(imageSize.m_width), aznumeric_cast<float>(imageSize.m_height), 1.0f, 0.0f);
-            return;
-        }
-
-        AZStd::vector<uint32_t> buffer;
-        size_t bufferSize = width * height;
-        buffer.resize(bufferSize, color);
-        uint8_t* pixels = static_cast<uint8_t*>(static_cast<void*>(&buffer[0]));
-        const size_t pixelDataSize = width * height * sizeof(color);
-
-        AZ::RHI::Size imageSize;
-        imageSize.m_width = aznumeric_cast<uint32_t>(width);
-        imageSize.m_height = aznumeric_cast<uint32_t>(height);
-
-        AZ::Data::Instance<AZ::RPI::StreamingImagePool> streamingImagePool = AZ::RPI::ImageSystemInterface::Get()->GetSystemStreamingPool();
-
-        // CreateFromCpuData will add the image to the instance database.
-        m_imageChannels[imageChannelIdx] = AZ::RPI::StreamingImage::CreateFromCpuData(*streamingImagePool, AZ::RHI::ImageDimension::Image2D, imageSize, AZ::RHI::Format::R8G8B8A8_UNORM_SRGB, pixels, pixelDataSize, AZ::Uuid::CreateName(imageName.c_str()));
-        m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(width), aznumeric_cast<float>(height), 1.0f, 0.0f);
-    }
+    // void RenderJoyShaderPass::CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color)
+    // {
+    //     auto streamingImageInstance = AZ::Data::InstanceDatabase<AZ::RPI::StreamingImage>::Instance().Find(AZ::Data::InstanceId::CreateName(imageName.c_str()));
+    //     if (!!streamingImageInstance)
+    //     {
+    //         AZ::RHI::Size imageSize = GetImageDimensions(streamingImageInstance);
+    //         m_imageChannels[imageChannelIdx] = streamingImageInstance;
+    //         m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(imageSize.m_width), aznumeric_cast<float>(imageSize.m_height), 1.0f, 0.0f);
+    //         return;
+    //     }
+    // 
+    //     AZStd::vector<uint32_t> buffer;
+    //     size_t bufferSize = width * height;
+    //     buffer.resize(bufferSize, color);
+    //     uint8_t* pixels = static_cast<uint8_t*>(static_cast<void*>(&buffer[0]));
+    //     const size_t pixelDataSize = width * height * sizeof(color);
+    // 
+    //     AZ::RHI::Size imageSize;
+    //     imageSize.m_width = aznumeric_cast<uint32_t>(width);
+    //     imageSize.m_height = aznumeric_cast<uint32_t>(height);
+    // 
+    //     AZ::Data::Instance<AZ::RPI::StreamingImagePool> streamingImagePool = AZ::RPI::ImageSystemInterface::Get()->GetSystemStreamingPool();
+    // 
+    //     // CreateFromCpuData will add the image to the instance database.
+    //     m_imageChannels[imageChannelIdx] = AZ::RPI::StreamingImage::CreateFromCpuData(*streamingImagePool, AZ::RHI::ImageDimension::Image2D, imageSize, AZ::RHI::Format::R8G8B8A8_UNORM_SRGB, pixels, pixelDataSize, AZ::Uuid::CreateName(imageName.c_str()));
+    //     m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(width), aznumeric_cast<float>(height), 1.0f, 0.0f);
+    // }
 
     void RenderJoyShaderPass::RemoveImageForChannel(uint32_t imageChannelIdx)
     {
@@ -541,11 +537,6 @@ namespace RenderJoy
 
     ///////////////////////////////////////////////////////////////////
     // RenderJoyPassNotificationBus overrides...
-    void RenderJoyShaderPass::OnOutputPassChanged([[maybe_unused]] bool isOutputPass)
-    {
-
-    }
-
     void RenderJoyShaderPass::OnShaderAssetChanged([[maybe_unused]] AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset)
     {
 

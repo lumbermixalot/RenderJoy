@@ -35,20 +35,26 @@ namespace RenderJoy
     };
     using RenderJoyPassRequestBus = AZ::EBus<RenderJoyPassRequests>;
 
-    // class RenderJoyPassNotifications
-    //     : public AZ::EBusTraits
-    // {
-    // public:
-    //     //////////////////////////////////////////////////////////////////////////
-    //     // EBusTraits overrides
-    //     static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
-    //     using BusIdType = AZ::EntityId; // An Entity with a RenderJoyPassEditorComponent.
-    //     //////////////////////////////////////////////////////////////////////////
-    // 
-    //     virtual void OnShaderAssetChanged(AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset) = 0;
-    //     virtual void OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId) = 0;
-    // };
-    // 
-    // using RenderJoyPassNotificationBus = AZ::EBus<RenderJoyPassNotifications>;
+    namespace Utils
+    {
+        //! Returns true if the entity is a render joy pass (Contains a component that implements RenderJoyPassRequests)
+        bool IsRenderJoyPass(AZ::EntityId entityId);
+    }
+
+    class RenderJoyPassNotifications
+        : public AZ::EBusTraits
+    {
+    public:
+        //////////////////////////////////////////////////////////////////////////
+        // EBusTraits overrides
+        static const AZ::EBusAddressPolicy AddressPolicy = AZ::EBusAddressPolicy::ById;
+        using BusIdType = AZ::EntityId; // An Entity with a RenderJoyPassEditorComponent.
+        //////////////////////////////////////////////////////////////////////////
+    
+        virtual void OnShaderAssetChanged(AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset) = 0;
+        virtual void OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId) = 0;
+    };
+    
+    using RenderJoyPassNotificationBus = AZ::EBus<RenderJoyPassNotifications>;
 
 } // namespace RenderJoy
