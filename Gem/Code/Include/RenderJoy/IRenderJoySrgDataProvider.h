@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include <AzCore/RTTI/TypeInfo.h>
+#include <AzCore/Interface/Interface.h>
 #include <AzCore/Math/Vector2.h>
 
 namespace RenderJoy
@@ -17,7 +17,7 @@ namespace RenderJoy
     class IRenderJoySrgDataProvider
     {
     public:
-        AZ_TYPE_INFO(IRenderJoySrgDataProvider, "{A7C2F151-4A15-4B17-B932-D966BE4BB6C5}");
+        AZ_RTTI(IRenderJoySrgDataProvider, "{A7C2F151-4A15-4B17-B932-D966BE4BB6C5}");
 
         static constexpr const char* LogName = "IRenderJoySrgDataProvider";
 
@@ -30,5 +30,7 @@ namespace RenderJoy
         virtual void GetMouseData(AZ::Vector2& currentPos, AZ::Vector2& clickPos, bool& isLeftButtonDown, bool& isLeftButtonClick) = 0;
         virtual void ResetFrameCounter(int newValue) = 0;
     };
+
+    using RenderJoySrgDataProviderInterface = AZ::Interface<IRenderJoySrgDataProvider>;
 
 } // namespace RenderJoy

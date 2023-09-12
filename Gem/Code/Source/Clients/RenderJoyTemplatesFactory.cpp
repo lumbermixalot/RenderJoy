@@ -116,6 +116,73 @@ namespace RenderJoy
         return passTemplate;
     }
 
+    static AZStd::shared_ptr<AZ::RPI::PassRequest> CreateBillboardPassRequest(AZ::EntityId parentEntityId
+        , const AZStd::shared_ptr<AZ::RPI::PassTemplate>& billboardPassTemplate, const AZ::Name* renderJoyShaderPassName)
+    {
+        //            "PassRequests": [
+        //                {
+        //                    "Name": "RenderJoyBillboardPass",
+        //                    "TemplateName": "RenderJoyBillboardPassTemplate",
+        //                    "Connections": [
+        //                        // Inputs
+        //                        {
+        //                            "LocalSlot": "RenderJoyImage",
+        //                            "AttachmentRef": {
+        //                                "Pass": // The renderjoy shader pass name
+        //                                "Attachment": "Output"
+        //                            }
+        //                        },
+        //                        // Outputs
+        //                        {
+        //                            "LocalSlot": "ColorInputOutput",
+        //                            "AttachmentRef": {
+        //                                "Pass": "Parent",
+        //                                "Attachment": "AtomColorInputOutput"
+        //                            }
+        //                        },
+        //                        {
+        //                            "LocalSlot": "DepthInputOutput",
+        //                            "AttachmentRef": {
+        //                                "Pass": "Parent",
+        //                                "Attachment": "AtomDepthInputOutput"
+        //                            }
+        //                        }
+        //                    ]
+        //                },
+        //                ...
+        //            ],
+        auto billboardPassRequest = AZStd::make_shared<AZ::RPI::PassRequest>();
+
+        const auto billboardPassClassNameStr = AZStd::string(billboardPassTemplate->m_passClass.GetCStr());
+        const auto billboardPassNameStr = GetUniqueEntityPassNameStr(billboardPassClassNameStr, parentEntityId);
+        billboardPassRequest->m_passName = AZ::Name(billboardPassNameStr);
+        billboardPassRequest->m_templateName = billboardPassTemplate->m_name;
+
+        if (renderJoyShaderPassName)
+        {
+            AZ::RPI::PassConnection inputConnection;
+            inputConnection.m_localSlot = AZ::Name("RenderJoyImage");
+            inputConnection.m_attachmentRef.m_pass = *renderJoyShaderPassName;
+            inputConnection.m_attachmentRef.m_attachment = AZ::Name("Output");
+            billboardPassRequest->AddInputConnection(inputConnection);
+        }
+
+        AZ::RPI::PassConnection inputConnection;
+        inputConnection.m_localSlot = AZ::Name("ColorInputOutput");
+        inputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
+        inputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomColorInputOutput");
+        billboardPassRequest->AddInputConnection(inputConnection);
+
+        AZ::RPI::PassConnection outputConnection;
+        outputConnection.m_localSlot = AZ::Name("DepthInputOutput");
+        outputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
+        outputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomDepthInputOutput");
+        billboardPassRequest->AddInputConnection(outputConnection);
+
+        return billboardPassRequest;
+    }
+
+
     static AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateInvalidRenderJoyParentPassTemplate(AZ::RPI::PassSystemInterface* passSystem
         , AZ::EntityId parentEntityId
         , AZStd::vector<AZ::Name>& createdPassTemplateNamesOut, AZ::Name& billboardPassNameOut)
@@ -192,39 +259,16 @@ namespace RenderJoy
 
         // Pass Request.
         // This parent pass only has a child, which is the Billboard pass.
-        {
-            AZ::RPI::PassRequest childPassRequest;
-
-            const auto billboardPassClassNameStr = AZStd::string(billboardPassTemplate->m_passClass.GetCStr());
-            const auto billboardPassNameStr = GetUniqueEntityPassNameStr(billboardPassClassNameStr, parentEntityId);
-            childPassRequest.m_passName = AZ::Name(billboardPassNameStr);
-            childPassRequest.m_templateName = billboardPassTemplate->m_name;
-
-            AZ::RPI::PassConnection inputConnection;
-            inputConnection.m_localSlot = AZ::Name("ColorInputOutput");
-            inputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
-            inputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomColorInputOutput");
-            childPassRequest.AddInputConnection(inputConnection);
-
-            AZ::RPI::PassConnection outputConnection;
-            outputConnection.m_localSlot = AZ::Name("DepthInputOutput");
-            outputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
-            outputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomDepthInputOutput");
-            childPassRequest.AddInputConnection(outputConnection);
-
-            passTemplate->AddPassRequest(childPassRequest);
-
-            billboardPassNameOut = childPassRequest.m_passName;
-        }
+        auto childPassRequest = CreateBillboardPassRequest(parentEntityId, billboardPassTemplate, nullptr);
+        passTemplate->AddPassRequest(*childPassRequest.get());
+        billboardPassNameOut = childPassRequest->m_passName;
 
         return passTemplate;
     }
 
 
     static AZStd::shared_ptr<AZ::RPI::PassTemplate> CreateRenderJoyParentPassTemplate(AZ::EntityId parentEntityId
-        , const AZ::Name& renderJoyShaderPassName
-        , AZStd::shared_ptr<AZ::RPI::PassTemplate>& billboardPassTemplateOut
-        , AZ::Name& billboardPassNameOut)
+        , AZStd::shared_ptr<AZ::RPI::PassTemplate>& billboardPassTemplateOut)
     {
         constexpr bool useRendeJoyAttachment = true;
         auto billboardPassTemplate = CreateBillboardPassTemplate(parentEntityId, useRendeJoyAttachment);
@@ -301,40 +345,6 @@ namespace RenderJoy
             passSlot.m_name = AZ::Name("AtomDepthInputOutput");
             passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
             passTemplate->AddSlot(passSlot);
-        }
-
-        // Pass Request.
-        // This parent pass only has a child, which is the Billboard pass.
-        {
-            AZ::RPI::PassRequest childPassRequest;
-
-            const auto billboardPassClassNameStr = AZStd::string(billboardPassTemplate->m_passClass.GetCStr());
-            const auto billboardPassNameStr = GetUniqueEntityPassNameStr(billboardPassClassNameStr, parentEntityId);
-            childPassRequest.m_passName = AZ::Name(billboardPassNameStr);
-            childPassRequest.m_templateName = billboardPassTemplate->m_name;
-
-            AZ::RPI::PassConnection inputConnection;
-            inputConnection.m_localSlot = AZ::Name("RenderJoyImage");
-            inputConnection.m_attachmentRef.m_pass = renderJoyShaderPassName;
-            inputConnection.m_attachmentRef.m_attachment = AZ::Name("Output");
-            childPassRequest.AddInputConnection(inputConnection);
-
-            AZ::RPI::PassConnection ColorOutputConnection;
-            ColorOutputConnection.m_localSlot = AZ::Name("ColorInputOutput");
-            ColorOutputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
-            ColorOutputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomColorInputOutput");
-            childPassRequest.AddInputConnection(ColorOutputConnection);
-
-            AZ::RPI::PassConnection DepthOutputConnection;
-            DepthOutputConnection.m_localSlot = AZ::Name("DepthInputOutput");
-            DepthOutputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
-            DepthOutputConnection.m_attachmentRef.m_attachment = AZ::Name("AtomDepthInputOutput");
-            childPassRequest.AddInputConnection(DepthOutputConnection);
-
-            passTemplate->AddPassRequest(childPassRequest);
-
-            billboardPassNameOut = childPassRequest.m_passName;
-
         }
 
         return passTemplate;
@@ -692,11 +702,13 @@ namespace RenderJoy
             return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
         }
 
-        AZ::Name billboardPassName;
         AZStd::shared_ptr<AZ::RPI::PassTemplate> billboardPassTemplate;
+        auto parentPassTemplate = CreateRenderJoyParentPassTemplate(parentPassEntityId, billboardPassTemplate);
+
         const auto renderJoyShaderPassNameStr = GetUniqueEntityPassNameStr("RenderJoyShaderPass", passBusEntity);
-        auto parentPassTemplate = CreateRenderJoyParentPassTemplate(parentPassEntityId
-            , AZ::Name(renderJoyShaderPassNameStr), billboardPassTemplate, billboardPassName);
+        const auto renderJoyShaderPassName = AZ::Name(renderJoyShaderPassNameStr);
+        auto billboardPassRequest = CreateBillboardPassRequest(parentPassEntityId, billboardPassTemplate, &renderJoyShaderPassName);
+
 
         // Time to create the passRequests.
         // The past requests will get automatically added to parentPassTemplate.
@@ -704,6 +716,7 @@ namespace RenderJoy
         {
             return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
         }
+        parentPassTemplate->AddPassRequest(*billboardPassRequest.get());
 
         // Don't forget to add all templates to the PassSystem !!
         for (const auto& [entityId, passTemplate] : passTemplates)
@@ -711,9 +724,10 @@ namespace RenderJoy
             passSystem->AddPassTemplate(passTemplate->m_name, passTemplate);
             structRef.m_createdPassTemplates.push_back(passTemplate->m_name);
         }
+
         passSystem->AddPassTemplate(billboardPassTemplate->m_name, billboardPassTemplate);
         structRef.m_createdPassTemplates.push_back(billboardPassTemplate->m_name);
-        structRef.m_billboardPassName = billboardPassName;
+        structRef.m_billboardPassName = billboardPassRequest->m_passName;
 
         structRef.m_passRequest = CreateRenderJoyParentPassRequestInternal(parentPassTemplate, parentPassEntityId);
         passSystem->AddPassTemplate(parentPassTemplate->m_name, parentPassTemplate);

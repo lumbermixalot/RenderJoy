@@ -16,6 +16,7 @@
 
 #include <RenderJoy/RenderJoyBus.h>
 #include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
+#include <RenderJoy/IRenderJoySrgDataProvider.h>
 
 #include "RenderJoyTemplatesFactory.h"
 
@@ -31,8 +32,11 @@ namespace RenderJoy
 {
     class RenderJoySystemComponent
         : public AZ::Component
+        , public AZ::SystemTickBus::Handler // For feature processor creation/destruction.
+        , public AZ::TickBus::Handler // For keeping track of time during rendering.
         , public RenderJoyRequestBus::Handler
-        , public AZ::SystemTickBus::Handler
+        , public IRenderJoySrgDataProvider
+        , public RenderJoyNotificationBus::Handler
     {
     public:
         AZ_COMPONENT_DECL(RenderJoySystemComponent);
@@ -61,9 +65,27 @@ namespace RenderJoy
         // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 
+        ////////////////////////////////////////////////////////////////////////
+        // IRenderJoySrgDataProvider interface implementation START
+        float GetTime() override;
+        float GetTimeDelta() override;
+        int GetFramesCount() override;
+        float GetFramesPerSecond() override;
+        void GetMouseData(AZ::Vector2& currentPos, AZ::Vector2& clickPos, bool& isLeftButtonDown, bool& isLeftButtonClick) override;
+        void ResetFrameCounter(int newValue) override;
+        // IRenderJoySrgDataProvider interface implementation END
+        ////////////////////////////////////////////////////////////////////////
+
+
+
         //////////////////////////////////////////////////////////////////////////
         // SystemTickBus
         void OnSystemTick() override;
+        //////////////////////////////////////////////////////////////////////////
+
+        //////////////////////////////////////////////////////////////////////////
+        // TickBus
+        void OnTick(float deltaTime, AZ::ScriptTimePoint time) override;
         //////////////////////////////////////////////////////////////////////////
 
         ////////////////////////////////////////////////////////////////////////
@@ -72,6 +94,13 @@ namespace RenderJoy
         void Activate() override;
         void Deactivate() override;
         ////////////////////////////////////////////////////////////////////////
+
+        ///////////////////////////////////////////////////////////
+        // RenderJoyNotificationBus::Handler overrides START
+        void OnFeatureProcessorActivated() override;
+        void OnFeatureProcessorDeactivated() override;
+        // RenderJoyNotificationBus::Handler overrides END
+        ///////////////////////////////////////////////////////////
 
         bool m_shouldRecreateFeatureProcessor = true;
 
@@ -96,6 +125,13 @@ namespace RenderJoy
         // Key: parentPassEntityId, Value: passBusEntity
         // If passBusEntity is invalid, then we will remove parentPassEntityId.
         AZStd::map<AZ::EntityId, AZ::EntityId> m_entitiesToProcess;
+
+        int32_t m_frameCounter = 0;
+        float m_runTime = 0.0f;
+        float m_frameTimeDelta = 0.016f;
+        float m_oneSecondMark = 0.0; // Accumulates time until second and calculates fps.
+        int32_t m_frameCounterStamp = 0;
+        float m_fps = 60.0f;
     };
 
 } // namespace RenderJoy

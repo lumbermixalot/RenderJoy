@@ -64,18 +64,14 @@ namespace RenderJoy
 
     RenderJoySystemComponent::RenderJoySystemComponent()
     {
-        if (RenderJoyInterface::Get() == nullptr)
-        {
-            RenderJoyInterface::Register(this);
-        }
+        RenderJoyInterface::Register(this);
+        RenderJoySrgDataProviderInterface::Register(this);
     }
 
     RenderJoySystemComponent::~RenderJoySystemComponent()
     {
-        if (RenderJoyInterface::Get() == this)
-        {
-            RenderJoyInterface::Unregister(this);
-        }
+        RenderJoyInterface::Unregister(this);
+        RenderJoySrgDataProviderInterface::Unregister(this);
     }
 
     void RenderJoySystemComponent::Init()
@@ -96,12 +92,15 @@ namespace RenderJoy
             passSystem->AddPassCreator(renderJoyShaderPassClassName, &RenderJoyShaderPass::Create);
         }
 
+        RenderJoyNotificationBus::Handler::BusConnect();
         RenderJoyRequestBus::Handler::BusConnect();
         AZ::RPI::FeatureProcessorFactory::Get()->RegisterFeatureProcessorWithInterface<RenderJoyFeatureProcessor, RenderJoyFeatureProcessorInterface>();
     }
 
     void RenderJoySystemComponent::Deactivate()
     {
+        RenderJoyNotificationBus::Handler::BusDisconnect();
+        AZ::TickBus::Handler::BusDisconnect();
         AZ::SystemTickBus::Handler::BusDisconnect();
         AZ::RPI::FeatureProcessorFactory::Get()->UnregisterFeatureProcessor<RenderJoyFeatureProcessor>();
         RenderJoyRequestBus::Handler::BusDisconnect();
@@ -116,12 +115,12 @@ namespace RenderJoy
         {
             return;
         }
+
         if (m_scenePtr->GetFeatureProcessor<RenderJoyFeatureProcessor>())
         {
             m_scenePtr->DisableFeatureProcessor<RenderJoyFeatureProcessor>();
             m_featureProcessor = nullptr;
         }
-
     }
 
     void RenderJoySystemComponent::CreateFeatureProcessor()
@@ -334,6 +333,82 @@ namespace RenderJoy
 
     }
     //////////////////////////////////////////////////////////////////////////
+
+    //////////////////////////////////////////////////////////////////////////
+    // TickBus
+    void RenderJoySystemComponent::OnTick(float deltaTime, [[maybe_unused]] AZ::ScriptTimePoint time)
+    {
+        m_frameCounter++;
+        m_runTime += deltaTime;
+        m_frameTimeDelta = deltaTime;
+        m_oneSecondMark += deltaTime;
+        if (m_oneSecondMark >= 1.0f)
+        {
+            m_oneSecondMark = 0.0f;
+            m_fps = static_cast<float>(m_frameCounter - m_frameCounterStamp);
+            m_frameCounterStamp = m_frameCounter;
+        }
+
+    }
+    //////////////////////////////////////////////////////////////////////////
+
+    ////////////////////////////////////////////////////////////////////////
+    // IRenderJoySrgDataProvider interface implementation START
+    float RenderJoySystemComponent::GetTime()
+    {
+        return m_runTime;
+    }
+
+    float RenderJoySystemComponent::GetTimeDelta()
+    {
+        return m_frameTimeDelta;
+    }
+    
+    int RenderJoySystemComponent::GetFramesCount()
+    {
+        return m_frameCounter;
+    }
+    
+    float RenderJoySystemComponent::GetFramesPerSecond()
+    {
+        return m_fps;
+    }
+
+    void RenderJoySystemComponent::GetMouseData(AZ::Vector2& currentPos, AZ::Vector2& clickPos, bool& isLeftButtonDown, bool& isLeftButtonClick)
+    {
+        currentPos = AZ::Vector2::CreateZero();
+        clickPos = AZ::Vector2::CreateZero();
+        isLeftButtonDown = false;
+        isLeftButtonClick = false;
+    }
+
+    void RenderJoySystemComponent::ResetFrameCounter(int newValue)
+    {
+        m_oneSecondMark = 0.0;
+        m_runTime = 0.0;
+        m_frameCounter = newValue;
+        m_frameCounterStamp = newValue;
+    }
+    // IRenderJoySrgDataProvider interface implementation END
+    ////////////////////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////
+    // RenderJoyNotificationBus::Handler overrides START
+    void RenderJoySystemComponent::OnFeatureProcessorActivated()
+    {
+        if (!AZ::TickBus::Handler::BusIsConnected())
+        {
+            ResetFrameCounter(0);
+            AZ::TickBus::Handler::BusConnect();
+        }
+    }
+
+    void RenderJoySystemComponent::OnFeatureProcessorDeactivated()
+    {
+        AZ::TickBus::Handler::BusDisconnect();
+    }
+    // RenderJoyNotificationBus::Handler overrides END
+    ///////////////////////////////////////////////////////////
 
     namespace Utils
     {

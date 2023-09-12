@@ -106,12 +106,12 @@ namespace RenderJoy
     void RenderJoyShaderComponentController::Activate(AZ::EntityId entityId)
     {
         m_entityId = entityId;
-
+        RenderJoyPassRequestBus::Handler::BusConnect(entityId);
     }
 
     void RenderJoyShaderComponentController::Deactivate()
     {
-
+        RenderJoyPassRequestBus::Handler::BusDisconnect();
     }
 
     void RenderJoyShaderComponentController::SetConfiguration(const RenderJoyShaderComponentConfig& config)
