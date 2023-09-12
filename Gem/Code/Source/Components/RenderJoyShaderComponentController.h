@@ -42,6 +42,7 @@ namespace RenderJoy
     class RenderJoyShaderComponentController final
         : public AZ::Data::AssetBus::MultiHandler
         , public RenderJoyPassRequestBus::Handler
+        , private AZ::Data::AssetBus::Handler
     {
     public:
         friend class EditorRenderJoyShaderComponent;
@@ -72,6 +73,11 @@ namespace RenderJoy
         /// RenderJoyPassRequestBus::Handler overrides END
         /////////////////////////////////////////////////////////////////
 
+        /////////////////////////////////////////////////////////////////
+        //! Data::AssetBus
+        void OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset) override;
+        void OnAssetError(AZ::Data::Asset<AZ::Data::AssetData> asset) override;
+        /////////////////////////////////////////////////////////////////
 
     private:
 
@@ -79,10 +85,12 @@ namespace RenderJoy
 
         static constexpr char LogName[] = "RenderJoyShaderComponentController";
 
+        void NotifyShaderAssetChanged(AZ::Data::Asset<AZ::Data::AssetData> asset);
 
         AZ::EntityId m_entityId;
         
         RenderJoyShaderComponentConfig m_configuration;
+        RenderJoyShaderComponentConfig m_prevConfiguration;
 
         void OnConfigurationChanged();
 

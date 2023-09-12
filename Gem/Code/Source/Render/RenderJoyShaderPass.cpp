@@ -116,21 +116,25 @@ namespace RenderJoy
         }
 
         // Load Shader
-        AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset;
-        if (passData->m_shaderAsset.m_assetId.IsValid())
+        if (!m_shaderAsset.IsReady())
         {
-            shaderAsset = AZ::RPI::FindShaderAsset(passData->m_shaderAsset.m_assetId, passData->m_shaderAsset.m_filePath);
+            AZ::Data::Asset<AZ::RPI::ShaderAsset> shaderAsset;
+            if (passData->m_shaderAsset.m_assetId.IsValid())
+            {
+                shaderAsset = AZ::RPI::FindShaderAsset(passData->m_shaderAsset.m_assetId, passData->m_shaderAsset.m_filePath);
+            }
+
+            if (!shaderAsset.GetId().IsValid())
+            {
+                AZ_Error(ClassNameStr, false, "['%s']: Failed to load shader '%s'!",
+                    GetPathName().GetCStr(),
+                    passData->m_shaderAsset.m_filePath.data());
+                return;
+            }
+            m_shaderAsset = shaderAsset;
         }
 
-        if (!shaderAsset.GetId().IsValid())
-        {
-            AZ_Error(ClassNameStr, false, "['%s']: Failed to load shader '%s'!",
-                GetPathName().GetCStr(),
-                passData->m_shaderAsset.m_filePath.data());
-            return;
-        }
-
-        m_shader = AZ::RPI::Shader::FindOrCreate(shaderAsset);
+        m_shader = AZ::RPI::Shader::FindOrCreate(m_shaderAsset);
         if (m_shader == nullptr)
         {
             AZ_Error(ClassNameStr, false, "['%s']: Failed to load shader '%s'!",
@@ -143,7 +147,7 @@ namespace RenderJoy
         const auto& passSrgLayout = m_shader->FindShaderResourceGroupLayout(AZ::Name{ "PassSrg" });
         if (passSrgLayout)
         {
-            m_shaderResourceGroup = AZ::RPI::ShaderResourceGroup::Create(shaderAsset, m_shader->GetSupervariantIndex(), passSrgLayout->GetName());
+            m_shaderResourceGroup = AZ::RPI::ShaderResourceGroup::Create(m_shaderAsset, m_shader->GetSupervariantIndex(), passSrgLayout->GetName());
 
             AZ_Assert(m_shaderResourceGroup, "['%s']: Failed to create SRG from shader asset '%s'",
                 GetPathName().GetCStr(),
@@ -159,7 +163,7 @@ namespace RenderJoy
         m_initialized = false;
 
         AZ::RPI::ShaderReloadNotificationBus::Handler::BusDisconnect();
-        AZ::RPI::ShaderReloadNotificationBus::Handler::BusConnect(shaderAsset.GetId());
+        AZ::RPI::ShaderReloadNotificationBus::Handler::BusConnect(m_shaderAsset.GetId());
     }
 
     void RenderJoyShaderPass::Init()
@@ -539,7 +543,9 @@ namespace RenderJoy
     // RenderJoyPassNotificationBus overrides...
     void RenderJoyShaderPass::OnShaderAssetChanged([[maybe_unused]] AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset)
     {
-
+        AZ::RPI::ShaderReloadNotificationBus::Handler::BusDisconnect();
+        m_shaderAsset = newShaderAsset;
+        LoadShader();
     }
 
     void RenderJoyShaderPass::OnInputChannelEntityChanged(

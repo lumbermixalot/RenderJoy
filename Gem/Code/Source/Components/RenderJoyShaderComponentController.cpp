@@ -105,18 +105,21 @@ namespace RenderJoy
 
     void RenderJoyShaderComponentController::Activate(AZ::EntityId entityId)
     {
+        m_prevConfiguration = m_configuration;
         m_entityId = entityId;
         RenderJoyPassRequestBus::Handler::BusConnect(entityId);
     }
 
     void RenderJoyShaderComponentController::Deactivate()
     {
+        AZ::Data::AssetBus::Handler::BusDisconnect();
         RenderJoyPassRequestBus::Handler::BusDisconnect();
     }
 
     void RenderJoyShaderComponentController::SetConfiguration(const RenderJoyShaderComponentConfig& config)
     {
         m_configuration = config;
+        m_prevConfiguration = config;
     }
 
     const RenderJoyShaderComponentConfig& RenderJoyShaderComponentController::GetConfiguration() const
@@ -126,7 +129,17 @@ namespace RenderJoy
 
     void RenderJoyShaderComponentController::OnConfigurationChanged()
     {
-        AZ_Printf(LogName, "%s\n", __FUNCTION__);
+        if (m_prevConfiguration.m_shaderAsset != m_configuration.m_shaderAsset)
+        {
+            const auto shaderAssetId = m_configuration.m_shaderAsset.GetId();
+            if (shaderAssetId.IsValid())
+            {
+                AZ::Data::AssetBus::Handler::BusConnect(shaderAssetId);
+                m_configuration.m_shaderAsset.QueueLoad();
+            }
+            RenderJoyPassNotificationBus::Event(m_entityId, &RenderJoyPassNotifications::OnShaderAssetChanged, m_configuration.m_shaderAsset);
+        }
+        m_prevConfiguration = m_configuration;
     }
 
     /////////////////////////////////////////////////////////////////
@@ -160,5 +173,30 @@ namespace RenderJoy
     }
     /// RenderJoyPassRequestBus::Handler overrides END
     /////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////
+    //! Data::AssetBus START
+    void RenderJoyShaderComponentController::OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset)
+    {
+        NotifyShaderAssetChanged(asset);
+    }
+
+    void RenderJoyShaderComponentController::OnAssetError(AZ::Data::Asset<AZ::Data::AssetData> asset)
+    {
+        NotifyShaderAssetChanged(asset);
+    }
+    //! Data::AssetBus END
+    /////////////////////////////////////////////////////////////////
+
+    void RenderJoyShaderComponentController::NotifyShaderAssetChanged(AZ::Data::Asset<AZ::Data::AssetData> asset)
+    {
+        m_configuration.m_shaderAsset = asset;
+        AZ::Data::AssetBus::Handler::BusDisconnect();
+        auto notifyAssetchangedFn = [asset = asset, this]()
+            {
+                RenderJoyPassNotificationBus::Event(m_entityId, &RenderJoyPassNotifications::OnShaderAssetChanged, asset);
+            };
+        AZ::TickBus::QueueFunction(AZStd::move(notifyAssetchangedFn));
+    }
 
 }

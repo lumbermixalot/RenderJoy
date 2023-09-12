@@ -119,6 +119,7 @@ namespace RenderJoy
         // Helper function.
         uint32_t GetInputChannelIndexFromEntityId(const AZ::EntityId& entityId);
 
+        AZ::Data::Asset<AZ::RPI::ShaderAsset> m_shaderAsset; // Can change at runtime.
         AZ::EntityId m_entityId;
         AZStd::array<AZ::EntityId, ImageChannelsCount> m_entitiesOnInputChannels;
 

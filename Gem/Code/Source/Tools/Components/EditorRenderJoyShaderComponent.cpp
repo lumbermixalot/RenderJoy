@@ -75,16 +75,9 @@ namespace RenderJoy
     }
 
 
-    void EditorRenderJoyShaderComponent::OnEntityVisibilityChanged(bool visibility)
+    void EditorRenderJoyShaderComponent::OnEntityVisibilityChanged([[maybe_unused]] bool visibility)
     {
-        if (visibility)
-        {
-            //m_controller.EnableFeatureProcessor(GetEntityId());
-        }
-        else
-        {
-            //m_controller.DisableFeatureProcessor();
-        }
+
     }
 
     // EditorComponentAdapter overrides
