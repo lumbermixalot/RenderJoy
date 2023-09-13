@@ -6,7 +6,7 @@
  *
  */
 
-#include <Tools/Components/EditorRenderJoyShaderComponent.h>
+#include <Tools/Components/EditorRenderJoyTextureComponent.h>
 #include <AzFramework/StringFunc/StringFunc.h>
 #include <AzToolsFramework/API/ToolsApplicationAPI.h>
 #include <AzToolsFramework/Entity/EditorEntityInfoBus.h>
@@ -16,19 +16,19 @@
 
 namespace RenderJoy
 {
-    void EditorRenderJoyShaderComponent::Reflect(AZ::ReflectContext* context)
+    void EditorRenderJoyTextureComponent::Reflect(AZ::ReflectContext* context)
     {
         BaseClass::Reflect(context);
 
         if (AZ::SerializeContext* serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
-            serializeContext->Class<EditorRenderJoyShaderComponent, BaseClass>()
+            serializeContext->Class<EditorRenderJoyTextureComponent, BaseClass>()
                 ;
 
             if (AZ::EditContext* editContext = serializeContext->GetEditContext())
             {
-                editContext->Class<EditorRenderJoyShaderComponent>(
-                    "RenderJoy Shader", "The RenderJoy Shader component")
+                editContext->Class<EditorRenderJoyTextureComponent>(
+                    "RenderJoy Texture", "An image to be bound to one of the texture channels of a RenderJoy Pass")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                         ->Attribute(AZ::Edit::Attributes::Category, "Graphics/RenderJoy")
                         ->Attribute(AZ::Edit::Attributes::Icon, "Icons/Components/Component_Placeholder.svg")
@@ -42,32 +42,29 @@ namespace RenderJoy
 
         if (auto behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context))
         {
-            behaviorContext->ConstantProperty("EditorRenderJoyShaderComponentTypeId", BehaviorConstant(AZ::Uuid(EditorRenderJoyShaderComponentTypeId)))
+            behaviorContext->ConstantProperty("EditorRenderJoyTextureComponentTypeId", BehaviorConstant(AZ::Uuid(EditorRenderJoyTextureComponentTypeId)))
                 ->Attribute(AZ::Script::Attributes::Module, "render")
                 ->Attribute(AZ::Script::Attributes::Scope, AZ::Script::Attributes::ScopeFlags::Automation);
         }
     }
 
-    EditorRenderJoyShaderComponent::EditorRenderJoyShaderComponent()
+    EditorRenderJoyTextureComponent::EditorRenderJoyTextureComponent()
     {
     }
 
-    EditorRenderJoyShaderComponent::EditorRenderJoyShaderComponent(const RenderJoyShaderComponentConfig& config)
+    EditorRenderJoyTextureComponent::EditorRenderJoyTextureComponent(const RenderJoyTextureComponentConfig& config)
         : BaseClass(config)
     {
     }
 
-    void EditorRenderJoyShaderComponent::Activate()
+    void EditorRenderJoyTextureComponent::Activate()
     {
         BaseClass::Activate();
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusConnect(GetEntityId());
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusConnect();
-
-        //AZ::u64 entityId = (AZ::u64)GetEntityId();
-        //m_controller.m_configuration.m_entityId = entityId;
     }
 
-    void EditorRenderJoyShaderComponent::Deactivate()
+    void EditorRenderJoyTextureComponent::Deactivate()
     {
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusDisconnect();
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusDisconnect();
@@ -75,13 +72,13 @@ namespace RenderJoy
     }
 
 
-    void EditorRenderJoyShaderComponent::OnEntityVisibilityChanged([[maybe_unused]] bool visibility)
+    void EditorRenderJoyTextureComponent::OnEntityVisibilityChanged([[maybe_unused]] bool visibility)
     {
 
     }
 
     // EditorComponentAdapter overrides
-    AZ::u32 EditorRenderJoyShaderComponent::OnConfigurationChanged()
+    AZ::u32 EditorRenderJoyTextureComponent::OnConfigurationChanged()
     {
         m_controller.OnConfigurationChanged();
         return AZ::Edit::PropertyRefreshLevels::ValuesOnly;

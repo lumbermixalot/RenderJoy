@@ -14,6 +14,7 @@
 
 #include "Components/RenderJoyBillboardComponent.h"
 #include "Components/RenderJoyShaderComponent.h"
+#include "Components/RenderJoyTextureComponent.h"
 
 namespace RenderJoy
 {
@@ -30,6 +31,7 @@ namespace RenderJoy
                 {
                     RenderJoySystemComponent::CreateDescriptor(),
                     RenderJoyBillboardComponent::CreateDescriptor(),
+                    RenderJoyTextureComponent::CreateDescriptor(),
                     RenderJoyShaderComponent::CreateDescriptor(),
                 });
         }

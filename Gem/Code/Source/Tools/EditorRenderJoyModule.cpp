@@ -5,6 +5,7 @@
 
 #include "Components/EditorRenderJoyBillboardComponent.h"
 #include "Components/EditorRenderJoyShaderComponent.h"
+#include "Components/EditorRenderJoyTextureComponent.h"
 
 #include "EditorRenderJoySystemComponent.h"
 
@@ -34,6 +35,9 @@ namespace RenderJoy
                 
                 RenderJoyBillboardComponent::CreateDescriptor(),
                 EditorRenderJoyBillboardComponent::CreateDescriptor(),
+
+                RenderJoyTextureComponent::CreateDescriptor(),
+                EditorRenderJoyTextureComponent::CreateDescriptor(),
                 
                 RenderJoyShaderComponent::CreateDescriptor(),
                 EditorRenderJoyShaderComponent::CreateDescriptor(),

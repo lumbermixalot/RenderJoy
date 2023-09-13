@@ -85,12 +85,14 @@ namespace RenderJoy
 
     void RenderJoyShaderComponentController::GetProvidedServices(AZ::ComponentDescriptor::DependencyArrayType& provided)
     {
-        provided.push_back(AZ_CRC_CE("RenderJoyService"));
+        provided.push_back(AZ_CRC_CE("RenderJoyShaderComponentService"));
     }
 
     void RenderJoyShaderComponentController::GetIncompatibleServices(AZ::ComponentDescriptor::DependencyArrayType& incompatible)
     {
-        incompatible.push_back(AZ_CRC_CE("RenderJoyService"));
+        incompatible.push_back(AZ_CRC_CE("RenderJoyShaderComponentService"));
+        incompatible.push_back(AZ_CRC_CE("RenderJoyTextureComponentService"));
+        incompatible.push_back(AZ_CRC_CE("RenderJoyKeyboardComponentService"));
     }
 
     void RenderJoyShaderComponentController::GetRequiredServices(AZ::ComponentDescriptor::DependencyArrayType& required)

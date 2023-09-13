@@ -21,7 +21,7 @@
 
 namespace RenderJoy
 {
-    inline constexpr AZ::TypeId EditorBillboardComponentTypeId { "{50A91A4A-234F-4475-A164-3A8FD0FE8FBE}" };
+    inline constexpr AZ::TypeId EditorRenderJoyBillboardComponentTypeId { "{50A91A4A-234F-4475-A164-3A8FD0FE8FBE}" };
 
     class EditorRenderJoyBillboardComponent final
         : public AZ::Render::EditorRenderComponentAdapter<RenderJoyBillboardComponentController, RenderJoyBillboardComponent, RenderJoyBillboardComponentConfig>
@@ -32,7 +32,7 @@ namespace RenderJoy
     {
     public:
         using BaseClass = AZ::Render::EditorRenderComponentAdapter <RenderJoyBillboardComponentController, RenderJoyBillboardComponent, RenderJoyBillboardComponentConfig>;
-        AZ_EDITOR_COMPONENT(EditorRenderJoyBillboardComponent, EditorBillboardComponentTypeId, BaseClass);
+        AZ_EDITOR_COMPONENT(EditorRenderJoyBillboardComponent, EditorRenderJoyBillboardComponentTypeId, BaseClass);
 
         static void Reflect(AZ::ReflectContext* context);
 

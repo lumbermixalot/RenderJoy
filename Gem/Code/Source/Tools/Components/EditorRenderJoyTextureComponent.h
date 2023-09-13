@@ -13,27 +13,27 @@
 #include <AzToolsFramework/API/ComponentEntitySelectionBus.h>
 #include <AzToolsFramework/Entity/EditorEntityInfoBus.h>
 #include <AzToolsFramework/ToolsComponents/EditorComponentAdapter.h>
-#include <Components/RenderJoyShaderComponent.h>
+#include <Components/RenderJoyTextureComponent.h>
 
 #include <RenderJoy/RenderJoyTypeIds.h>
 
 namespace RenderJoy
 {
-    inline constexpr AZ::TypeId EditorRenderJoyShaderComponentTypeId { "{D6CAD35B-00A1-4E33-894F-0F8BD4DD682A}" };
+    inline constexpr AZ::TypeId EditorRenderJoyTextureComponentTypeId { "{BE391ED7-FDC8-41DB-9F29-CE2DAE1B8B84}" };
 
-    class EditorRenderJoyShaderComponent final
-        : public AZ::Render::EditorRenderComponentAdapter<RenderJoyShaderComponentController, RenderJoyShaderComponent, RenderJoyShaderComponentConfig>
+    class EditorRenderJoyTextureComponent final
+        : public AZ::Render::EditorRenderComponentAdapter<RenderJoyTextureComponentController, RenderJoyTextureComponent, RenderJoyTextureComponentConfig>
         , private AzToolsFramework::EditorComponentSelectionRequestsBus::Handler
         , private AzToolsFramework::EditorEntityInfoNotificationBus::Handler
     {
     public:
-        using BaseClass = AZ::Render::EditorRenderComponentAdapter <RenderJoyShaderComponentController, RenderJoyShaderComponent, RenderJoyShaderComponentConfig>;
-        AZ_EDITOR_COMPONENT(EditorRenderJoyShaderComponent, EditorRenderJoyShaderComponentTypeId, BaseClass);
+        using BaseClass = AZ::Render::EditorRenderComponentAdapter <RenderJoyTextureComponentController, RenderJoyTextureComponent, RenderJoyTextureComponentConfig>;
+        AZ_EDITOR_COMPONENT(EditorRenderJoyTextureComponent, EditorRenderJoyTextureComponentTypeId, BaseClass);
 
         static void Reflect(AZ::ReflectContext* context);
 
-        EditorRenderJoyShaderComponent();
-        EditorRenderJoyShaderComponent(const RenderJoyShaderComponentConfig& config);
+        EditorRenderJoyTextureComponent();
+        EditorRenderJoyTextureComponent(const RenderJoyTextureComponentConfig& config);
 
     private:
 

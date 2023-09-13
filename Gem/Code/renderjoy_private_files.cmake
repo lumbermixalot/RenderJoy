@@ -21,6 +21,10 @@ set(FILES
     Source/Components/RenderJoyShaderComponent.cpp
     Source/Components/RenderJoyShaderComponentController.h
     Source/Components/RenderJoyShaderComponentController.cpp
+    Source/Components/RenderJoyTextureComponent.h
+    Source/Components/RenderJoyTextureComponent.cpp
+    Source/Components/RenderJoyTextureComponentController.h
+    Source/Components/RenderJoyTextureComponentController.cpp
     Source/Render/RenderJoyFeatureProcessor.h
     Source/Render/RenderJoyFeatureProcessor.cpp
     Source/Render/RenderJoyBillboardPassData.h

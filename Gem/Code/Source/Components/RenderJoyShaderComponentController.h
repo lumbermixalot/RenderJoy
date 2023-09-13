@@ -40,8 +40,7 @@ namespace RenderJoy
     };
 
     class RenderJoyShaderComponentController final
-        : public AZ::Data::AssetBus::MultiHandler
-        , public RenderJoyPassRequestBus::Handler
+        : public RenderJoyPassRequestBus::Handler
         , private AZ::Data::AssetBus::Handler
     {
     public:
