@@ -11,6 +11,8 @@
 #include <AzCore/Component/Component.h>
 #include <AzCore/Component/TickBus.h>
 
+#include <AzFramework/Input/Buses/Notifications/InputChannelNotificationBus.h>
+
 #include <Atom/RPI.Reflect/Asset/AssetUtils.h>
 #include <Atom/RPI.Public/Image/StreamingImage.h>
 
@@ -37,6 +39,7 @@ namespace RenderJoy
         , public RenderJoyRequestBus::Handler
         , public IRenderJoySrgDataProvider
         , public RenderJoyNotificationBus::Handler
+        , public AzFramework::InputChannelNotificationBus::Handler // To listen to mouse and keyboard.
     {
     public:
         AZ_COMPONENT_DECL(RenderJoySystemComponent);
@@ -102,6 +105,13 @@ namespace RenderJoy
         // RenderJoyNotificationBus::Handler overrides END
         ///////////////////////////////////////////////////////////
 
+
+        ///////////////////////////////////////////////////////////
+        // InputChannelNotificationBus::Handler overrides START
+        void OnInputChannelEvent(const AzFramework::InputChannel& inputChannel, bool& hasBeenConsumed) override;
+        // InputChannelNotificationBus::Handler overrides END
+        ///////////////////////////////////////////////////////////
+
         bool m_shouldRecreateFeatureProcessor = true;
 
     private:
@@ -110,6 +120,9 @@ namespace RenderJoy
 
         void DestroyFeatureProcessor();
         void CreateFeatureProcessor();
+
+        void OnMouseChannelEvent(const AzFramework::InputChannel& inputChannel, bool& hasBeenConsumed);
+        void OnKeyboardChannelEvent(const AzFramework::InputChannel& inputChannel, bool& hasBeenConsumed);
 
         // It is assumed that all RenderJoy related passes go to the same scene.
         AZ::RPI::Scene* m_scenePtr = nullptr;
@@ -132,6 +145,13 @@ namespace RenderJoy
         float m_oneSecondMark = 0.0; // Accumulates time until second and calculates fps.
         int32_t m_frameCounterStamp = 0;
         float m_fps = 60.0f;
+
+        // Mouse state management, per ShaderToy's convention
+        AZ::Vector2 m_currentMousePos = AZ::Vector2(0.0f, 0.0f);
+        AZ::Vector2 m_clickMousePos = AZ::Vector2(0.0f, 0.0f);
+        bool m_isLeftButtonDown = false;
+        bool m_isLeftButtonClick = false;
+        float m_timeSinceLastClick = 0;
     };
 
 } // namespace RenderJoy

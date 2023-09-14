@@ -13,6 +13,12 @@
 #include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/StringFunc/StringFunc.h>
 
+#include <AzFramework/Input/Channels/InputChannel.h>
+#include <AzFramework/Input/Devices/InputDevice.h>
+#include <AzFramework/Input/Devices/Keyboard/InputDeviceKeyboard.h>
+#include <AzFramework/Input/Devices/Mouse/InputDeviceMouse.h>
+//#include <AzFramework/Input/Buses/Requests/InputSystemCursorRequestBus.h>
+
 #include <Atom/RPI.Public/FeatureProcessorFactory.h>
 #include <Atom/RPI.Public/Pass/PassSystemInterface.h>
 #include <Atom/RPI.Public/Scene.h>
@@ -95,10 +101,12 @@ namespace RenderJoy
         RenderJoyNotificationBus::Handler::BusConnect();
         RenderJoyRequestBus::Handler::BusConnect();
         AZ::RPI::FeatureProcessorFactory::Get()->RegisterFeatureProcessorWithInterface<RenderJoyFeatureProcessor, RenderJoyFeatureProcessorInterface>();
+        AzFramework::InputChannelNotificationBus::Handler::BusConnect();
     }
 
     void RenderJoySystemComponent::Deactivate()
     {
+        AzFramework::InputChannelNotificationBus::Handler::BusDisconnect();
         RenderJoyNotificationBus::Handler::BusDisconnect();
         AZ::TickBus::Handler::BusDisconnect();
         AZ::SystemTickBus::Handler::BusDisconnect();
@@ -348,6 +356,12 @@ namespace RenderJoy
             m_fps = static_cast<float>(m_frameCounter - m_frameCounterStamp);
             m_frameCounterStamp = m_frameCounter;
         }
+        // This is how ShaderToy keeps the click state enabled for a certain amount of time,
+        // and we replicate the behavior here.
+        if ( m_isLeftButtonClick && (m_runTime > (m_timeSinceLastClick + 1.0f)) )
+        {
+            m_isLeftButtonClick = false;
+        }
 
     }
     //////////////////////////////////////////////////////////////////////////
@@ -376,10 +390,10 @@ namespace RenderJoy
 
     void RenderJoySystemComponent::GetMouseData(AZ::Vector2& currentPos, AZ::Vector2& clickPos, bool& isLeftButtonDown, bool& isLeftButtonClick)
     {
-        currentPos = AZ::Vector2::CreateZero();
-        clickPos = AZ::Vector2::CreateZero();
-        isLeftButtonDown = false;
-        isLeftButtonClick = false;
+        currentPos = m_currentMousePos;
+        clickPos = m_clickMousePos;
+        isLeftButtonDown = m_isLeftButtonDown;
+        isLeftButtonClick = m_isLeftButtonClick;
     }
 
     void RenderJoySystemComponent::ResetFrameCounter(int newValue)
@@ -409,6 +423,78 @@ namespace RenderJoy
     }
     // RenderJoyNotificationBus::Handler overrides END
     ///////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////
+    // InputChannelNotificationBus::Handler overrides START
+    void RenderJoySystemComponent::OnInputChannelEvent(const AzFramework::InputChannel& inputChannel, [[maybe_unused]] bool& hasBeenConsumed)
+    {
+        //AZ_Printf(LogName, "Got channel event from %s.\n", inputChannel.GetInputChannelId().GetName());
+        const auto& inputDeviceId = inputChannel.GetInputDevice().GetInputDeviceId();
+        if (AzFramework::InputDeviceMouse::IsMouseDevice(inputDeviceId))
+        {
+            OnMouseChannelEvent(inputChannel, hasBeenConsumed);
+        }
+        else if (AzFramework::InputDeviceKeyboard::IsKeyboardDevice(inputDeviceId))
+        {
+            OnKeyboardChannelEvent(inputChannel, hasBeenConsumed);
+        }
+    }
+    // InputChannelNotificationBus::Handler overrides END
+    ///////////////////////////////////////////////////////////
+
+    void RenderJoySystemComponent::OnMouseChannelEvent(const AzFramework::InputChannel& inputChannel, bool& hasBeenConsumed)
+    {
+        if (inputChannel.GetInputChannelId() == AzFramework::InputDeviceMouse::Button::Left)
+        {
+            hasBeenConsumed = true;
+            const bool isClick = inputChannel.IsStateBegan();
+            m_isLeftButtonDown = isClick || inputChannel.IsStateUpdated();
+            if (isClick)
+            {
+                // We can only set this to false after one second, per ShaderToy's semantics.
+                m_isLeftButtonClick = true;
+                m_timeSinceLastClick = m_runTime;
+                m_clickMousePos = m_currentMousePos;
+            }
+            else if (inputChannel.IsStateEnded())
+            {
+                m_isLeftButtonDown = false;
+                m_isLeftButtonClick = false;
+            }
+        }
+        else if (inputChannel.GetInputChannelId() == AzFramework::InputDeviceMouse::SystemCursorPosition)
+        {
+            hasBeenConsumed = true;
+            const auto* pos2D = inputChannel.GetCustomData<AzFramework::InputChannel::PositionData2D>();
+            m_currentMousePos = pos2D->m_normalizedPosition;
+            
+            //m_currentMousePos.SetX(inputChannel.GetValue());
+            AZ_Printf(LogName, "MousePos=%0.3f,%0.3f.\n", m_currentMousePos.GetX(), m_currentMousePos.GetY());
+
+        }
+        //else if (inputChannel.GetInputChannelId() == AzFramework::InputDeviceMouse::Movement::X)
+        //{
+        //    hasBeenConsumed = true;
+        //    const auto& mouseDevice = static_cast<const AzFramework::InputDeviceMouse&>(inputChannel.GetInputDevice());
+        //    m_currentMousePos = mouseDevice.GetSystemCursorPositionNormalized();
+        //
+        //    //m_currentMousePos.SetX(inputChannel.GetValue());
+        //    AZ_Printf(LogName, "MousePos=%0.1f,%0.1f.\n", m_currentMousePos.GetX(), m_currentMousePos.GetY());
+        //}
+        //else if (inputChannel.GetInputChannelId() == AzFramework::InputDeviceMouse::Movement::Y)
+        //{
+        //    hasBeenConsumed = true;
+        //    const auto& mouseDevice = static_cast<const AzFramework::InputDeviceMouse&>(inputChannel.GetInputDevice());
+        //    m_currentMousePos = mouseDevice.GetSystemCursorPositionNormalized();
+        //    //m_currentMousePos.SetY(inputChannel.GetValue());
+        //    AZ_Printf(LogName, "MousePos=%0.1f,%0.1f.\n", m_currentMousePos.GetX(), m_currentMousePos.GetY());
+        //}
+    }
+
+    void RenderJoySystemComponent::OnKeyboardChannelEvent([[maybe_unused]] const AzFramework::InputChannel& inputChannel, [[maybe_unused]] bool& hasBeenConsumed)
+    {
+
+    }
 
     namespace Utils
     {
