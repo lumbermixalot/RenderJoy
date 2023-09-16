@@ -22,6 +22,8 @@
 #include <Atom/RPI.Public/FeatureProcessorFactory.h>
 #include <Atom/RPI.Public/Pass/PassSystemInterface.h>
 #include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/ViewportContext.h>
+#include <Atom/RPI.Public/ViewportContextBus.h>
 #include <Atom/RPI.Public/Image/ImageSystemInterface.h>
 #include <Atom/RPI.Reflect/Image/StreamingImageAsset.h>
 
@@ -137,6 +139,12 @@ namespace RenderJoy
         m_featureProcessor = m_scenePtr->GetFeatureProcessor<RenderJoyFeatureProcessor>();
         if (!m_featureProcessor)
         {
+            {
+                // piggy back and keep fresh values of window size.
+                auto viewportContextInterface = AZ::Interface<AZ::RPI::ViewportContextRequestsInterface>::Get();
+                auto viewportContext = viewportContextInterface->GetViewportContextByScene(m_scenePtr);
+                m_viewportSize = viewportContext->GetViewportSize();
+            }
             m_featureProcessor = m_scenePtr->EnableFeatureProcessor<RenderJoyFeatureProcessor>();
         }
     }
@@ -466,7 +474,14 @@ namespace RenderJoy
         {
             hasBeenConsumed = true;
             const auto* pos2D = inputChannel.GetCustomData<AzFramework::InputChannel::PositionData2D>();
-            m_currentMousePos = pos2D->m_normalizedPosition;
+            
+            const float normalizedX = AZ::GetClamp(pos2D->m_normalizedPosition.GetX(), 0.0f, 1.0f);
+            const float screenPosX = normalizedX * static_cast<float>(m_viewportSize.m_width);
+
+            const float normalizedY = AZ::GetClamp(pos2D->m_normalizedPosition.GetY(), 0.0f, 1.0f);
+            const float screenPosY = normalizedY * static_cast<float>(m_viewportSize.m_height);
+
+            m_currentMousePos.Set(screenPosX, screenPosY);
             
             //m_currentMousePos.SetX(inputChannel.GetValue());
             AZ_Printf(LogName, "MousePos=%0.3f,%0.3f.\n", m_currentMousePos.GetX(), m_currentMousePos.GetY());

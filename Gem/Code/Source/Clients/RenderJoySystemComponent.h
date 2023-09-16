@@ -12,6 +12,7 @@
 #include <AzCore/Component/TickBus.h>
 
 #include <AzFramework/Input/Buses/Notifications/InputChannelNotificationBus.h>
+#include <AzFramework/Windowing/WindowBus.h>
 
 #include <Atom/RPI.Reflect/Asset/AssetUtils.h>
 #include <Atom/RPI.Public/Image/StreamingImage.h>
@@ -152,6 +153,10 @@ namespace RenderJoy
         bool m_isLeftButtonDown = false;
         bool m_isLeftButtonClick = false;
         float m_timeSinceLastClick = 0;
+        // Need to keep track of the viewport size, as the mouse position are in pixel locations
+        // and the input APIs report normalized values.
+        // Define width and height from the viewport size.
+        AzFramework::WindowSize m_viewportSize;
     };
 
 } // namespace RenderJoy

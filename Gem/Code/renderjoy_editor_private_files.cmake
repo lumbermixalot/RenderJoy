@@ -20,4 +20,6 @@ set(FILES
     Source/Tools/Components/EditorRenderJoyShaderComponent.h
     Source/Tools/Components/EditorRenderJoyTextureComponent.cpp
     Source/Tools/Components/EditorRenderJoyTextureComponent.h
+    Source/Tools/Components/EditorRenderJoyKeyboardComponent.cpp
+    Source/Tools/Components/EditorRenderJoyKeyboardComponent.h
 )

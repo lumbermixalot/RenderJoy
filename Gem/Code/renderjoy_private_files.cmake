@@ -13,6 +13,8 @@ set(FILES
     Source/Clients/RenderJoySystemComponent.h
     Source/Clients/RenderJoyTemplatesFactory.cpp
     Source/Clients/RenderJoyTemplatesFactory.h
+    Source/Clients/RenderJoyKeyboardTextureManager.cpp
+    Source/Clients/RenderJoyKeyboardTextureManager.h
     Source/Components/RenderJoyBillboardComponent.h
     Source/Components/RenderJoyBillboardComponent.cpp
     Source/Components/RenderJoyBillboardComponentController.h
@@ -25,6 +27,10 @@ set(FILES
     Source/Components/RenderJoyTextureComponent.cpp
     Source/Components/RenderJoyTextureComponentController.h
     Source/Components/RenderJoyTextureComponentController.cpp
+    Source/Components/RenderJoyKeyboardComponent.h
+    Source/Components/RenderJoyKeyboardComponent.cpp
+    Source/Components/RenderJoyKeyboardComponentController.h
+    Source/Components/RenderJoyKeyboardComponentController.cpp
     Source/Render/RenderJoyFeatureProcessor.h
     Source/Render/RenderJoyFeatureProcessor.cpp
     Source/Render/RenderJoyBillboardPassData.h
