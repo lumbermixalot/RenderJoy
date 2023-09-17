@@ -29,12 +29,11 @@ namespace RenderJoy
 
         RenderJoyKeyboardComponentConfig() = default;
 
-        AZ::Data::Asset<AZ::RPI::StreamingImageAsset> m_imageAsset;
+        uint32_t m_maxWaitTimeToClearKeyPressedMilliseconds = 0;
     };
 
     class RenderJoyKeyboardComponentController final
-        : private AZ::Data::AssetBus::Handler
-        , public RenderJoyTextureProviderBus::Handler
+        : public RenderJoyTextureProviderBus::Handler
     {
     public:
         friend class EditorRenderJoyKeyboardComponent;
@@ -65,14 +64,6 @@ namespace RenderJoy
         /// RenderJoyTextureProviderBus overrides END
         /////////////////////////////////////////////////////////////////
 
-        //////////////////////////////////////////////////////////////////////////
-        // Data::AssetBus interface
-        void OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset) override;
-        void OnAssetReloaded(AZ::Data::Asset<AZ::Data::AssetData> asset) override;
-        void OnAssetError(AZ::Data::Asset<AZ::Data::AssetData> asset) override;
-        void OnAssetCanceled(const AZ::Data::AssetId assetId) override;
-        //////////////////////////////////////////////////////////////////////////
-
     private:
 
         AZ_DISABLE_COPY(RenderJoyKeyboardComponentController);
@@ -80,7 +71,6 @@ namespace RenderJoy
         static constexpr char LogName[] = "RenderJoyKeyboardComponentController";
 
         void OnConfigurationChanged();
-        void OnImageAssetLoaded(AZ::Data::Asset<AZ::Data::AssetData> asset);
 
         AZ::EntityId m_entityId;
         

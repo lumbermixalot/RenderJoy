@@ -72,12 +72,14 @@ namespace RenderJoy
 
     RenderJoySystemComponent::RenderJoySystemComponent()
     {
+        RenderJoyKeyboardManagerInterface::Register(this);
         RenderJoyInterface::Register(this);
         RenderJoySrgDataProviderInterface::Register(this);
     }
 
     RenderJoySystemComponent::~RenderJoySystemComponent()
     {
+        RenderJoyKeyboardManagerInterface::Unregister(this);
         RenderJoyInterface::Unregister(this);
         RenderJoySrgDataProviderInterface::Unregister(this);
     }
@@ -508,8 +510,44 @@ namespace RenderJoy
 
     void RenderJoySystemComponent::OnKeyboardChannelEvent([[maybe_unused]] const AzFramework::InputChannel& inputChannel, [[maybe_unused]] bool& hasBeenConsumed)
     {
-
+        if (m_keyboardTextureMgr)
+        {
+            m_keyboardTextureMgr->OnKeyboardChannelEvent(inputChannel, hasBeenConsumed);
+        }
     }
+
+    ////////////////////////////////////////////////////////////////////////
+    // IKeyboardComponentsManager interface implementation START
+    void RenderJoySystemComponent::RegisterKeyboardComponent(AZ::EntityId entityId)
+    {
+        if (!AZStd::find(m_registeredKeyboardComponents.cbegin(), m_registeredKeyboardComponents.cend(), entityId))
+        {
+            m_registeredKeyboardComponents.push_back(entityId);
+        }
+        if (!m_keyboardTextureMgr && !m_registeredKeyboardComponents.empty())
+        {
+            m_keyboardTextureMgr = AZStd::make_unique<RenderJoyKeyboardTextureManager>();
+        }
+    }
+
+    void RenderJoySystemComponent::UnregisterKeyboardComponent(AZ::EntityId entityId)
+    {
+        AZStd::erase_if(m_registeredKeyboardComponents
+            , [&](const AZ::EntityId& eId) {
+                return eId == entityId;
+            });
+        if (m_keyboardTextureMgr && m_registeredKeyboardComponents.empty())
+        {
+            m_keyboardTextureMgr.reset();
+        }
+    }
+
+    AZ::Data::Instance<AZ::RPI::Image> RenderJoySystemComponent::GetKeyboardTexture()
+    {
+        return m_keyboardTextureMgr ? m_keyboardTextureMgr->m_texture : nullptr;
+    }
+    // IKeyboardComponentsManager interface implementation END
+    ////////////////////////////////////////////////////////////////////////
 
     namespace Utils
     {

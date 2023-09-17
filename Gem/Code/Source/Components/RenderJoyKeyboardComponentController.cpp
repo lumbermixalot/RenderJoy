@@ -20,6 +20,7 @@
 
 #include <Atom/RPI.Public/Scene.h>
 
+#include <RenderJoy/IKeyboardComponentsManager.h>
 #include "RenderJoyKeyboardComponentController.h"
 
 namespace RenderJoy

@@ -20,8 +20,10 @@
 #include <RenderJoy/RenderJoyBus.h>
 #include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 #include <RenderJoy/IRenderJoySrgDataProvider.h>
+#include <RenderJoy/IKeyboardComponentsManager.h>
 
 #include "RenderJoyTemplatesFactory.h"
+#include "RenderJoyKeyboardTextureManager.h"
 
 namespace AZ
 {
@@ -39,6 +41,7 @@ namespace RenderJoy
         , public AZ::TickBus::Handler // For keeping track of time during rendering.
         , public RenderJoyRequestBus::Handler
         , public IRenderJoySrgDataProvider
+        , public IKeyboardComponentsManager
         , public RenderJoyNotificationBus::Handler
         , public AzFramework::InputChannelNotificationBus::Handler // To listen to mouse and keyboard.
     {
@@ -80,6 +83,14 @@ namespace RenderJoy
         // IRenderJoySrgDataProvider interface implementation END
         ////////////////////////////////////////////////////////////////////////
 
+
+        ////////////////////////////////////////////////////////////////////////
+        // IKeyboardComponentsManager interface implementation START
+        void RegisterKeyboardComponent(AZ::EntityId entityId) override;
+        void UnregisterKeyboardComponent(AZ::EntityId entityId) override;
+        AZ::Data::Instance<AZ::RPI::Image> GetKeyboardTexture() override;
+        // IKeyboardComponentsManager interface implementation END
+        ////////////////////////////////////////////////////////////////////////
 
 
         //////////////////////////////////////////////////////////////////////////
@@ -157,6 +168,9 @@ namespace RenderJoy
         // and the input APIs report normalized values.
         // Define width and height from the viewport size.
         AzFramework::WindowSize m_viewportSize;
+
+        AZStd::unique_ptr<RenderJoyKeyboardTextureManager> m_keyboardTextureMgr;
+        AZStd::vector<AZ::EntityId> m_registeredKeyboardComponents;
     };
 
 } // namespace RenderJoy

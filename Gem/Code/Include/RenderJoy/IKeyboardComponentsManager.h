@@ -8,29 +8,30 @@
 #pragma once
 
 #include <AzCore/Interface/Interface.h>
-#include <AzCore/Math/Vector2.h>
+#include <AzCore/Component/EntityId.h>
+
+#include <Atom/RPI.Public/Image/Image.h>
+//#include <Atom/RPI.Reflect/Image/StreamingImageAsset.h>
 
 namespace RenderJoy
 {
     //! This is the AZ::Interface<> declaration for the singleton responsible
     //! for providing per frame data for RenderJoy shaders.
-    class IRenderJoySrgDataProvider
+    class IKeyboardComponentsManager
     {
     public:
-        AZ_RTTI(IRenderJoySrgDataProvider, "{A7C2F151-4A15-4B17-B932-D966BE4BB6C5}");
+        AZ_RTTI(IKeyboardComponentsManager, "{B85C7B44-706B-4CDE-9D98-8CD3E3AAA2E1}");
 
-        static constexpr const char* LogName = "IRenderJoySrgDataProvider";
+        static constexpr const char* LogName = "IKeyboardComponentsManager";
 
-        virtual ~IRenderJoySrgDataProvider() = default;
+        virtual ~IKeyboardComponentsManager() = default;
 
-        virtual float GetTime() = 0;
-        virtual float GetTimeDelta() = 0;
-        virtual int GetFramesCount() = 0;
-        virtual float GetFramesPerSecond() = 0;
-        virtual void GetMouseData(AZ::Vector2& currentPos, AZ::Vector2& clickPos, bool& isLeftButtonDown, bool& isLeftButtonClick) = 0;
-        virtual void ResetFrameCounter(int newValue) = 0;
+        virtual void RegisterKeyboardComponent(AZ::EntityId entityId) = 0;
+        virtual void UnregisterKeyboardComponent(AZ::EntityId entityId) = 0;
+        virtual AZ::Data::Instance<AZ::RPI::Image> GetKeyboardTexture() = 0;
+
     };
 
-    using RenderJoySrgDataProviderInterface = AZ::Interface<IRenderJoySrgDataProvider>;
+    using RenderJoyKeyboardManagerInterface = AZ::Interface<IKeyboardComponentsManager>;
 
 } // namespace RenderJoy
