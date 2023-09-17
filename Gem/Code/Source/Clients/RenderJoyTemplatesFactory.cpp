@@ -8,6 +8,7 @@
 
 #include <AzCore/Component/Component.h>
 
+#include <Atom/RPI.Reflect/Pass/CopyPassData.h>
 #include <Atom/RPI.Public/Pass/PassSystem.h>
 #include <Atom/RPI.Public/Pass/PassFilter.h>
 #include <Atom/RPI.Public/Scene.h>
@@ -516,7 +517,7 @@ namespace RenderJoy
         ////////////////////////////////////////////////////
         // Slots
         // - Input slots
-        //AZ::u32 channelIndexPrevFrameOutputAsInput = RenderJoyShaderPass::InvalidInputChannelIndex;
+        AZ::u32 channelIndexPrevFrameOutputAsInput = RenderJoyShaderPass::InvalidInputChannelIndex;
         AZ::u32 channelIndex = 0;
         for (const auto& entityId : entitiesOnInputChannels)
         {
@@ -529,13 +530,15 @@ namespace RenderJoy
             //        newTemplateName.GetCStr(), GetPassNameFromEntityName(currentPassEntity).c_str(), channelIndex);
             //    return false;
             //}
-
-            AZ_Assert(currentPassEntity != entityId, "Recursive output attachments not supported yet.");
             
-            //if ((currentPassEntity == entityId) || IsRenderJoyPass(entityId))
             if (Utils::IsRenderJoyPass(entityId))
             {
                 AZStd::string slotNameStr = AZStd::string::format("Input%u", channelIndex);
+                if (currentPassEntity == entityId)
+                {
+                    // Recursive case, where the input attachment is the same pass output from the previous frame.
+                    channelIndexPrevFrameOutputAsInput = channelIndex;
+                }
                 AZ::RPI::PassSlot inputSlot;
                 inputSlot.m_name = AZ::Name(slotNameStr);
                 inputSlot.m_slotType = AZ::RPI::PassSlotType::Input;
@@ -562,49 +565,42 @@ namespace RenderJoy
         GetRenderJoyTargetSize(currentPassEntity, renderTargetWidth, renderTargetHeight);
 
         // Attachments:
+        const auto OutputFormat = AZ::RHI::Format::R32G32B32A32_FLOAT; //TODO: Make it configurable.
     
         // - define the output target as transient attachment.
         // Non-output passes, aka BufferA...D in ShaderToy have R32G32B32A32_FLOAT
         // render target format
-        AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
-        transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
-        transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
-        transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
-        transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
-        passTemplate->AddImageAttachment(transientAttachmentDesc);
-    
+        {
+            AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
+            transientAttachmentDesc.m_name = AZ::Name("OutputAttachment");
+            transientAttachmentDesc.m_imageDescriptor.m_format = OutputFormat;
+            transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
+            transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
+            passTemplate->AddImageAttachment(transientAttachmentDesc);
+        }
+
         // In case we need the output of the previous frame to become an input image
         // we need to specify such attachment.
         // REMARK1: This attachment is here specified as transient, but at runtime we'll change it to persistent.
-        // REMARK2: The output pass doesn't support recursive references to itself on input channels,
-        //          only non-output passes do... Just like in ShaderToy.
-        // if (channelIndexPrevFrameOutputAsInput != RenderJoyTrianglePass::InvalidInputChannelIndex)
-        // {
-        //     AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
-        //     transientAttachmentDesc.m_name = AZ::Name("PreviousFrameImage");
-        //     transientAttachmentDesc.m_imageDescriptor.m_format = AZ::RHI::Format::R32G32B32A32_FLOAT;
-        //     if (renderTargetWidth && renderTargetHeight)
-        //     {
-        //         transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
-        //         transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
-        //     }
-        //     else
-        //     {
-        //         transientAttachmentDesc.m_sizeSource.m_source.m_pass = AZ::Name("Parent");
-        //         transientAttachmentDesc.m_sizeSource.m_source.m_attachment = AZ::Name("PipelineOutput");
-        //     }
-        //     passTemplate->AddImageAttachment(transientAttachmentDesc);
-        // }
+        if (channelIndexPrevFrameOutputAsInput != RenderJoyShaderPass::InvalidInputChannelIndex)
+        {
+            AZ::RPI::PassImageAttachmentDesc transientAttachmentDesc;
+            transientAttachmentDesc.m_name = AZ::Name("PreviousFrameImage");
+            transientAttachmentDesc.m_imageDescriptor.m_format = OutputFormat;
+            transientAttachmentDesc.m_imageDescriptor.m_size.m_width = renderTargetWidth;
+            transientAttachmentDesc.m_imageDescriptor.m_size.m_height = renderTargetHeight;
+            passTemplate->AddImageAttachment(transientAttachmentDesc);
+        }
     
         // - Connections:
-        // if (channelIndexPrevFrameOutputAsInput != RenderJoyTrianglePass::InvalidInputChannelIndex)
-        // {
-        //     AZ::RPI::PassConnection connection;
-        //     connection.m_localSlot = AZ::Name(AZStd::string::format("Input%u", channelIndexPrevFrameOutputAsInput));
-        //     connection.m_attachmentRef.m_pass = AZ::Name("This");
-        //     connection.m_attachmentRef.m_attachment = AZ::Name("PreviousFrameImage");
-        //     passTemplate->AddOutputConnection(connection);
-        // }
+        if (channelIndexPrevFrameOutputAsInput != RenderJoyShaderPass::InvalidInputChannelIndex)
+        {
+            AZ::RPI::PassConnection connection;
+            connection.m_localSlot = AZ::Name(AZStd::string::format("Input%u", channelIndexPrevFrameOutputAsInput));
+            connection.m_attachmentRef.m_pass = AZ::Name("This");
+            connection.m_attachmentRef.m_attachment = AZ::Name("PreviousFrameImage");
+            passTemplate->AddOutputConnection(connection);
+        }
     
         //Connect the local "Output" slot with the transient attachment.
         AZ::RPI::PassConnection connection;
@@ -636,9 +632,7 @@ namespace RenderJoy
             entitiesOnInputChannels, currentPassEntity, &RenderJoyPassRequests::GetEntitiesOnInputChannels);
         for (const auto& entityId : entitiesOnInputChannels)
         {
-            AZ_Assert(currentPassEntity != entityId, "Recursive attachments not supported yet!");
-
-            if (Utils::IsRenderJoyPass(entityId))
+            if (Utils::IsRenderJoyPass(entityId) && (currentPassEntity != entityId))
             {
                 if (!CreateRenderJoyShaderPassRequestsRecursive(parentPassTemplate, entityId, passTemplatesDB))
                 {
@@ -655,6 +649,9 @@ namespace RenderJoy
         AZ::RPI::PassRequest passRequest;
         passRequest.m_passName = AZ::Name(PassNameStr);
         passRequest.m_templateName = passTemplate->m_name;
+
+        // This copy pass is optional and should be added at the end.
+        AZStd::shared_ptr<AZ::RPI::PassRequest> copyPassRequest;
     
         // Define the connections to other RenderJoy passes.
         AZ::u32 channelIndex = 0;
@@ -662,16 +659,49 @@ namespace RenderJoy
         {
             if (Utils::IsRenderJoyPass(entityId))
             {
-                auto slotName = AZ::Name(AZStd::string::format("Input%u", channelIndex));
-                AZ::RPI::PassConnection inputConnection;
-                inputConnection.m_localSlot = slotName;
-                inputConnection.m_attachmentRef.m_pass = AZ::Name(GetUniqueEntityPassNameStr(passClassStr, entityId));
-                inputConnection.m_attachmentRef.m_attachment = AZ::Name("Output");
-                passRequest.AddInputConnection(inputConnection);
+                if (entityId != currentPassEntity)
+                {
+                    auto slotName = AZ::Name(AZStd::string::format("Input%u", channelIndex));
+                    AZ::RPI::PassConnection inputConnection;
+                    inputConnection.m_localSlot = slotName;
+                    inputConnection.m_attachmentRef.m_pass = AZ::Name(GetUniqueEntityPassNameStr(passClassStr, entityId));
+                    inputConnection.m_attachmentRef.m_attachment = AZ::Name("Output");
+                    passRequest.AddInputConnection(inputConnection);
+                }
+                else
+                {
+                    // Need to add a copy pass if there's a feedback connection between the output and the input.
+                    copyPassRequest = AZStd::make_shared<AZ::RPI::PassRequest>();
+                    copyPassRequest->m_passName = AZ::Name(GetUniqueEntityPassNameStr("RenderJoyCopyPass", entityId));
+                    copyPassRequest->m_templateName = AZ::Name("CopyPassTemplate"); // This one is defined by the RPI.
+
+                    AZ::RPI::PassConnection inputConnection;
+                    inputConnection.m_localSlot = AZ::Name("Input");
+                    inputConnection.m_attachmentRef.m_pass = AZ::Name(PassNameStr);
+                    inputConnection.m_attachmentRef.m_attachment = AZ::Name("Output");
+                    copyPassRequest->AddInputConnection(inputConnection);
+
+                    AZ::RPI::PassConnection outputConnection;
+                    outputConnection.m_localSlot = AZ::Name("Output");
+                    outputConnection.m_attachmentRef.m_pass = AZ::Name(PassNameStr);
+                    auto slotName = AZ::Name(AZStd::string::format("Input%u", channelIndex));
+                    outputConnection.m_attachmentRef.m_attachment = slotName;
+                    copyPassRequest->AddInputConnection(outputConnection);
+
+                    auto passData = AZStd::make_shared<AZ::RPI::CopyPassData>();
+                    passData->m_cloneInput = false;
+                    copyPassRequest->m_passData = passData;
+
+                }
+
             }
             ++channelIndex;
         }
         parentPassTemplate.AddPassRequest(passRequest);
+        if (copyPassRequest)
+        {
+            parentPassTemplate.AddPassRequest(*copyPassRequest.get());
+        }
         return true;
     }
 

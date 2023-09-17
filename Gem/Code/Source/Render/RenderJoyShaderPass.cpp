@@ -236,7 +236,7 @@ namespace RenderJoy
         imageDesc.m_bindFlags |= AZ::RHI::ImageBindFlags::ShaderRead | AZ::RHI::ImageBindFlags::CopyWrite;
 
         // create the image attachment
-        AZ::RHI::ClearValue clearValue = AZ::RHI::ClearValue::CreateVector4Float(0, 1, 0, 0);
+        AZ::RHI::ClearValue clearValue = AZ::RHI::ClearValue::CreateVector4Float(0.0f, 0.0f, 0.0f, 0.0f);
         m_prevFrameOutputAsInput = AZ::RPI::AttachmentImage::Create(
             *pool.get(), imageDesc, AZ::Name(prevFrameImageAttachment->m_path.GetCStr()), &clearValue, nullptr);
 
@@ -250,7 +250,7 @@ namespace RenderJoy
     void RenderJoyShaderPass::SetupFrameGraphDependencies(AZ::RHI::FrameGraphInterface frameGraph)
     {
         AZ::RPI::RenderPass::SetupFrameGraphDependencies(frameGraph);
-        frameGraph.SetEstimatedItemCount(2);
+        frameGraph.SetEstimatedItemCount(1);
     }
 
     void RenderJoyShaderPass::CompileResources(const AZ::RHI::FrameGraphCompileContext& context)
@@ -298,10 +298,10 @@ namespace RenderJoy
         BindPassSrg(context, m_shaderResourceGroup);
         m_shaderResourceGroup->Compile();
 
-        if (m_inputChannelIndexForPrevFrameOutputAsInput != InvalidInputChannelIndex)
-        {
-            SetupCopyImageItem(context);
-        }
+        // if (m_inputChannelIndexForPrevFrameOutputAsInput != InvalidInputChannelIndex)
+        // {
+        //     SetupCopyImageItem(context);
+        // }
     }
 
     // RenderPass functions...
@@ -316,10 +316,10 @@ namespace RenderJoy
 
         commandList->Submit(m_item);
 
-        if (m_inputChannelIndexForPrevFrameOutputAsInput != InvalidInputChannelIndex)
-        {
-            commandList->Submit(m_currentOutputCopyItem);
-        }
+        //if (m_inputChannelIndexForPrevFrameOutputAsInput != InvalidInputChannelIndex)
+        //{
+        //    commandList->Submit(m_currentOutputCopyItem);
+        //}
     }
 
     void RenderJoyShaderPass::Invalidate()
@@ -416,38 +416,21 @@ namespace RenderJoy
         return ImageChannelsCount;
     }
 
-    void RenderJoyShaderPass::SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context)
-    {
-        AZ::RHI::CopyImageDescriptor copyDesc;
-
-        // Source Image (The render target)
-        AZ::RPI::PassAttachmentBinding& copySource = GetOutputBinding(0);
-        const AZ::RHI::Image* sourceImage = context.GetImage(copySource.GetAttachment()->GetAttachmentId());
-        copyDesc.m_sourceImage = sourceImage;
-        copyDesc.m_sourceSize = sourceImage->GetDescriptor().m_size;
-
-        // Destination Image (m_prevFrameOutputAsInput)
-        copyDesc.m_destinationImage = context.GetImage(m_prevFrameOutputAsInput->GetAttachmentId());
-
-        m_currentOutputCopyItem = copyDesc;
-    }
-
-    void RenderJoyShaderPass::UpdatePixelDataForChannel(
-        uint32_t channelIndex, const void* pixels, const AZ::RHI::Size& imageSize, uint32_t bytesPerRow)
-    {
-        AZ::RHI::ImageUpdateRequest updateRequest;
-        auto& image = m_imageChannels[channelIndex];
-
-        updateRequest.m_image = image->GetRHIImage();
-        updateRequest.m_sourceData = pixels;
-
-        updateRequest.m_sourceSubresourceLayout.m_size = imageSize;
-        updateRequest.m_sourceSubresourceLayout.m_rowCount = imageSize.m_height;
-        updateRequest.m_sourceSubresourceLayout.m_bytesPerRow = bytesPerRow;
-        updateRequest.m_sourceSubresourceLayout.m_bytesPerImage = bytesPerRow * imageSize.m_height;
-
-        image->UpdateImageContents(updateRequest);
-    }
+    // void RenderJoyShaderPass::SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context)
+    // {
+    //     AZ::RHI::CopyImageDescriptor copyDesc;
+    // 
+    //     // Source Image (The render target)
+    //     AZ::RPI::PassAttachmentBinding& copySource = GetOutputBinding(0);
+    //     const AZ::RHI::Image* sourceImage = context.GetImage(copySource.GetAttachment()->GetAttachmentId());
+    //     copyDesc.m_sourceImage = sourceImage;
+    //     copyDesc.m_sourceSize = sourceImage->GetDescriptor().m_size;
+    // 
+    //     // Destination Image (m_prevFrameOutputAsInput)
+    //     copyDesc.m_destinationImage = context.GetImage(m_prevFrameOutputAsInput->GetAttachmentId());
+    // 
+    //     m_currentOutputCopyItem = copyDesc;
+    // }
 
     ///////////////////////////////////////////////////////////////////
     // RenderJoyPassNotificationBus overrides...

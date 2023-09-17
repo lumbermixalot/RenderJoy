@@ -105,7 +105,6 @@ namespace RenderJoy
         m_entityId = entityId;
         m_prevConfiguration = m_configuration;
 
-        RenderJoyNotificationBus::Handler::BusConnect();
         AZ::TransformNotificationBus::Handler::BusConnect(m_entityId);
 
         if (!m_configuration.m_shaderEntityId.IsValid())
@@ -113,6 +112,8 @@ namespace RenderJoy
             // nothing to do at the moment.
             return;
         }
+
+        RenderJoyNotificationBus::Handler::BusConnect();
 
         // Ask the RenderJoy system if a pass template can be created.
         auto renderJoySystem = RenderJoyInterface::Get();
@@ -164,6 +165,14 @@ namespace RenderJoy
     {
         if (m_prevConfiguration.m_shaderEntityId != m_configuration.m_shaderEntityId)
         {
+            if (!m_configuration.m_shaderEntityId.IsValid())
+            {
+                RenderJoyNotificationBus::Handler::BusDisconnect();
+            }
+            else if (!RenderJoyNotificationBus::Handler::BusIsConnected())
+            {
+                RenderJoyNotificationBus::Handler::BusConnect();
+            }
 
             auto renderJoySystem = RenderJoyInterface::Get();
             AZ_Assert(!!renderJoySystem, "Failed to find the RenderJoy system interface");
@@ -187,6 +196,11 @@ namespace RenderJoy
     // RenderJoyNotificationBus::Handler overrides START
     void RenderJoyBillboardComponentController::OnFeatureProcessorActivated()
     {
+        if (!m_configuration.m_shaderEntityId.IsValid())
+        {
+            return;
+        }
+
         auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(m_entityId);
         // Keep a reference to the billboard pass.
         auto renderJoySystem = RenderJoyInterface::Get();
@@ -194,8 +208,13 @@ namespace RenderJoy
         AZ::RPI::PassFilter passFilter = AZ::RPI::PassFilter::CreateWithPassName(passName, scenePtr);
         AZ::RPI::Pass* existingPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(passFilter);
         m_billboardPass = azrtti_cast<RenderJoyBillboardPass*>(existingPass);
-        AZ_Error(LogName, m_billboardPass != nullptr, "%s Failed to find RenderJoyBillboardPass as: %s", __FUNCTION__, passName.GetCStr());
-        AZ_Assert(m_billboardPass != nullptr, "%s Failed to find RenderJoyBillboardPass as: %s", __FUNCTION__, passName.GetCStr());
+
+        if (!m_billboardPass)
+        {
+            AZ_Error(LogName, false, "%s Failed to find RenderJoyBillboardPass as: %s", __FUNCTION__, passName.GetCStr());
+            return;
+        }
+
         
         // Update shader constant data.
         AZ::Transform transform = AZ::Transform::CreateIdentity();

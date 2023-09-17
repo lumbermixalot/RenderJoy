@@ -6,6 +6,8 @@
  *
  */
 
+#include <AzCore/Component/TickBus.h>
+
 #include <Atom/RPI.Public/Pass/PassFilter.h>
 #include <Atom/RPI.Public/RenderPipeline.h>
 
@@ -104,7 +106,12 @@ namespace RenderJoy
         m_activedParentPassCount++;
         if (m_activedParentPassCount == m_parentPassCount)
         {
-            RenderJoyNotificationBus::Broadcast(&RenderJoyNotifications::OnFeatureProcessorActivated);
+            // Queue it for next frame. to avoid spurious crashes.
+            auto notifyAssetchangedFn = []()
+                {
+                    RenderJoyNotificationBus::Broadcast(&RenderJoyNotifications::OnFeatureProcessorActivated);
+                };
+            AZ::TickBus::QueueFunction(AZStd::move(notifyAssetchangedFn));
         }
     }
 }

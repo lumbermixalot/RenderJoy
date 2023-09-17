@@ -109,8 +109,7 @@ namespace RenderJoy
         bool SetImageForChannel(uint32_t channelIndex, AZ::Data::Instance<AZ::RPI::Image> image);
         void SetDefaultImageForChannel(uint32_t imageChannelIdx);
         void RemoveImageForChannel(uint32_t imageChannelIdx);
-        void SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context);
-        void UpdatePixelDataForChannel(uint32_t channelIndex, const void* pixels, const AZ::RHI::Size& imageSize, uint32_t bytesPerRow);
+        //void SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context);
 
 
         // Helper function.
@@ -144,7 +143,7 @@ namespace RenderJoy
         // this pass output target for Frame N-1.
         AZ::Data::Instance<AZ::RPI::AttachmentImage> m_prevFrameOutputAsInput;
         uint32_t m_inputChannelIndexForPrevFrameOutputAsInput = InvalidInputChannelIndex;
-        AZ::RHI::CopyItem m_currentOutputCopyItem;
+        // AZ::RHI::CopyItem m_currentOutputCopyItem;
 
         // Cached from the passDescriptor.
         uint32_t m_renderTargetWidth = 0;
