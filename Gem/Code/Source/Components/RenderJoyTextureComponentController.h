@@ -12,6 +12,7 @@
 #include <AzCore/Component/Component.h>
 
 #include <Atom/RPI.Reflect/Image/StreamingImageAsset.h>
+#include <Atom/RPI.Public/Image/StreamingImage.h>
 
 #include <RenderJoy/RenderJoyCommon.h>
 #include <RenderJoy/RenderJoyTextureProviderBus.h>
@@ -58,10 +59,7 @@ namespace RenderJoy
 
         //////////////////////////////////////////////////////////////////////////
         // RenderJoyTextureProviderBus overrides START
-        bool IsImmutable() override { return true; }
-        AZ::Data::Asset<AZ::RPI::StreamingImageAsset> GetStreamingImageAsset() const override;
-        AZ::RHI::Format GetPixelFormat() const override;
-        AZ::RHI::Size GetImageSize() const override;
+        AZ::Data::Instance<AZ::RPI::Image> GetImage() const override;
         /// RenderJoyTextureProviderBus overrides END
         /////////////////////////////////////////////////////////////////
 
@@ -86,5 +84,7 @@ namespace RenderJoy
         
         RenderJoyTextureComponentConfig m_configuration;
         RenderJoyTextureComponentConfig m_prevConfiguration;
+
+        AZ::Data::Instance<AZ::RPI::StreamingImage> m_image;
     };
 } // namespace RenderJoy

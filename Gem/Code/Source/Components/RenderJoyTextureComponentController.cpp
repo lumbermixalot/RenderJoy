@@ -6,19 +6,20 @@
 *
 */
 
+#include <AzCore/RTTI/BehaviorContext.h>
+#include <AzCore/Serialization/SerializeContext.h>
 #include <AzCore/Asset/AssetManager.h>
 #include <AzCore/Asset/AssetManagerBus.h>
 #include <AzCore/Asset/AssetSerializer.h>
-#include <AzCore/Serialization/SerializeContext.h>
 
 #include <AzFramework/Entity/EntityContextBus.h>
 #include <AzFramework/Entity/EntityContext.h>
 #include <AzFramework/Scene/Scene.h>
 #include <AzFramework/Scene/SceneSystemInterface.h>
 
-#include <AzCore/RTTI/BehaviorContext.h>
-
+#include <AtomCore/Instance/InstanceDatabase.h>
 #include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/Image/StreamingImagePool.h>
 
 #include "RenderJoyTextureComponentController.h"
 
@@ -106,8 +107,8 @@ namespace RenderJoy
     void RenderJoyTextureComponentController::Deactivate()
     {
         RenderJoyTextureProviderNotificationBus::Event(
-            m_entityId, &RenderJoyTextureProviderNotification::OnStreamingImageAssetChanged,
-            AZ::Data::Asset<AZ::RPI::StreamingImageAsset>());
+            m_entityId, &RenderJoyTextureProviderNotification::OnImageChanged,
+            AZ::Data::Instance<AZ::RPI::Image>());
 
         AZ::Data::AssetBus::Handler::BusDisconnect();
         RenderJoyTextureProviderBus::Handler::BusDisconnect();
@@ -130,7 +131,7 @@ namespace RenderJoy
         {
             AZ::Data::AssetBus::Handler::BusDisconnect();
             RenderJoyTextureProviderNotificationBus::Event(
-                m_entityId, &RenderJoyTextureProviderNotification::OnStreamingImageAssetChanged, AZ::Data::Asset<AZ::RPI::StreamingImageAsset>());
+                m_entityId, &RenderJoyTextureProviderNotification::OnImageChanged, AZ::Data::Instance<AZ::RPI::Image>());
 
             if (m_configuration.m_imageAsset.GetId().IsValid())
             {
@@ -144,28 +145,9 @@ namespace RenderJoy
 
     /////////////////////////////////////////////////////////////////
     /// RenderJoyTextureProviderBus::Handler overrides START
-    AZ::Data::Asset<AZ::RPI::StreamingImageAsset> RenderJoyTextureComponentController::GetStreamingImageAsset() const
+    AZ::Data::Instance<AZ::RPI::Image> RenderJoyTextureComponentController::GetImage() const
     {
-        return m_configuration.m_imageAsset;
-    }
-    AZ::RHI::Format RenderJoyTextureComponentController::GetPixelFormat() const
-    {
-        if (!m_configuration.m_imageAsset.IsReady())
-        {
-            AZ_Error(LogName, false, "StreamingImageAsset %s is not ready.", m_configuration.m_imageAsset.GetHint().c_str());
-            return AZ::RHI::Format::Unknown;
-        }
-        return m_configuration.m_imageAsset->GetImageDescriptor().m_format;
-    }
-
-    AZ::RHI::Size RenderJoyTextureComponentController::GetImageSize() const
-    {
-        if (!m_configuration.m_imageAsset.IsReady())
-        {
-            AZ_Error(LogName, false, "StreamingImageAsset %s is not ready.", m_configuration.m_imageAsset.GetHint().c_str());
-            return AZ::RHI::Size();
-        }
-        return m_configuration.m_imageAsset->GetImageDescriptor().m_size;
+        return m_image;
     }
     /// RenderJoyTextureProviderBus::Handler overrides END
     /////////////////////////////////////////////////////////////////
@@ -206,8 +188,9 @@ namespace RenderJoy
 
         m_configuration.m_imageAsset = asset;
         AZ::TickBus::QueueFunction([this]() {
+            m_image = AZ::Data::InstanceDatabase<AZ::RPI::StreamingImage>::Instance().FindOrCreate(m_configuration.m_imageAsset);
             RenderJoyTextureProviderNotificationBus::Event(m_entityId
-                , &RenderJoyTextureProviderNotification::OnStreamingImageAssetChanged, m_configuration.m_imageAsset);
+                , &RenderJoyTextureProviderNotification::OnImageChanged, m_image);
         });
     }
 

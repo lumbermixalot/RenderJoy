@@ -88,6 +88,7 @@ namespace RenderJoy
         // IKeyboardComponentsManager interface implementation START
         void RegisterKeyboardComponent(AZ::EntityId entityId) override;
         void UnregisterKeyboardComponent(AZ::EntityId entityId) override;
+        void UpdateClearKeyPressedMilliseconds(uint32_t milliSeconds) override;
         AZ::Data::Instance<AZ::RPI::Image> GetKeyboardTexture() override;
         // IKeyboardComponentsManager interface implementation END
         ////////////////////////////////////////////////////////////////////////

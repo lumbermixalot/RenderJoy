@@ -31,7 +31,7 @@ namespace RenderJoy
         {
             serializeContext->Class<RenderJoyKeyboardComponentConfig>()
                 ->Version(1)
-                ->Field("ImageAsset", &RenderJoyKeyboardComponentConfig::m_imageAsset)
+                ->Field("ClearKeyPressedWaitTime", &RenderJoyKeyboardComponentConfig::m_maxWaitTimeToClearKeyPressedMilliseconds)
                 ;
 
             if (auto editContext = serializeContext->GetEditContext())
@@ -40,7 +40,10 @@ namespace RenderJoy
                     "RenderJoyKeyboardComponentConfig", "")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                         ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyKeyboardComponentConfig::m_imageAsset, "Texture", "The texture used for shader sampling")
+                    ->DataElement(AZ::Edit::UIHandlers::Default
+                        , &RenderJoyKeyboardComponentConfig::m_maxWaitTimeToClearKeyPressedMilliseconds
+                        , "Clear Key Pressed Wait Time",
+                        "Wait This Time In Milliseconds Before Clearing The Key Was Pressed State.")
                         ->Attribute(AZ::Edit::Attributes::ChangeNotify, AZ::Edit::PropertyRefreshLevels::ValuesOnly)
                     ;
             }
@@ -101,16 +104,16 @@ namespace RenderJoy
     {
         m_prevConfiguration = m_configuration;
         m_entityId = entityId;
+        RenderJoyKeyboardManagerInterface::Get()->RegisterKeyboardComponent(entityId);
         RenderJoyTextureProviderBus::Handler::BusConnect(entityId);
     }
 
     void RenderJoyKeyboardComponentController::Deactivate()
     {
+        RenderJoyKeyboardManagerInterface::Get()->UnregisterKeyboardComponent(m_entityId);
         RenderJoyTextureProviderNotificationBus::Event(
-            m_entityId, &RenderJoyTextureProviderNotification::OnStreamingImageAssetChanged,
-            AZ::Data::Asset<AZ::RPI::StreamingImageAsset>());
-
-        AZ::Data::AssetBus::Handler::BusDisconnect();
+            m_entityId, &RenderJoyTextureProviderNotification::OnImageChanged,
+            AZ::Data::Instance<AZ::RPI::Image>());
         RenderJoyTextureProviderBus::Handler::BusDisconnect();
     }
 
@@ -127,17 +130,9 @@ namespace RenderJoy
 
     void RenderJoyKeyboardComponentController::OnConfigurationChanged()
     {
-        if (m_prevConfiguration.m_imageAsset != m_configuration.m_imageAsset)
+        if (m_prevConfiguration.m_maxWaitTimeToClearKeyPressedMilliseconds != m_configuration.m_maxWaitTimeToClearKeyPressedMilliseconds)
         {
-            AZ::Data::AssetBus::Handler::BusDisconnect();
-            RenderJoyTextureProviderNotificationBus::Event(
-                m_entityId, &RenderJoyTextureProviderNotification::OnStreamingImageAssetChanged, AZ::Data::Asset<AZ::RPI::StreamingImageAsset>());
-
-            if (m_configuration.m_imageAsset.GetId().IsValid())
-            {
-                AZ::Data::AssetBus::Handler::BusConnect(m_configuration.m_imageAsset.GetId());
-                m_configuration.m_imageAsset.QueueLoad();
-            }
+            RenderJoyKeyboardManagerInterface::Get()->UpdateClearKeyPressedMilliseconds(m_configuration.m_maxWaitTimeToClearKeyPressedMilliseconds);
         }
 
         m_prevConfiguration = m_configuration;
@@ -145,71 +140,11 @@ namespace RenderJoy
 
     /////////////////////////////////////////////////////////////////
     /// RenderJoyTextureProviderBus::Handler overrides START
-    AZ::Data::Asset<AZ::RPI::StreamingImageAsset> RenderJoyKeyboardComponentController::GetStreamingImageAsset() const
+    AZ::Data::Instance<AZ::RPI::Image> RenderJoyKeyboardComponentController::GetImage() const
     {
-        return m_configuration.m_imageAsset;
-    }
-    AZ::RHI::Format RenderJoyKeyboardComponentController::GetPixelFormat() const
-    {
-        if (!m_configuration.m_imageAsset.IsReady())
-        {
-            AZ_Error(LogName, false, "StreamingImageAsset %s is not ready.", m_configuration.m_imageAsset.GetHint().c_str());
-            return AZ::RHI::Format::Unknown;
-        }
-        return m_configuration.m_imageAsset->GetImageDescriptor().m_format;
-    }
-
-    AZ::RHI::Size RenderJoyKeyboardComponentController::GetImageSize() const
-    {
-        if (!m_configuration.m_imageAsset.IsReady())
-        {
-            AZ_Error(LogName, false, "StreamingImageAsset %s is not ready.", m_configuration.m_imageAsset.GetHint().c_str());
-            return AZ::RHI::Size();
-        }
-        return m_configuration.m_imageAsset->GetImageDescriptor().m_size;
+        return RenderJoyKeyboardManagerInterface::Get()->GetKeyboardTexture();
     }
     /// RenderJoyTextureProviderBus::Handler overrides END
     /////////////////////////////////////////////////////////////////
-
-    /////////////////////////////////////////////////////////////////
-    //! Data::AssetBus START
-    void RenderJoyKeyboardComponentController::OnAssetReady(AZ::Data::Asset<AZ::Data::AssetData> asset)
-    {
-        OnImageAssetLoaded(asset);
-    }
-
-    void RenderJoyKeyboardComponentController::OnAssetReloaded(AZ::Data::Asset<AZ::Data::AssetData> asset)
-    {
-        OnImageAssetLoaded(asset);
-    }
-
-    void RenderJoyKeyboardComponentController::OnAssetError(AZ::Data::Asset<AZ::Data::AssetData> asset)
-    {
-        OnImageAssetLoaded(asset);
-    }
-
-    void RenderJoyKeyboardComponentController::OnAssetCanceled(const AZ::Data::AssetId assetId)
-    {
-        AZ_Printf(LogName, "Unfortunately assetId=%s was canceled", assetId.ToString<AZStd::string>().c_str());
-    }
-    //! Data::AssetBus END
-    /////////////////////////////////////////////////////////////////
-
-
-    void RenderJoyKeyboardComponentController::OnImageAssetLoaded(AZ::Data::Asset<AZ::Data::AssetData> asset)
-    {
-        if (!asset.IsReady())
-        {
-            AZ_Error(LogName, false, "Streaming image %s for entityId %s Failed to load.\n"
-                , asset.GetHint().c_str(), m_entityId.ToString().c_str());
-            return;
-        }
-
-        m_configuration.m_imageAsset = asset;
-        AZ::TickBus::QueueFunction([this]() {
-            RenderJoyTextureProviderNotificationBus::Event(m_entityId
-                , &RenderJoyTextureProviderNotification::OnStreamingImageAssetChanged, m_configuration.m_imageAsset);
-        });
-    }
 
 }

@@ -101,16 +101,13 @@ namespace RenderJoy
 
         ///////////////////////////////////////////////////////////////////
         // RenderJoyTextureProviderNotificationBus overrides...
-        void OnStreamingImageAssetChanged(AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset) override;
-        void OnPixelBufferChanged(const void* pixels, AZ::RHI::Size imageSize, uint32_t bytesPerRow) override;
+        void OnImageChanged(AZ::Data::Instance<AZ::RPI::Image> image) override;
         ///////////////////////////////////////////////////////////////////
 
         void LoadShader();
         void CacheRenderJoySrgConstantsIndices();
-        bool SetImageAssetForChannel(uint32_t channelIndex, AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset);
-        bool SetMutableImageForChannel(AZ::EntityId entityId, uint32_t channelIndex);
+        bool SetImageForChannel(uint32_t channelIndex, AZ::Data::Instance<AZ::RPI::Image> image);
         void SetDefaultImageForChannel(uint32_t imageChannelIdx);
-        //void CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color);
         void RemoveImageForChannel(uint32_t imageChannelIdx);
         void SetupCopyImageItem(const AZ::RHI::FrameGraphCompileContext& context);
         void UpdatePixelDataForChannel(uint32_t channelIndex, const void* pixels, const AZ::RHI::Size& imageSize, uint32_t bytesPerRow);

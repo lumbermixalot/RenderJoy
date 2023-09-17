@@ -8,8 +8,7 @@
 
 #include <AzFramework/Input/Devices/Keyboard/InputDeviceKeyboardWindowsScanCodes.h>
 
-#include <Atom/RPI.Public/Image/StreamingImage.h>
-#include <Atom/RPI.Public/Image/StreamingImagePool.h>
+#include <Atom/RPI.Public/Image/AttachmentImagePool.h>
 #include <Atom/RPI.Public/Image/ImageSystemInterface.h>
 
 #include "RenderJoyKeyboardTextureManager.h"
@@ -22,19 +21,17 @@ namespace RenderJoy
         const uint32_t width = CharacterCount;
         const uint32_t height = static_cast<uint32_t>(KeyStateIndices::StateCount);
         const uint32_t bytesPerRow = width * AZ::RHI::GetFormatSize(pixFormat);
-        const size_t imageDataSize = bytesPerRow * height;
         const AZStd::string imageName("RenderJoy_Keyboard");
 
-        AZ::RHI::Size imageSize;
-        imageSize.m_width = width;
-        imageSize.m_height = height;
+        AZ::Data::Instance<AZ::RPI::AttachmentImagePool> pool = AZ::RPI::ImageSystemInterface::Get()->GetSystemAttachmentPool();
+        auto imageDesc = AZ::RHI::ImageDescriptor::Create2D(AZ::RHI::ImageBindFlags::ShaderRead, width, height, pixFormat);
+        AZ::RHI::ClearValue clearValue = AZ::RHI::ClearValue::CreateVector4Float(0, 0, 0, 0);
 
-        AZ::Data::Instance<AZ::RPI::StreamingImagePool> streamingImagePool = AZ::RPI::ImageSystemInterface::Get()->GetSystemStreamingPool();
-        m_texture =  AZ::RPI::StreamingImage::CreateFromCpuData(*streamingImagePool
-            , AZ::RHI::ImageDimension::Image2D, imageSize, pixFormat, m_textureCpuData, imageDataSize, AZ::Uuid::CreateName(imageName.c_str()));
+        m_texture =  AZ::RPI::AttachmentImage::Create(*pool.get(), imageDesc, AZ::Name(imageName), &clearValue, nullptr);
 
         // Cache the update request, which will be the same each time a keyboard button changes state.
         AZ::RHI::ImageUpdateRequest updateRequest;
+        AZ::RHI::Size imageSize(width, height, 1);
         m_updateRequest.m_image = m_texture->GetRHIImage();
         m_updateRequest.m_sourceData = m_textureCpuData;
         m_updateRequest.m_sourceSubresourceLayout.m_size = imageSize;
@@ -46,6 +43,7 @@ namespace RenderJoy
     RenderJoyKeyboardTextureManager::RenderJoyKeyboardTextureManager()
     {
         ResetCpuData();
+        CreateKeyboardTextureImage();
     }
 
     static uint8_t GetVirtualScanCode(const AzFramework::InputChannel& inputChannel)
@@ -77,6 +75,8 @@ namespace RenderJoy
             const auto virtualScancode = GetVirtualScanCode(inputChannel);
             m_textureCpuData[indexForIsKeyDown][virtualScancode] = IsKeyDown;
             m_textureCpuData[indexForWasKeyPressed][virtualScancode] = IsKeyDown;
+            KeyAndTime keyAndTime = { virtualScancode, AZ::ScriptTimePoint(m_scriptTime.Get() + AZStd::chrono::microseconds(m_maxWaitTimeToClearKeyPressedMilliseconds * 1000)) };
+            m_keysForToggleEvents.push_back(keyAndTime);
         }
         else if (state == AzFramework::InputChannel::State::Ended)
         {

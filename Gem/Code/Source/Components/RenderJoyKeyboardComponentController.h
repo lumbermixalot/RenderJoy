@@ -29,7 +29,7 @@ namespace RenderJoy
 
         RenderJoyKeyboardComponentConfig() = default;
 
-        uint32_t m_maxWaitTimeToClearKeyPressedMilliseconds = 0;
+        uint32_t m_maxWaitTimeToClearKeyPressedMilliseconds = 1000;
     };
 
     class RenderJoyKeyboardComponentController final
@@ -57,10 +57,7 @@ namespace RenderJoy
 
         //////////////////////////////////////////////////////////////////////////
         // RenderJoyTextureProviderBus overrides START
-        bool IsImmutable() override { return false; }
-        AZ::Data::Asset<AZ::RPI::StreamingImageAsset> GetStreamingImageAsset() const override;
-        AZ::RHI::Format GetPixelFormat() const override;
-        AZ::RHI::Size GetImageSize() const override;
+        AZ::Data::Instance<AZ::RPI::Image> GetImage() const override;
         /// RenderJoyTextureProviderBus overrides END
         /////////////////////////////////////////////////////////////////
 

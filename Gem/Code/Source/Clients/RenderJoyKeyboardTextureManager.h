@@ -12,7 +12,7 @@
 
 #include <AzFramework/Input/Channels/InputChannel.h>
 
-#include <Atom/RPI.Reflect/Image/Image.h>
+#include <Atom/RPI.Public/Image/AttachmentImage.h>
 
 namespace RenderJoy
 {
@@ -54,7 +54,8 @@ namespace RenderJoy
         void CreateKeyboardTextureImage();
 
         uint8_t m_textureCpuData[aznumeric_cast<size_t>(KeyStateIndices::StateCount)][CharacterCount];
-        AZ::Data::Instance<AZ::RPI::Image> m_texture;
+        // Only attachment images can be modified at runtime.
+        AZ::Data::Instance<AZ::RPI::AttachmentImage> m_texture;
         AZ::RHI::ImageUpdateRequest m_updateRequest; // We cache here the information on how to update @m_texture.
 
         // Each time a key is pressed, we use this struct to store
@@ -68,5 +69,6 @@ namespace RenderJoy
         };
         AZ::ScriptTimePoint m_scriptTime;
         AZStd::vector<KeyAndTime> m_keysForToggleEvents;
+        uint32_t m_maxWaitTimeToClearKeyPressedMilliseconds = 1000;
     };
 } // namespace RenderJoy

@@ -354,7 +354,7 @@ namespace RenderJoy
 
     //////////////////////////////////////////////////////////////////////////
     // TickBus
-    void RenderJoySystemComponent::OnTick(float deltaTime, [[maybe_unused]] AZ::ScriptTimePoint time)
+    void RenderJoySystemComponent::OnTick(float deltaTime, AZ::ScriptTimePoint time)
     {
         m_frameCounter++;
         m_runTime += deltaTime;
@@ -371,6 +371,11 @@ namespace RenderJoy
         if ( m_isLeftButtonClick && (m_runTime > (m_timeSinceLastClick + 1.0f)) )
         {
             m_isLeftButtonClick = false;
+        }
+
+        if (m_keyboardTextureMgr)
+        {
+            m_keyboardTextureMgr->OnTick(deltaTime, time);
         }
 
     }
@@ -452,11 +457,11 @@ namespace RenderJoy
     // InputChannelNotificationBus::Handler overrides END
     ///////////////////////////////////////////////////////////
 
-    void RenderJoySystemComponent::OnMouseChannelEvent(const AzFramework::InputChannel& inputChannel, bool& hasBeenConsumed)
+    void RenderJoySystemComponent::OnMouseChannelEvent(const AzFramework::InputChannel& inputChannel, [[maybe_unused]] bool& hasBeenConsumed)
     {
         if (inputChannel.GetInputChannelId() == AzFramework::InputDeviceMouse::Button::Left)
         {
-            hasBeenConsumed = true;
+            //hasBeenConsumed = true;
             const bool isClick = inputChannel.IsStateBegan();
             m_isLeftButtonDown = isClick || inputChannel.IsStateUpdated();
             if (isClick)
@@ -474,7 +479,7 @@ namespace RenderJoy
         }
         else if (inputChannel.GetInputChannelId() == AzFramework::InputDeviceMouse::SystemCursorPosition)
         {
-            hasBeenConsumed = true;
+            //hasBeenConsumed = true;
             const auto* pos2D = inputChannel.GetCustomData<AzFramework::InputChannel::PositionData2D>();
             
             const float normalizedX = AZ::GetClamp(pos2D->m_normalizedPosition.GetX(), 0.0f, 1.0f);
@@ -486,7 +491,7 @@ namespace RenderJoy
             m_currentMousePos.Set(screenPosX, screenPosY);
             
             //m_currentMousePos.SetX(inputChannel.GetValue());
-            AZ_Printf(LogName, "MousePos=%0.3f,%0.3f.\n", m_currentMousePos.GetX(), m_currentMousePos.GetY());
+            //AZ_Printf(LogName, "MousePos=%0.3f,%0.3f.\n", m_currentMousePos.GetX(), m_currentMousePos.GetY());
 
         }
         //else if (inputChannel.GetInputChannelId() == AzFramework::InputDeviceMouse::Movement::X)
@@ -520,7 +525,7 @@ namespace RenderJoy
     // IKeyboardComponentsManager interface implementation START
     void RenderJoySystemComponent::RegisterKeyboardComponent(AZ::EntityId entityId)
     {
-        if (!AZStd::find(m_registeredKeyboardComponents.cbegin(), m_registeredKeyboardComponents.cend(), entityId))
+        if (AZStd::find(m_registeredKeyboardComponents.cbegin(), m_registeredKeyboardComponents.cend(), entityId) == m_registeredKeyboardComponents.cend())
         {
             m_registeredKeyboardComponents.push_back(entityId);
         }
@@ -539,6 +544,14 @@ namespace RenderJoy
         if (m_keyboardTextureMgr && m_registeredKeyboardComponents.empty())
         {
             m_keyboardTextureMgr.reset();
+        }
+    }
+
+    void RenderJoySystemComponent::UpdateClearKeyPressedMilliseconds(uint32_t milliSeconds)
+    {
+        if (m_keyboardTextureMgr)
+        {
+            m_keyboardTextureMgr->m_maxWaitTimeToClearKeyPressedMilliseconds = milliSeconds;
         }
     }
 

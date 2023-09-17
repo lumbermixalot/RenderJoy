@@ -28,7 +28,7 @@ namespace RenderJoy
             if (AZ::EditContext* editContext = serializeContext->GetEditContext())
             {
                 editContext->Class<EditorRenderJoyKeyboardComponent>(
-                    "RenderJoy Texture", "An image to be bound to one of the texture channels of a RenderJoy Pass")
+                    "RenderJoy Keyboard", "Provides a texture that encodes the state of the keyboard.")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                         ->Attribute(AZ::Edit::Attributes::Category, "Graphics/RenderJoy")
                         ->Attribute(AZ::Edit::Attributes::Icon, "Icons/Components/Component_Placeholder.svg")
@@ -52,7 +52,7 @@ namespace RenderJoy
     {
     }
 
-    EditorRenderJoyKeyboardComponent::EditorRenderJoyKeyboardComponent(const RenderJoyTextureComponentConfig& config)
+    EditorRenderJoyKeyboardComponent::EditorRenderJoyKeyboardComponent(const RenderJoyKeyboardComponentConfig& config)
         : BaseClass(config)
     {
     }

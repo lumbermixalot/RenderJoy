@@ -360,25 +360,14 @@ namespace RenderJoy
 
                 //Get the image first from the data provider (if available)
                 bool gotValidTextureProvider = false;
-                bool isImmutable = false;
-                RenderJoyTextureProviderBus::EventResult(isImmutable, entityId, &RenderJoyTextureProvider::IsImmutable);
-
-                if (isImmutable)
+                AZ::Data::Instance<AZ::RPI::Image> image;
+                RenderJoyTextureProviderBus::EventResult(image, entityId, &RenderJoyTextureProvider::GetImage);
+                if (image)
                 {
-                    AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset;
-                    RenderJoyTextureProviderBus::EventResult(imageAsset, entityId, &RenderJoyTextureProvider::GetStreamingImageAsset);
-                    if (imageAsset && imageAsset.IsReady())
-                    {
-                        const bool success = gotValidTextureProvider = SetImageAssetForChannel(imageIdx, imageAsset);
-                        AZ_Error(ClassNameStr, success, "Failed to instantiate streaming image for channel %u from asset %s. Will try default image.",
-                            imageIdx, imageAsset.GetHint().c_str());
-                    }
+                    const bool success = gotValidTextureProvider = SetImageForChannel(imageIdx, image);
+                    AZ_Error(ClassNameStr, success, "Failed to get image for channel %u from provider %s. Will try default image.",
+                        imageIdx, entityId.ToString().c_str());
                 }
-                else
-                {
-                    gotValidTextureProvider = SetMutableImageForChannel(entityId, imageIdx);
-                }
-
                 if (!gotValidTextureProvider)
                 {
                     SetDefaultImageForChannel(imageIdx);
@@ -391,51 +380,11 @@ namespace RenderJoy
         }
     }
 
-    bool RenderJoyShaderPass::SetImageAssetForChannel(uint32_t channelIndex, AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset)
+    bool RenderJoyShaderPass::SetImageForChannel(uint32_t channelIndex, AZ::Data::Instance<AZ::RPI::Image> image)
     {
-        auto streamingImageInstance = AZ::Data::InstanceDatabase<AZ::RPI::StreamingImage>::Instance().FindOrCreate(imageAsset);
-        if (!!streamingImageInstance)
-        {
-            m_imageChannels[channelIndex] = streamingImageInstance;
-            AZ::RHI::Size imageSize = GetImageDimensions(streamingImageInstance);
-            m_imageChannelResolutions[channelIndex] = AZ::Vector4(aznumeric_cast<float>(imageSize.m_width), aznumeric_cast<float>(imageSize.m_height), 1.0f, 0.0f);
-            return true;
-        }
-        return false;
-    }
-
-    bool RenderJoyShaderPass::SetMutableImageForChannel(AZ::EntityId entityId, uint32_t channelIndex)
-    {
-        const void* pixels = nullptr;
-        RenderJoyTextureProviderBus::EventResult(pixels, entityId, &RenderJoyTextureProvider::GetPixelBuffer);
-        if (!pixels)
-        {
-            return false;
-        }
-
-        AZ::RHI::Format pixelFormat = AZ::RHI::Format::Unknown;
-        RenderJoyTextureProviderBus::EventResult(pixelFormat, entityId, &RenderJoyTextureProvider::GetPixelFormat);
-        if (pixelFormat == AZ::RHI::Format::Unknown)
-        {
-            return false;
-        }
-
-        AZ::RHI::Size size;
-        RenderJoyTextureProviderBus::EventResult(size, entityId, &RenderJoyTextureProvider::GetImageSize);
-
-        AZ::Data::Instance<AZ::RPI::AttachmentImagePool> pool = AZ::RPI::ImageSystemInterface::Get()->GetSystemAttachmentPool();
-
-        auto imageDesc = AZ::RHI::ImageDescriptor::Create2D(AZ::RHI::ImageBindFlags::ShaderRead, size.m_width, size.m_height, pixelFormat);
-
-        // create the image attachment
-        auto mutableImageName = AZ::Name(AZStd::string::format("%s_mutable_%u", GetName().GetCStr(), channelIndex));
-        AZ::RHI::ClearValue clearValue = AZ::RHI::ClearValue::CreateVector4Float(0, 0, 0, 0);
-        AZ::Data::Instance<AZ::RPI::AttachmentImage> attachmentImage = AZ::RPI::AttachmentImage::Create(*pool.get(), imageDesc, mutableImageName, &clearValue, nullptr);
-        m_imageChannels[channelIndex] = attachmentImage;
-        m_imageChannelResolutions[channelIndex] = AZ::Vector4(aznumeric_cast<float>(size.m_width), aznumeric_cast<float>(size.m_height), 1.0f, 0.0f);
-
-        UpdatePixelDataForChannel(channelIndex, pixels, size, AZ::RHI::GetFormatSize(pixelFormat) * size.m_width);
-
+        m_imageChannels[channelIndex] = image;
+        AZ::RHI::Size imageSize = GetImageDimensions(image);
+        m_imageChannelResolutions[channelIndex] = AZ::Vector4(aznumeric_cast<float>(imageSize.m_width), aznumeric_cast<float>(imageSize.m_height), 1.0f, 0.0f);
         return true;
     }
 
@@ -446,46 +395,7 @@ namespace RenderJoy
         AZ::RHI::Size imageSize = GetImageDimensions(image);
         m_imageChannels[imageChannelIdx] = image;
         m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(imageSize.m_width), aznumeric_cast<float>(imageSize.m_height), 1.0f, 0.0f);
-
-        // AZStd::string imageName = AZStd::string::format("renderjoy_m_channel%u", imageChannelIdx);
-        // uint32_t color;
-        // switch (imageChannelIdx)
-        // {
-        // case 0: color = 0xFF0000FF; break; //Red
-        // case 1: color = 0xFF00FF00; break; //Green
-        // case 2: color = 0xFFFF0000; break; //Blue
-        // default: color = 0xFF808080; break; //Gray
-        // }
-        // CreateImageForChannel(imageChannelIdx, imageName, 256, 256, color);
     }
-
-    // void RenderJoyShaderPass::CreateImageForChannel(uint32_t imageChannelIdx, const AZStd::string& imageName, size_t width, size_t height, uint32_t color)
-    // {
-    //     auto streamingImageInstance = AZ::Data::InstanceDatabase<AZ::RPI::StreamingImage>::Instance().Find(AZ::Data::InstanceId::CreateName(imageName.c_str()));
-    //     if (!!streamingImageInstance)
-    //     {
-    //         AZ::RHI::Size imageSize = GetImageDimensions(streamingImageInstance);
-    //         m_imageChannels[imageChannelIdx] = streamingImageInstance;
-    //         m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(imageSize.m_width), aznumeric_cast<float>(imageSize.m_height), 1.0f, 0.0f);
-    //         return;
-    //     }
-    // 
-    //     AZStd::vector<uint32_t> buffer;
-    //     size_t bufferSize = width * height;
-    //     buffer.resize(bufferSize, color);
-    //     uint8_t* pixels = static_cast<uint8_t*>(static_cast<void*>(&buffer[0]));
-    //     const size_t pixelDataSize = width * height * sizeof(color);
-    // 
-    //     AZ::RHI::Size imageSize;
-    //     imageSize.m_width = aznumeric_cast<uint32_t>(width);
-    //     imageSize.m_height = aznumeric_cast<uint32_t>(height);
-    // 
-    //     AZ::Data::Instance<AZ::RPI::StreamingImagePool> streamingImagePool = AZ::RPI::ImageSystemInterface::Get()->GetSystemStreamingPool();
-    // 
-    //     // CreateFromCpuData will add the image to the instance database.
-    //     m_imageChannels[imageChannelIdx] = AZ::RPI::StreamingImage::CreateFromCpuData(*streamingImagePool, AZ::RHI::ImageDimension::Image2D, imageSize, AZ::RHI::Format::R8G8B8A8_UNORM_SRGB, pixels, pixelDataSize, AZ::Uuid::CreateName(imageName.c_str()));
-    //     m_imageChannelResolutions[imageChannelIdx] = AZ::Vector4(aznumeric_cast<float>(width), aznumeric_cast<float>(height), 1.0f, 0.0f);
-    // }
 
     void RenderJoyShaderPass::RemoveImageForChannel(uint32_t imageChannelIdx)
     {
@@ -557,38 +467,19 @@ namespace RenderJoy
 
     ///////////////////////////////////////////////////////////////////
     // RenderJoyTextureProviderNotificationBus overrides...
-    void RenderJoyShaderPass::OnStreamingImageAssetChanged(AZ::Data::Asset<AZ::RPI::StreamingImageAsset> imageAsset)
+    void RenderJoyShaderPass::OnImageChanged(AZ::Data::Instance<AZ::RPI::Image> image)
     {
         const AZ::EntityId* entityId = RenderJoyTextureProviderNotificationBus::GetCurrentBusId();
         auto channelIndex = GetInputChannelIndexFromEntityId(*entityId);
 
-        if (!imageAsset || !imageAsset.IsReady())
+        if (!image)
         {
             //Set the default image
             SetDefaultImageForChannel(channelIndex);
         }
         else
         {
-            SetImageAssetForChannel(channelIndex, imageAsset);
-        }
-        m_shaderResourceGroup->SetImage(m_imageChannelsIndex, m_imageChannels[channelIndex], channelIndex);
-        m_shaderResourceGroup->SetConstant<AZ::Vector4>(
-            m_imageChannelResolutionsIndex, m_imageChannelResolutions[channelIndex], channelIndex);
-    }
-
-    void RenderJoyShaderPass::OnPixelBufferChanged(const void* pixels, AZ::RHI::Size imageSize, uint32_t bytesPerRow)
-    {
-        const AZ::EntityId* entityId = RenderJoyTextureProviderNotificationBus::GetCurrentBusId();
-        auto channelIndex = GetInputChannelIndexFromEntityId(*entityId);
-
-        if (!pixels)
-        {
-            // Set the default image
-            SetDefaultImageForChannel(channelIndex);
-        }
-        else
-        {
-            UpdatePixelDataForChannel(channelIndex, pixels, imageSize, bytesPerRow);
+            SetImageForChannel(channelIndex, image);
         }
         m_shaderResourceGroup->SetImage(m_imageChannelsIndex, m_imageChannels[channelIndex], channelIndex);
         m_shaderResourceGroup->SetConstant<AZ::Vector4>(

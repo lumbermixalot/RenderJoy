@@ -10,8 +10,7 @@
 #include <AzCore/Interface/Interface.h>
 #include <AzCore/Component/EntityId.h>
 
-#include <Atom/RPI.Public/Image/Image.h>
-//#include <Atom/RPI.Reflect/Image/StreamingImageAsset.h>
+#include <Atom/RPI.Reflect/Image/Image.h>
 
 namespace RenderJoy
 {
@@ -28,6 +27,8 @@ namespace RenderJoy
 
         virtual void RegisterKeyboardComponent(AZ::EntityId entityId) = 0;
         virtual void UnregisterKeyboardComponent(AZ::EntityId entityId) = 0;
+
+        virtual void UpdateClearKeyPressedMilliseconds(uint32_t milliSeconds) = 0;
         virtual AZ::Data::Instance<AZ::RPI::Image> GetKeyboardTexture() = 0;
 
     };
