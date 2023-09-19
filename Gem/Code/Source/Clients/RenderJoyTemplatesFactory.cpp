@@ -625,16 +625,26 @@ namespace RenderJoy
 
     static bool CreateRenderJoyShaderPassRequestsRecursive(AZ::RPI::PassTemplate& parentPassTemplate
         , AZ::EntityId currentPassEntity
-        , const AZStd::unordered_map<AZ::EntityId, AZStd::shared_ptr<AZ::RPI::PassTemplate>>& passTemplatesDB)
+        , const AZStd::unordered_map<AZ::EntityId, AZStd::shared_ptr<AZ::RPI::PassTemplate>>& passTemplatesDB
+        , AZStd::unordered_set<AZ::Name>& requestedPassNames)
     {
         AZStd::vector<AZ::EntityId> entitiesOnInputChannels;
         RenderJoyPassRequestBus::EventResult(
             entitiesOnInputChannels, currentPassEntity, &RenderJoyPassRequests::GetEntitiesOnInputChannels);
+
+        const char passClassStr[] = "RenderJoyShaderPass";
+        const auto PassNameStr = GetUniqueEntityPassNameStr(passClassStr, currentPassEntity);
+        const auto passName = AZ::Name(PassNameStr);
+        if (requestedPassNames.contains(passName))
+        {
+            return true;
+        }
+
         for (const auto& entityId : entitiesOnInputChannels)
         {
             if (Utils::IsRenderJoyPass(entityId) && (currentPassEntity != entityId))
             {
-                if (!CreateRenderJoyShaderPassRequestsRecursive(parentPassTemplate, entityId, passTemplatesDB))
+                if (!CreateRenderJoyShaderPassRequestsRecursive(parentPassTemplate, entityId, passTemplatesDB, requestedPassNames))
                 {
                     return false;
                 }
@@ -644,10 +654,8 @@ namespace RenderJoy
         AZ_Assert(passTemplatesDB.contains(currentPassEntity), "Where is the template for entityId %s??", currentPassEntity.ToString().c_str());
         const auto& passTemplate = passTemplatesDB.at(currentPassEntity);
 
-        const char passClassStr[] = "RenderJoyShaderPass";
-        const auto PassNameStr = GetUniqueEntityPassNameStr(passClassStr, currentPassEntity);
         AZ::RPI::PassRequest passRequest;
-        passRequest.m_passName = AZ::Name(PassNameStr);
+        passRequest.m_passName = passName;
         passRequest.m_templateName = passTemplate->m_name;
 
         // This copy pass is optional and should be added at the end.
@@ -698,6 +706,7 @@ namespace RenderJoy
             ++channelIndex;
         }
         parentPassTemplate.AddPassRequest(passRequest);
+        requestedPassNames.emplace(passName);
         if (copyPassRequest)
         {
             parentPassTemplate.AddPassRequest(*copyPassRequest.get());
@@ -739,10 +748,10 @@ namespace RenderJoy
         const auto renderJoyShaderPassName = AZ::Name(renderJoyShaderPassNameStr);
         auto billboardPassRequest = CreateBillboardPassRequest(parentPassEntityId, billboardPassTemplate, &renderJoyShaderPassName);
 
-
+        AZStd::unordered_set<AZ::Name> requestedPassNames;
         // Time to create the passRequests.
         // The past requests will get automatically added to parentPassTemplate.
-        if (!CreateRenderJoyShaderPassRequestsRecursive(*parentPassTemplate.get(), passBusEntity, passTemplates))
+        if (!CreateRenderJoyShaderPassRequestsRecursive(*parentPassTemplate.get(), passBusEntity, passTemplates, requestedPassNames))
         {
             return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
         }
