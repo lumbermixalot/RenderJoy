@@ -37,6 +37,7 @@ namespace RenderJoy
         AZStd::array<AZ::EntityId, MaxInputChannels> m_inputChannels;
         uint32_t m_renderTargetWidth = 0; // Viewport width when 0
         uint32_t m_renderTargetHeight = 0; // Viewport height when 0
+        AZ::RHI::Format m_outputFormat = AZ::RHI::Format::R32G32B32A32_FLOAT;
     };
 
     class RenderJoyShaderComponentController final
@@ -69,6 +70,7 @@ namespace RenderJoy
         AZ::Data::Asset<AZ::RPI::ShaderAsset> GetShaderAsset() const override;
         uint32_t GetRenderTargetWidth() const override;
         uint32_t GetRenderTargetHeight() const override;
+        AZ::RHI::Format GetRenderTargetFormat() const override;
         /// RenderJoyPassRequestBus::Handler overrides END
         /////////////////////////////////////////////////////////////////
 

@@ -34,6 +34,7 @@ namespace RenderJoy
                 ->Field("InputChannels", &RenderJoyShaderComponentConfig::m_inputChannels)
                 ->Field("RenderTargetWidth", &RenderJoyShaderComponentConfig::m_renderTargetWidth)
                 ->Field("RenderTargetHeight", &RenderJoyShaderComponentConfig::m_renderTargetHeight)
+                ->Field("RenderTargetFormat", &RenderJoyShaderComponentConfig::m_outputFormat)
                 ;
 
             if (auto editContext = serializeContext->GetEditContext())
@@ -50,6 +51,25 @@ namespace RenderJoy
                     ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyShaderComponentConfig::m_renderTargetHeight, "Render Target Height", "If 0, uses the main viewport height.")
                         ->Attribute(AZ::Edit::Attributes::Min, RenderJoyShaderComponentConfig::MinRenderTargetSize)
                         ->Attribute(AZ::Edit::Attributes::Max, RenderJoyShaderComponentConfig::MaxRenderTargetSize)
+                    ->DataElement(AZ::Edit::UIHandlers::ComboBox, &RenderJoyShaderComponentConfig::m_outputFormat, "Render Target Format", "Pixel format for the render target. If you choose a format without 4 color components, you'll have to change the PSOutput::m_color semantic accordingly.")
+                        ->EnumAttribute(AZ::RHI::Format::R32G32B32A32_FLOAT, "R32G32B32A32_FLOAT")
+                        ->EnumAttribute(AZ::RHI::Format::R32G32B32A32_UINT,  "R32G32B32A32_UINT")
+                        ->EnumAttribute(AZ::RHI::Format::R32G32B32A32_SINT,  "R32G32B32A32_SINT")
+                        
+                        ->EnumAttribute(AZ::RHI::Format::R16G16B16A16_FLOAT, "R16G16B16A16_FLOAT")
+                        ->EnumAttribute(AZ::RHI::Format::R16G16B16A16_UNORM, "R16G16B16A16_UNORM")
+                        ->EnumAttribute(AZ::RHI::Format::R16G16B16A16_UINT,  "R16G16B16A16_UINT")
+                        ->EnumAttribute(AZ::RHI::Format::R16G16B16A16_SNORM, "R16G16B16A16_SNORM")
+                        ->EnumAttribute(AZ::RHI::Format::R16G16B16A16_SINT,  "R16G16B16A16_SINT")
+
+                        ->EnumAttribute(AZ::RHI::Format::R10G10B10A2_UNORM, "R10G10B10A2_UNORM")
+                        ->EnumAttribute(AZ::RHI::Format::R10G10B10A2_UINT,  "R10G10B10A2_UINT")
+
+                        ->EnumAttribute(AZ::RHI::Format::R8G8B8A8_UNORM,      "R8G8B8A8_UNORM")
+                        ->EnumAttribute(AZ::RHI::Format::R8G8B8A8_UNORM_SRGB, "R8G8B8A8_UNORM_SRGB")
+                        ->EnumAttribute(AZ::RHI::Format::R8G8B8A8_UINT,       "R8G8B8A8_UINT")
+                        ->EnumAttribute(AZ::RHI::Format::R8G8B8A8_SNORM,      "R8G8B8A8_SNORM")
+                        ->EnumAttribute(AZ::RHI::Format::R8G8B8A8_SINT,       "R8G8B8A8_SINT")
                     ;
             }
         }
@@ -172,6 +192,11 @@ namespace RenderJoy
     uint32_t RenderJoyShaderComponentController::GetRenderTargetHeight() const
     {
         return m_configuration.m_renderTargetHeight;
+    }
+
+    AZ::RHI::Format RenderJoyShaderComponentController::GetRenderTargetFormat() const
+    {
+        return m_configuration.m_outputFormat;
     }
     /// RenderJoyPassRequestBus::Handler overrides END
     /////////////////////////////////////////////////////////////////

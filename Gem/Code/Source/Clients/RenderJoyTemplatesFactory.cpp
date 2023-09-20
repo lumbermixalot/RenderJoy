@@ -565,7 +565,8 @@ namespace RenderJoy
         GetRenderJoyTargetSize(currentPassEntity, renderTargetWidth, renderTargetHeight);
 
         // Attachments:
-        const auto OutputFormat = AZ::RHI::Format::R32G32B32A32_FLOAT; //TODO: Make it configurable.
+        AZ::RHI::Format OutputFormat = AZ::RHI::Format::R32G32B32A32_FLOAT;
+        RenderJoyPassRequestBus::EventResult(OutputFormat, currentPassEntity, &RenderJoyPassRequestBus::Handler::GetRenderTargetFormat);
     
         // - define the output target as transient attachment.
         // Non-output passes, aka BufferA...D in ShaderToy have R32G32B32A32_FLOAT
@@ -826,6 +827,13 @@ namespace RenderJoy
     {
         const auto itor = m_parentEntities.find(parentPassEntityId);
         return (itor != m_parentEntities.end()) ? itor->second.m_billboardPassName : AZ::Name();
+    }
+
+    AZ::Name RenderJoyTemplatesFactory::GetShaderPassName(AZ::EntityId shaderPassEntityId) const
+    {
+        const char passClassStr[] = "RenderJoyShaderPass";
+        const auto PassNameStr = GetUniqueEntityPassNameStr(passClassStr, shaderPassEntityId);
+        return AZ::Name(PassNameStr);
     }
 
     bool RenderJoyTemplatesFactory::EntityHasActivePasses(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId) const

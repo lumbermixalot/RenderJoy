@@ -23,4 +23,5 @@ namespace RenderJoy
 
     // Interface TypeIds
     inline constexpr const char* RenderJoyRequestsTypeId = "{92A1781E-91CB-4B7B-8717-8F7A42823626}";
+    inline constexpr const char* RenderJoyNotificationsTypeId = "{79AC02B3-2BF8-4D1E-8945-9543ABED466F}";
 } // namespace RenderJoy

@@ -16,9 +16,12 @@
 #include <Components/RenderJoyShaderComponent.h>
 
 #include <RenderJoy/RenderJoyTypeIds.h>
+#include <RenderJoy/RenderJoyBus.h>
 
 namespace RenderJoy
 {
+    class RenderJoyShaderPass;
+
     inline constexpr AZ::TypeId EditorRenderJoyShaderComponentTypeId { "{D6CAD35B-00A1-4E33-894F-0F8BD4DD682A}" };
 
     class EditorRenderJoyShaderComponent final
@@ -35,6 +38,8 @@ namespace RenderJoy
         EditorRenderJoyShaderComponent();
         EditorRenderJoyShaderComponent(const RenderJoyShaderComponentConfig& config);
 
+        static constexpr char LogName[] = "EditorRenderJoyShaderComponent";
+
     private:
 
         // AZ::Component overrides
@@ -44,7 +49,23 @@ namespace RenderJoy
         // EditorComponentAdapter overrides;
         AZ::u32 OnConfigurationChanged() override;
 
+        // Captures the current rendered image and saves it to disk.
+        AZ::u32 OnSaveToDisk();
+        // Helper function that makes the SaveToDisk button disabled or enabled.
+        bool IsSaveToDiskDisabled();
+
+        // ///////////////////////////////////////////////////////////
+        // // RenderJoyNotificationBus::Handler overrides START
+        // void OnFeatureProcessorActivated() override;
+        // void OnFeatureProcessorDeactivated() override;
+        // // RenderJoyNotificationBus::Handler overrides END
+        // ///////////////////////////////////////////////////////////
+
         void OnEntityVisibilityChanged(bool visibility) override;
+
+        // We use this pass only to make render target capture requests.
+        // Will get the real reference once we get the OnFeatureProcessorActivated notification. 
+        RenderJoyShaderPass* m_shaderPass = nullptr;
 
     };
 }

@@ -32,6 +32,7 @@ namespace RenderJoy
         virtual AZ::Data::Asset<AZ::RPI::ShaderAsset> GetShaderAsset() const = 0;
         virtual uint32_t GetRenderTargetWidth() const = 0;
         virtual uint32_t GetRenderTargetHeight() const = 0;
+        virtual AZ::RHI::Format GetRenderTargetFormat() const = 0;
     };
     using RenderJoyPassRequestBus = AZ::EBus<RenderJoyPassRequests>;
 

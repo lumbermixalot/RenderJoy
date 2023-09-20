@@ -46,6 +46,7 @@ namespace RenderJoy
         virtual AZStd::vector<AZ::EntityId> GetParentPassEntities() const = 0;
         virtual AZStd::shared_ptr<AZ::RPI::PassRequest> GetPassRequest(AZ::EntityId parentPassEntityId) const = 0;
         virtual AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const = 0;
+        virtual AZ::Name GetShaderPassName(AZ::EntityId shaderPassEntityId) const = 0;
 
         // This is the texture we display on a billboard or output pass when a RenderJoy ParentPass is invalid.
         virtual AZ::Data::Instance<AZ::RPI::Image> GetInvalidParentPassTexture() const = 0;
@@ -73,6 +74,9 @@ namespace RenderJoy
         : public AZ::EBusTraits
     {
     public:
+        //AZ_RTTI(RenderJoyNotifications, RenderJoyNotificationsTypeId);
+        //virtual ~RenderJoyNotifications() = default;
+
         //////////////////////////////////////////////////////////////////////////
         // EBusTraits overrides
         static constexpr AZ::EBusHandlerPolicy HandlerPolicy = AZ::EBusHandlerPolicy::Multiple;

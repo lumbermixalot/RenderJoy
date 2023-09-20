@@ -66,6 +66,7 @@ namespace RenderJoy
         AZStd::vector<AZ::EntityId> GetParentPassEntities() const override;
         AZStd::shared_ptr<AZ::RPI::PassRequest> GetPassRequest(AZ::EntityId parentPassEntityId) const override;
         AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const override;
+        AZ::Name GetShaderPassName(AZ::EntityId shaderPassEntityId) const override;
         AZ::Data::Instance<AZ::RPI::Image> GetInvalidParentPassTexture() const override;
         AZ::Data::Instance<AZ::RPI::Image> GetDefaultInputTexture(uint32_t channelIndex) const override;
         AZ::EntityId GetEntityIdFromPassName(const AZ::Name& passName) const override;

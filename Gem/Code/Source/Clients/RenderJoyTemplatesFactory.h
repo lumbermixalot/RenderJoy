@@ -58,6 +58,8 @@ namespace RenderJoy
 
         AZ::Name GetBillboardPassName(AZ::EntityId parentPassEntityId) const;
 
+        AZ::Name GetShaderPassName(AZ::EntityId shaderPassEntityId) const;
+
         bool EntityHasActivePasses(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId) const;
 
         //////////////////////////////////////////////////////////////////////////

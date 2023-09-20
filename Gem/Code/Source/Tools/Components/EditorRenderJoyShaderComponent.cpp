@@ -6,13 +6,19 @@
  *
  */
 
-#include <Tools/Components/EditorRenderJoyShaderComponent.h>
+#include <AzCore/Component/Entity.h>
+#include <AzCore/IO/SystemFile.h>
+
 #include <AzFramework/StringFunc/StringFunc.h>
+
 #include <AzToolsFramework/API/ToolsApplicationAPI.h>
 #include <AzToolsFramework/Entity/EditorEntityInfoBus.h>
 #include <AzToolsFramework/API/EditorAssetSystemAPI.h>
-#include <AzCore/Component/Entity.h>
-#include <AzCore/IO/SystemFile.h>
+
+#include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/Pass/PassFilter.h>
+
+#include "EditorRenderJoyShaderComponent.h"
 
 namespace RenderJoy
 {
@@ -36,6 +42,16 @@ namespace RenderJoy
                         ->Attribute(AZ::Edit::Attributes::AppearsInAddComponentMenu, AZ_CRC_CE("Game"))
                         ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
                         ->Attribute(AZ::Edit::Attributes::HelpPageURL, "")
+                    ->ClassElement(AZ::Edit::ClassElements::Group, "Save To Disk")
+                    ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
+                        //->DataElement(AZ::Edit::UIHandlers::Default, &EditorCloudTextureComputeComponent::m_saveToDiskConfig, "Configuration", "")
+                        //->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
+                        ->UIElement(AZ::Edit::UIHandlers::Button, "SaveToDisk", "Save the shader output as an image.")
+                            ->Attribute(AZ::Edit::Attributes::NameLabelOverride, "")
+                            ->Attribute(AZ::Edit::Attributes::ButtonText, "Capture & Save")
+                            ->Attribute(AZ::Edit::Attributes::ChangeNotify, &EditorRenderJoyShaderComponent::OnSaveToDisk)
+                            ->Attribute(AZ::Edit::Attributes::ReadOnly, &EditorRenderJoyShaderComponent::IsSaveToDiskDisabled)
+                    ->EndGroup()
                     ;
             }
         }
@@ -62,6 +78,7 @@ namespace RenderJoy
         BaseClass::Activate();
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusConnect(GetEntityId());
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusConnect();
+        //RenderJoyNotificationBus::Handler::BusConnect();
 
         //AZ::u64 entityId = (AZ::u64)GetEntityId();
         //m_controller.m_configuration.m_entityId = entityId;
@@ -69,6 +86,7 @@ namespace RenderJoy
 
     void EditorRenderJoyShaderComponent::Deactivate()
     {
+        //RenderJoyNotificationBus::Handler::BusDisconnect();
         AzToolsFramework::EditorEntityInfoNotificationBus::Handler::BusDisconnect();
         AzToolsFramework::EditorComponentSelectionRequestsBus::Handler::BusDisconnect();
         BaseClass::Deactivate();
@@ -86,5 +104,47 @@ namespace RenderJoy
         m_controller.OnConfigurationChanged();
         return AZ::Edit::PropertyRefreshLevels::ValuesOnly;
     }
+
+    // Captures the current rendered image and saves it to disk.
+    AZ::u32 EditorRenderJoyShaderComponent::OnSaveToDisk()
+    {
+        return AZ::Edit::PropertyRefreshLevels::AttributesAndValues;
+    }
+
+    // Helper function that makes the SaveToDisk button disabled or enabled.
+    bool EditorRenderJoyShaderComponent::IsSaveToDiskDisabled()
+    {
+        return m_shaderPass == nullptr;
+    }
+
+#if 0
+    ///////////////////////////////////////////////////////////
+    // RenderJoyNotificationBus::Handler overrides START
+    void EditorRenderJoyShaderComponent::OnFeatureProcessorActivated()
+    {
+        // This is the right moment to get a reference to the shader pass.
+        auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(GetEntityId());
+        // Keep a reference to the billboard pass.
+        auto renderJoySystem = RenderJoyInterface::Get();
+        auto passName = renderJoySystem->GetShaderPassName(GetEntityId());
+        AZ::RPI::PassFilter passFilter = AZ::RPI::PassFilter::CreateWithPassName(passName, scenePtr);
+        AZ::RPI::Pass* existingPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(passFilter);
+        m_shaderPass = azrtti_cast<RenderJoyShaderPass*>(existingPass);
+        AZ_Warning(LogName, m_shaderPass != nullptr, "Won't be able to capture images from shader pass named %s.\n", passName.GetCStr());
+
+        // Update button state UI
+        // Force UI refresh of the component so the "Save To Disk" button becomes
+        // enabled again.
+        AzToolsFramework::ToolsApplicationNotificationBus::Broadcast(
+            &AzToolsFramework::ToolsApplicationEvents::InvalidatePropertyDisplay, AzToolsFramework::Refresh_AttributesAndValues);
+    }
+
+    void EditorRenderJoyShaderComponent::OnFeatureProcessorDeactivated()
+    {
+        m_shaderPass = nullptr;
+    }
+    // RenderJoyNotificationBus::Handler overrides END
+    ///////////////////////////////////////////////////////////
+#endif
 
 } // namespace RenderJoy

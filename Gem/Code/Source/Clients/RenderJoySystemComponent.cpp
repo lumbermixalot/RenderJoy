@@ -240,6 +240,11 @@ namespace RenderJoy
         return m_templatesFactory.GetBillboardPassName(parentPassEntityId);
     }
 
+    AZ::Name GetShaderPassName(AZ::EntityId shaderPassEntityId) const
+    {
+        return m_templatesFactory.GetShaderPassName(shaderPassEntityId);
+    }
+
     AZ::Data::Instance<AZ::RPI::Image> RenderJoySystemComponent::GetInvalidParentPassTexture() const
     {
         if (!m_invalidParentPassTexture && !m_asyncLoadStarted)
