@@ -45,8 +45,8 @@ namespace RenderJoy
         AZ::Data::Instance<AZ::RPI::Shader> GetShader() const;
 
         void SetWorldTransform(const AZ::Transform& worldTM);
-        void SetAlwaysFaceCamera(bool alwaysFaceCamera);
-    
+        void SetFlatscreenMode(uint32_t numRows, uint32_t numColumns, uint32_t row, uint32_t col);
+        void SetBillboardMode(bool alwaysFaceCamera);
     
     private:
         RenderJoyBillboardPass(const AZ::RPI::PassDescriptor& descriptor);
@@ -95,11 +95,24 @@ namespace RenderJoy
         bool m_shaderConstantsNeedUpdate = true;
 
         // SRG Constants Indices and the constant
+        AZ::RHI::ShaderInputNameIndex m_isFlatscreenModeIndex = "m_isFlatscreenMode";
+        bool m_isFlatscreenMode = false;
+
+        AZ::RHI::ShaderInputNameIndex m_alwaysFaceCameraIndex = "m_alwaysFaceCamera";
+        bool m_alwaysFaceCamera = true;
+
         AZ::RHI::ShaderInputNameIndex m_modelToWorldIndex = "m_modelToWorld";
         AZ::Matrix4x4 m_worldMatrix = AZ::Matrix4x4::CreateIdentity();
 
-        AZ::RHI::ShaderInputNameIndex m_alwaysFaceCameraIndex = "m_alwaysFaceCamera";
-        bool m_alwaysFaceCamera = false;
+        // For Flatscreen mode.
+        AZ::RHI::ShaderInputNameIndex m_numRowsIndex = "m_numRows";
+        uint32_t m_numRows = 1;
+        AZ::RHI::ShaderInputNameIndex m_numColumnsIndex = "m_numColumns";
+        uint32_t m_numColumns = 1;
+        AZ::RHI::ShaderInputNameIndex m_rowIndex = "m_row";
+        uint32_t m_row = 0;
+        AZ::RHI::ShaderInputNameIndex m_columnIndex = "m_column";
+        uint32_t m_column = 0;
 
         // We only use this directly when this billboard is not connected to other
         // RenderJoy passes.

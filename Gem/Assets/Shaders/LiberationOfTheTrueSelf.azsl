@@ -100,7 +100,7 @@ PSOutput MainPS(VSOutput IN)
     
     // Normalized pixel coordinates (from 0 to 1)
     //float2 uv = IN.m_position.xy / PassSrg::m_resolution.xy;
-    //float4 texColor = PassSrg::m_channel[0].Sample(PassSrg::LinearSampler, uv);
+    //float4 texColor = iChannel0.Sample(PassSrg::LinearSampler, uv);
     
     float2 fragCoord = IN.m_position.xy;
 

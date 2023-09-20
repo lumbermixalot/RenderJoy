@@ -26,14 +26,83 @@
 
 namespace RenderJoy
 {
+    void RenderJoyBillboardComponentConfig::BillboardOptions::Reflect(AZ::ReflectContext* context)
+    {
+        if (auto* serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
+        {
+            serializeContext->Class<BillboardOptions>()
+                ->Version(1)
+                // Billboard Options
+                ->Field("AlwaysFaceCamera", &BillboardOptions::m_alwaysFaceCamera)
+                ;
+
+            if (auto editContext = serializeContext->GetEditContext())
+            {
+                editContext->Class<BillboardOptions>(
+                    "BillboardOptions", "Configuration data for the RenderJoy Billboard Component in Billboard mode.")
+                    ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
+                    ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
+                    ->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &BillboardOptions::m_alwaysFaceCamera, "Always Face Camera", "Should this billboard always face the camera?")
+                    ;
+            }
+        }
+    }
+
+
+    void RenderJoyBillboardComponentConfig::FlatscreenOptions::Reflect(AZ::ReflectContext* context)
+    {
+        if (auto* serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
+        {
+            serializeContext->Class<FlatscreenOptions>()
+                ->Version(1)
+                ->Field("NumRows", &FlatscreenOptions::m_numRows)
+                ->Field("NumColumns", &FlatscreenOptions::m_numColumns)
+                ->Field("Row", &FlatscreenOptions::m_row)
+                ->Field("Column", &FlatscreenOptions::m_column)
+                ;
+
+            if (auto editContext = serializeContext->GetEditContext())
+            {
+                constexpr uint32_t MAX_DIVISIONS = 1024;// This is an insane value. But don't want to limit user's imagination too much.
+
+                editContext->Class<FlatscreenOptions>(
+                    "FlatscreenOptions", "Configuration data for the RenderJoy Billboard Component in Flatscreen mode.")
+                    ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
+                    ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
+                    ->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_numRows, "Row Count", "Virtual number of rows used to calculate position and size.")
+                        ->Attribute(AZ::Edit::Attributes::Min, 1)
+                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS) 
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_numColumns, "Column Count", "Virtual number of columns used to calculate position and size.")
+                        ->Attribute(AZ::Edit::Attributes::Min, 1)
+                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS) // This is an insane value.
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_row, "Row Location", "Row location of this rectangle as a 0-based index.")
+                        ->Attribute(AZ::Edit::Attributes::Min, 0)
+                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS - 1)
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_column, "Column Location", "Column location of this rectangle as a 0-based index.")
+                        ->Attribute(AZ::Edit::Attributes::Min, 0)
+                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS - 1)
+                    ;
+            }
+        }
+    }
+
     void RenderJoyBillboardComponentConfig::Reflect(AZ::ReflectContext* context)
     {
+        BillboardOptions::Reflect(context);
+        FlatscreenOptions::Reflect(context);
+
         if (auto* serializeContext = azrtti_cast<AZ::SerializeContext*>(context))
         {
             serializeContext->Class<RenderJoyBillboardComponentConfig>()
                 ->Version(1)
-                ->Field("AlwaysFaceCamera", &RenderJoyBillboardComponentConfig::m_alwaysFaceCamera)
                 ->Field("ShaderEntityId", &RenderJoyBillboardComponentConfig::m_shaderEntityId)
+                ->Field("DisplayMode", &RenderJoyBillboardComponentConfig::m_displayMode)
+                // Billboard Options
+                ->Field("BillboardOptions", &RenderJoyBillboardComponentConfig::m_billboardOptions)
+                // Flatscreen Options
+                ->Field("FlatscreenOptions", &RenderJoyBillboardComponentConfig::m_flatscreenOptions)
                 ;
 
             if (auto editContext = serializeContext->GetEditContext())
@@ -43,8 +112,12 @@ namespace RenderJoy
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                     ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
                     ->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_alwaysFaceCamera, "Always Face Camera", "Should this billboard always face the camera?")
                     ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_shaderEntityId, "RenderJoy Shader", "Entity with a RenderJoy shader")
+                    ->DataElement(AZ::Edit::UIHandlers::ComboBox, &RenderJoyBillboardComponentConfig::m_displayMode, "Display Mode", "How to show the Rendered Texture.")
+                        ->EnumAttribute(DisplayMode::Billboard, "Billboard")
+                        ->EnumAttribute(DisplayMode::Flatscreen, "Flatscreen")
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_billboardOptions, "Billboard Options", "Only applicable in Billboard mode.")
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::m_flatscreenOptions, "Flatscreen Options", "Only applicable in Flatscreen mode.")
                     ;
             }
         }
@@ -181,15 +254,35 @@ namespace RenderJoy
             m_billboardPass = nullptr;
             renderJoySystem->AddRenderJoyParentPass(m_entityId, m_configuration.m_shaderEntityId);
         }
-        else if (m_prevConfiguration.m_alwaysFaceCamera != m_configuration.m_alwaysFaceCamera)
+        else if (
+            (m_prevConfiguration.m_displayMode != m_configuration.m_displayMode) ||
+            (m_prevConfiguration.m_billboardOptions != m_configuration.m_billboardOptions) ||
+            (m_prevConfiguration.m_flatscreenOptions != m_configuration.m_flatscreenOptions)
+            )
         {
-            if (m_billboardPass)
-            {
-                m_billboardPass->SetAlwaysFaceCamera(m_configuration.m_alwaysFaceCamera);
-            }
+            UpdateBillboardPassShaderConstants();
         }
 
         m_prevConfiguration = m_configuration;
+    }
+
+    void RenderJoyBillboardComponentController::UpdateBillboardPassShaderConstants()
+    {
+        if (m_billboardPass)
+        {
+            if (m_configuration.m_displayMode == RenderJoyBillboardComponentConfig::DisplayMode::Flatscreen)
+            {
+                const uint32_t numRows = m_configuration.m_flatscreenOptions.m_numRows;
+                const uint32_t numColumns = m_configuration.m_flatscreenOptions.m_numColumns;
+                const uint32_t row = AZStd::min(m_configuration.m_flatscreenOptions.m_row, numRows - 1);
+                const uint32_t col = AZStd::min(m_configuration.m_flatscreenOptions.m_column, numColumns - 1);
+                m_billboardPass->SetFlatscreenMode(numRows, numColumns, row, col);
+            }
+            else
+            {
+                m_billboardPass->SetBillboardMode(m_configuration.m_billboardOptions.m_alwaysFaceCamera);
+            }
+        }
     }
 
     ///////////////////////////////////////////////////////////
@@ -220,7 +313,7 @@ namespace RenderJoy
         AZ::Transform transform = AZ::Transform::CreateIdentity();
         AZ::TransformBus::EventResult(transform, m_entityId, &AZ::TransformBus::Events::GetWorldTM);
         m_billboardPass->SetWorldTransform(transform);
-        m_billboardPass->SetAlwaysFaceCamera(m_configuration.m_alwaysFaceCamera);
+        UpdateBillboardPassShaderConstants();
     }
 
     void RenderJoyBillboardComponentController::OnFeatureProcessorDeactivated()

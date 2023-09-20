@@ -45,7 +45,7 @@ PSOutput MainPS(VSOutput IN)
         }
     }
 
-    float4 texColor = PassSrg::m_channel[0].Sample(PassSrg::LinearSampler, uvSample);
+    float4 texColor = iChannel0.Sample(PassSrg::LinearSampler, uvSample);
     OUT.m_color = float4(texColor.rgb,1);
 
     return OUT;

@@ -28,11 +28,63 @@ namespace RenderJoy
 
         RenderJoyBillboardComponentConfig() = default;
 
+        enum class DisplayMode : uint32_t
+        {
+            Billboard,
+            Flatscreen,
+            MaxModes,
+        };
+
         // Entity that owns a RenderJoy shader.
         AZ::EntityId m_shaderEntityId;
 
-        bool m_alwaysFaceCamera = false;
+        DisplayMode m_displayMode = DisplayMode::Billboard;
+        
+        struct BillboardOptions
+        {
+            AZ_TYPE_INFO(BillboardOptions, "{E30A10C4-713E-4230-BB8A-FA4ED00E3DFD}");
 
+            static void Reflect(AZ::ReflectContext* context);
+
+            bool m_alwaysFaceCamera = true;
+
+            bool operator==(const BillboardOptions& rhs) const
+            {
+                return m_alwaysFaceCamera == rhs.m_alwaysFaceCamera;
+            }
+
+            bool operator!=(const BillboardOptions& rhs) const
+            {
+                return !(*this == rhs);
+            }
+        };
+        BillboardOptions m_billboardOptions;
+
+        struct FlatscreenOptions
+        {
+            AZ_TYPE_INFO(FlatscreenOptions, "{9D9F1465-3972-40B0-839C-811634FEC39B}");
+
+            static void Reflect(AZ::ReflectContext* context);
+
+            uint32_t m_numRows = 1;
+            uint32_t m_numColumns = 1;
+            uint32_t m_row = 0;
+            uint32_t m_column = 0;
+
+            bool operator==(const FlatscreenOptions& rhs) const
+            {
+                return (m_numRows == rhs.m_numRows) &&
+                       (m_numColumns == rhs.m_numColumns) &&
+                       (m_row == rhs.m_row) &&
+                       (m_column == rhs.m_column);
+            }
+
+            bool operator!=(const FlatscreenOptions& rhs) const
+            {
+                return !(*this == rhs);
+            }
+        };
+        FlatscreenOptions m_flatscreenOptions;
     };
 
     class RenderJoyBillboardPass;
@@ -79,6 +131,7 @@ namespace RenderJoy
         ///////////////////////////////////////////////////////////
 
         void OnConfigurationChanged();
+        void UpdateBillboardPassShaderConstants();
 
         // RenderJoyFeatureProcessorInterface* m_featureProcessor = nullptr;
         AZ::TransformInterface* m_transformInterface = nullptr;

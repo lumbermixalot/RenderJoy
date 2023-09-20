@@ -35,8 +35,8 @@ PSOutput MainPS(VSOutput IN) // V2
 
     float3 color = 0.0;
 
-    float perlinWorley = PassSrg::m_channel[0].Sample(PassSrg::LinearSampler, uv * 0.5).x;
-    float3 worley = PassSrg::m_channel[0].Sample(PassSrg::LinearSampler, uv).yzw;
+    float perlinWorley = iChannel0.Sample(PassSrg::LinearSampler, uv * 0.5).x;
+    float3 worley = iChannel0.Sample(PassSrg::LinearSampler, uv).yzw;
     float worleyFbm = worley.x * .625 +
         		      worley.y * .125 +
         		      worley.z * .25;

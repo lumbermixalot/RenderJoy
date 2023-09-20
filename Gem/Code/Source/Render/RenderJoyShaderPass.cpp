@@ -341,42 +341,45 @@ namespace RenderJoy
         m_mouseIndex = srgLayout->FindShaderInputConstantIndex(AZ::Name{ "m_mouse" });
 
         m_imageChannelResolutionsIndex = srgLayout->FindShaderInputConstantIndex(AZ::Name("m_channelResolution"));
-        m_imageChannelsIndex = srgLayout->FindShaderInputImageIndex(AZ::Name("m_channel"));
-        if (m_imageChannelsIndex.IsValid())
+        for (uint32_t imageIdx = 0; imageIdx < ImageChannelsCount; ++imageIdx)
         {
-            for (uint32_t imageIdx = 0; imageIdx < ImageChannelsCount; ++imageIdx)
+            const auto channelNameStr = AZStd::string::format("m_channel%u", imageIdx);
+            m_imageChannelsIndices[imageIdx] = srgLayout->FindShaderInputImageIndex(AZ::Name(channelNameStr));
+            if (!m_imageChannelsIndices[imageIdx].IsValid())
             {
-                auto entityId = m_entitiesOnInputChannels[imageIdx];
-                if ((m_entityId == entityId) || !Utils::IsRenderJoyTextureProvider(entityId))
-                {
-                    continue;
-                }
-
-                if (!srgLayout->ValidateAccess(m_imageChannelsIndex, imageIdx))
-                {
-                    RemoveImageForChannel(imageIdx);
-                    continue;
-                }
-
-                //Get the image first from the data provider (if available)
-                bool gotValidTextureProvider = false;
-                AZ::Data::Instance<AZ::RPI::Image> image;
-                RenderJoyTextureProviderBus::EventResult(image, entityId, &RenderJoyTextureProvider::GetImage);
-                if (image)
-                {
-                    const bool success = gotValidTextureProvider = SetImageForChannel(imageIdx, image);
-                    AZ_Error(ClassNameStr, success, "Failed to get image for channel %u from provider %s. Will try default image.",
-                        imageIdx, entityId.ToString().c_str());
-                }
-                if (!gotValidTextureProvider)
-                {
-                    SetDefaultImageForChannel(imageIdx);
-                }
-
-                m_shaderResourceGroup->SetImage(m_imageChannelsIndex, m_imageChannels[imageIdx], imageIdx);
-                m_shaderResourceGroup->SetConstant<AZ::Vector4>(
-                    m_imageChannelResolutionsIndex, m_imageChannelResolutions[imageIdx], imageIdx);
+                AZ_Error(ClassNameStr, false, "Failed to find SRV with name %s.\n", channelNameStr.c_str());
+                continue;
             }
+            auto entityId = m_entitiesOnInputChannels[imageIdx];
+            if ((m_entityId == entityId) || !Utils::IsRenderJoyTextureProvider(entityId))
+            {
+                continue;
+            }
+
+            if (!srgLayout->ValidateAccess(m_imageChannelsIndices[imageIdx], 0))
+            {
+                RemoveImageForChannel(imageIdx);
+                continue;
+            }
+
+            //Get the image first from the data provider (if available)
+            bool gotValidTextureProvider = false;
+            AZ::Data::Instance<AZ::RPI::Image> image;
+            RenderJoyTextureProviderBus::EventResult(image, entityId, &RenderJoyTextureProvider::GetImage);
+            if (image)
+            {
+                const bool success = gotValidTextureProvider = SetImageForChannel(imageIdx, image);
+                AZ_Error(ClassNameStr, success, "Failed to get image for channel %u from provider %s. Will try default image.",
+                    imageIdx, entityId.ToString().c_str());
+            }
+            if (!gotValidTextureProvider)
+            {
+                SetDefaultImageForChannel(imageIdx);
+            }
+
+            m_shaderResourceGroup->SetImage(m_imageChannelsIndices[imageIdx], m_imageChannels[imageIdx]);
+            m_shaderResourceGroup->SetConstant<AZ::Vector4>(
+                m_imageChannelResolutionsIndex, m_imageChannelResolutions[imageIdx], imageIdx);
         }
     }
 
@@ -464,7 +467,7 @@ namespace RenderJoy
         {
             SetImageForChannel(channelIndex, image);
         }
-        m_shaderResourceGroup->SetImage(m_imageChannelsIndex, m_imageChannels[channelIndex], channelIndex);
+        m_shaderResourceGroup->SetImage(m_imageChannelsIndices[channelIndex], m_imageChannels[channelIndex]);
         m_shaderResourceGroup->SetConstant<AZ::Vector4>(
             m_imageChannelResolutionsIndex, m_imageChannelResolutions[channelIndex], channelIndex);
     }

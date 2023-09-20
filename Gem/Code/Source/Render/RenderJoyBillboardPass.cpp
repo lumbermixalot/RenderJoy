@@ -290,8 +290,16 @@ namespace RenderJoy
                 {
                     m_shaderResourceGroup->SetImage(m_inputTextureImageIndex, m_inputTextureImage);
                 }
+                
+                m_shaderResourceGroup->SetConstant(m_isFlatscreenModeIndex, m_isFlatscreenMode);
+
                 m_shaderResourceGroup->SetConstant(m_modelToWorldIndex, m_worldMatrix);
                 m_shaderResourceGroup->SetConstant(m_alwaysFaceCameraIndex, m_alwaysFaceCamera);
+
+                m_shaderResourceGroup->SetConstant(m_numRowsIndex, m_numRows);
+                m_shaderResourceGroup->SetConstant(m_numColumnsIndex, m_numColumns);
+                m_shaderResourceGroup->SetConstant(m_rowIndex, m_row);
+                m_shaderResourceGroup->SetConstant(m_columnIndex, m_column);
             }
 
             BindPassSrg(context, m_shaderResourceGroup);
@@ -323,9 +331,21 @@ namespace RenderJoy
         m_shaderConstantsNeedUpdate = true;
     }
 
-    void RenderJoyBillboardPass::SetAlwaysFaceCamera(bool alwaysFaceCamera)
+    void RenderJoyBillboardPass::SetFlatscreenMode(uint32_t numRows, uint32_t numColumns, uint32_t row, uint32_t col)
     {
+        m_isFlatscreenMode = true;
+        m_numRows = numRows;
+        m_numColumns = numColumns;
+        m_row = row;
+        m_column = col;
+        m_shaderConstantsNeedUpdate = true;
+    }
+
+    void RenderJoyBillboardPass::SetBillboardMode(bool alwaysFaceCamera)
+    {
+        m_isFlatscreenMode = false;
         m_alwaysFaceCamera = alwaysFaceCamera;
         m_shaderConstantsNeedUpdate = true;
     }
+
 }   // namespace RenderJoy

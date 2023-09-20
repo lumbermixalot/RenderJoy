@@ -157,7 +157,7 @@ namespace RenderJoy
         AZ::RHI::ShaderInputConstantIndex m_frameRateIndex;
         AZ::RHI::ShaderInputConstantIndex m_mouseIndex;
         AZ::RHI::ShaderInputConstantIndex m_imageChannelResolutionsIndex;
-        AZ::RHI::ShaderInputImageIndex m_imageChannelsIndex;
+        AZStd::array<AZ::RHI::ShaderInputImageIndex, ImageChannelsCount> m_imageChannelsIndices;
 
     };
 }   // namespace RenderJoy

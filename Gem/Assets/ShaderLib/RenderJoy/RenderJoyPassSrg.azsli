@@ -12,6 +12,13 @@
 
 // All .azsl files for RenderJoy shaders must start by including this file.
 
+// REMARK:
+// You should make your own copy of this file if you need to change
+// iChannel0..3 to Texture3D or TextureCube. This file assumes they are all
+// Texture2d (The most common scenario).
+// Similarly if you need a different kind of sampler other thant the default
+// LinearSampler.
+
 #include <Atom/Features/SrgSemantics.azsli>
 #include <Atom/Features/PostProcessing/FullscreenPixelInfo.azsli>
 #include <Atom/Features/PostProcessing/FullscreenVertex.azsli>
@@ -51,8 +58,13 @@ ShaderResourceGroup PassSrg : SRG_PerPass
     // .w is always 0.
     float4 m_channelResolution[CHANNEL_COUNT];
 
-    // Input channels/textures
-    Texture2D<float4> m_channel[CHANNEL_COUNT];
+    // Input channels/textures. By default it is assume they are all Texture2D
+    // But you an change that by making your own copy of this file and changing
+    // one or more of these textures to Texture3D or TextureCube, etc.
+    Texture2D m_channel0;
+    Texture2D m_channel1;
+    Texture2D m_channel2;
+    Texture2D m_channel3;
 
     Sampler LinearSampler
     {
@@ -76,6 +88,8 @@ ShaderResourceGroup PassSrg : SRG_PerPass
 #define iFrameRate PassSrg::m_frameRate
 #define iMouse PassSrg::m_mouse
 #define iChannelResolution PassSrg::m_channelResolution
-#define iChannel PassSrg::m_channel
-
+#define iChannel0 PassSrg::m_channel0
+#define iChannel1 PassSrg::m_channel1
+#define iChannel2 PassSrg::m_channel2
+#define iChannel3 PassSrg::m_channel3
 

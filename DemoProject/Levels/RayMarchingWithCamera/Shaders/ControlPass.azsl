@@ -38,7 +38,7 @@ void storeValue( in int2 pixCoord, in float4 value, inout float4 fragColor, in i
 
 float Keyboard(int key, int stateIndex)
 {
-    return PassSrg::m_channel[1].Load( int3(key, stateIndex, 0) ).x;
+    return iChannel1.Load( int3(key, stateIndex, 0) ).x;
 }
 
 bool IsKeyMoveCameraBackwards()

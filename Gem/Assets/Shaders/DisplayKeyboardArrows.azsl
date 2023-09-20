@@ -37,7 +37,7 @@ static const int STATE_TOGGLE = 2;
 
 float FetchKeyState(int key, int stateIndex)
 {
-    return PassSrg::m_channel[0].Load( int3(key, stateIndex, 0) ).x;
+    return iChannel0.Load( int3(key, stateIndex, 0) ).x;
 }
 
 PSOutput MainPS(VSOutput IN)

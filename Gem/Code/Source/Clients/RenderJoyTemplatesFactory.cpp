@@ -543,8 +543,8 @@ namespace RenderJoy
                 inputSlot.m_name = AZ::Name(slotNameStr);
                 inputSlot.m_slotType = AZ::RPI::PassSlotType::Input;
                 inputSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::Shader;
-                inputSlot.m_shaderInputName = AZ::Name("m_channel");
-                inputSlot.m_shaderInputArrayIndex = aznumeric_caster(channelIndex);
+                inputSlot.m_shaderInputName = AZ::Name(AZStd::string::format("m_channel%u", channelIndex));
+                //inputSlot.m_shaderInputArrayIndex = aznumeric_caster(channelIndex);
                 passTemplate->AddSlot(inputSlot);
             }
             ++channelIndex;
