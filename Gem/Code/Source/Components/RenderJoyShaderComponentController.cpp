@@ -130,10 +130,12 @@ namespace RenderJoy
         m_prevConfiguration = m_configuration;
         m_entityId = entityId;
         RenderJoyPassRequestBus::Handler::BusConnect(entityId);
+        //RenderJoyNotificationBus::Handler::BusConnect();
     }
 
     void RenderJoyShaderComponentController::Deactivate()
     {
+        //RenderJoyNotificationBus::Handler::BusDisconnect();
         AZ::Data::AssetBus::Handler::BusDisconnect();
         RenderJoyPassRequestBus::Handler::BusDisconnect();
     }
@@ -225,5 +227,44 @@ namespace RenderJoy
             };
         AZ::TickBus::QueueFunction(AZStd::move(notifyAssetchangedFn));
     }
+
+    // void RenderJoyShaderComponentController::RegisterFeatureProcessorEventHandler(FeatureProcessorEvent::Handler& handler)
+    // {
+    //     if (handler.IsConnected())
+    //     {
+    //         handler.Disconnect();
+    //     }
+    //     handler.Connect(m_featureProcessorEvent);
+    // }
+
+    // ///////////////////////////////////////////////////////////
+    // // RenderJoyNotificationBus::Handler overrides START
+    // void RenderJoyShaderComponentController::OnFeatureProcessorActivated()
+    // {
+    //     m_featureProcessorEvent.Signal(true);
+    //     //// This is the right moment to get a reference to the shader pass.
+    //     //auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(GetEntityId());
+    //     //// Keep a reference to the billboard pass.
+    //     //auto renderJoySystem = RenderJoyInterface::Get();
+    //     //auto passName = renderJoySystem->GetShaderPassName(GetEntityId());
+    //     //AZ::RPI::PassFilter passFilter = AZ::RPI::PassFilter::CreateWithPassName(passName, scenePtr);
+    //     //AZ::RPI::Pass* existingPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(passFilter);
+    //     //m_shaderPass = azrtti_cast<RenderJoyShaderPass*>(existingPass);
+    //     //AZ_Warning(LogName, m_shaderPass != nullptr, "Won't be able to capture images from shader pass named %s.\n", passName.GetCStr());
+    //     //
+    //     //// Update button state UI
+    //     //// Force UI refresh of the component so the "Save To Disk" button becomes
+    //     //// enabled again.
+    //     //AzToolsFramework::ToolsApplicationNotificationBus::Broadcast(
+    //     //    &AzToolsFramework::ToolsApplicationEvents::InvalidatePropertyDisplay, AzToolsFramework::Refresh_AttributesAndValues);
+    // }
+    // 
+    // void RenderJoyShaderComponentController::OnFeatureProcessorDeactivated()
+    // {
+    //     m_featureProcessorEvent.Signal(false);
+    //     //m_shaderPass = nullptr;
+    // }
+    // // RenderJoyNotificationBus::Handler overrides END
+    // ///////////////////////////////////////////////////////////
 
 }

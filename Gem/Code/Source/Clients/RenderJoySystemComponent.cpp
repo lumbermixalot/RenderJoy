@@ -240,7 +240,7 @@ namespace RenderJoy
         return m_templatesFactory.GetBillboardPassName(parentPassEntityId);
     }
 
-    AZ::Name GetShaderPassName(AZ::EntityId shaderPassEntityId) const
+    AZ::Name RenderJoySystemComponent::GetShaderPassName(AZ::EntityId shaderPassEntityId) const
     {
         return m_templatesFactory.GetShaderPassName(shaderPassEntityId);
     }

@@ -42,6 +42,7 @@ namespace RenderJoy
         : RenderPass(descriptor)
         , m_passDescriptor(descriptor)
     {
+        m_flatscreenLayout = AZ::Vector4(0.0f, 0.0f, 1.0f, 1.0f);
         LoadShader();
     }
     
@@ -296,10 +297,8 @@ namespace RenderJoy
                 m_shaderResourceGroup->SetConstant(m_modelToWorldIndex, m_worldMatrix);
                 m_shaderResourceGroup->SetConstant(m_alwaysFaceCameraIndex, m_alwaysFaceCamera);
 
-                m_shaderResourceGroup->SetConstant(m_numRowsIndex, m_numRows);
-                m_shaderResourceGroup->SetConstant(m_numColumnsIndex, m_numColumns);
-                m_shaderResourceGroup->SetConstant(m_rowIndex, m_row);
-                m_shaderResourceGroup->SetConstant(m_columnIndex, m_column);
+                m_shaderResourceGroup->SetConstant(m_flatscreenLayoutIndex, m_flatscreenLayout);
+
             }
 
             BindPassSrg(context, m_shaderResourceGroup);
@@ -331,13 +330,11 @@ namespace RenderJoy
         m_shaderConstantsNeedUpdate = true;
     }
 
-    void RenderJoyBillboardPass::SetFlatscreenMode(uint32_t numRows, uint32_t numColumns, uint32_t row, uint32_t col)
+    void RenderJoyBillboardPass::SetFlatscreenMode(float posX, float posY, float width, float height)
     {
         m_isFlatscreenMode = true;
-        m_numRows = numRows;
-        m_numColumns = numColumns;
-        m_row = row;
-        m_column = col;
+        m_flatscreenLayout.Set(posX, posY, width, height);
+
         m_shaderConstantsNeedUpdate = true;
     }
 

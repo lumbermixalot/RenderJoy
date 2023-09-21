@@ -16,6 +16,7 @@
 
 #include <RenderJoy/RenderJoyCommon.h>
 #include <RenderJoy/RenderJoyPassBus.h>
+//#include <RenderJoy/RenderJoyBus.h>
 #include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 
 namespace RenderJoy
@@ -43,6 +44,7 @@ namespace RenderJoy
     class RenderJoyShaderComponentController final
         : public RenderJoyPassRequestBus::Handler
         , private AZ::Data::AssetBus::Handler
+        //, private RenderJoyNotificationBus::Handler
     {
     public:
         friend class EditorRenderJoyShaderComponent;
@@ -87,6 +89,23 @@ namespace RenderJoy
         static constexpr char LogName[] = "RenderJoyShaderComponentController";
 
         void NotifyShaderAssetChanged(AZ::Data::Asset<AZ::Data::AssetData> asset);
+
+        // ///////////////////////////////////////////////////////////
+        // // RenderJoyNotificationBus::Handler overrides START
+        // void OnFeatureProcessorActivated() override;
+        // void OnFeatureProcessorDeactivated()override;
+        // // RenderJoyNotificationBus::Handler overrides END
+        // ///////////////////////////////////////////////////////////
+
+        // // REMARK!
+        // // This AZ::Event has been added because I could not figure out how to
+        // // make EditorRenderJoyShaderComponent a listener of RenderJoyNotificationBus
+        // // Due to weird serialization/rtti static_assert issue.
+        // // 
+        // // With this we notify the caller the noise texture has been generated.
+        // using FeatureProcessorEvent = AZ::Event<bool /*isActive*/>;
+        // void RegisterFeatureProcessorEventHandler(FeatureProcessorEvent::Handler& handler);
+        // FeatureProcessorEvent m_featureProcessorEvent;
 
         AZ::EntityId m_entityId;
         

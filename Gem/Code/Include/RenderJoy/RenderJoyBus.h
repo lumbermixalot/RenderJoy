@@ -74,8 +74,8 @@ namespace RenderJoy
         : public AZ::EBusTraits
     {
     public:
-        //AZ_RTTI(RenderJoyNotifications, RenderJoyNotificationsTypeId);
-        //virtual ~RenderJoyNotifications() = default;
+        AZ_RTTI(RenderJoyNotifications, RenderJoyNotificationsTypeId);
+        virtual ~RenderJoyNotifications() = default;
 
         //////////////////////////////////////////////////////////////////////////
         // EBusTraits overrides

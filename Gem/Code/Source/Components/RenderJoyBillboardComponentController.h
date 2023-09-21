@@ -66,17 +66,25 @@ namespace RenderJoy
 
             static void Reflect(AZ::ReflectContext* context);
 
-            uint32_t m_numRows = 1;
-            uint32_t m_numColumns = 1;
-            uint32_t m_row = 0;
-            uint32_t m_column = 0;
+            // Values between 0.0 and 1.0 as proportions
+            // of viewport size.
+            float m_scaleX = 1.0f;
+            float m_scaleY = 1.0f;
+            float m_posX = 0.0f;
+            float m_posY = 0.0f;
+            float m_width = 1.0f;
+            float m_height = 1.0f;
 
             bool operator==(const FlatscreenOptions& rhs) const
             {
-                return (m_numRows == rhs.m_numRows) &&
-                       (m_numColumns == rhs.m_numColumns) &&
-                       (m_row == rhs.m_row) &&
-                       (m_column == rhs.m_column);
+                return (
+                    AZ::IsClose(m_scaleX, rhs.m_scaleX) &&
+                    AZ::IsClose(m_scaleY, rhs.m_scaleY) &&
+                    AZ::IsClose(m_posX, rhs.m_posX) &&
+                    AZ::IsClose(m_posY, rhs.m_posY) &&
+                    AZ::IsClose(m_width, rhs.m_width) &&
+                    AZ::IsClose(m_height, rhs.m_height)
+                    );
             }
 
             bool operator!=(const FlatscreenOptions& rhs) const

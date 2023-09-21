@@ -56,33 +56,37 @@ namespace RenderJoy
         {
             serializeContext->Class<FlatscreenOptions>()
                 ->Version(1)
-                ->Field("NumRows", &FlatscreenOptions::m_numRows)
-                ->Field("NumColumns", &FlatscreenOptions::m_numColumns)
-                ->Field("Row", &FlatscreenOptions::m_row)
-                ->Field("Column", &FlatscreenOptions::m_column)
+                ->Field("ScaleX", &FlatscreenOptions::m_scaleX)
+                ->Field("ScaleY", &FlatscreenOptions::m_scaleY)
+                ->Field("PosX", &FlatscreenOptions::m_posX)
+                ->Field("PosY", &FlatscreenOptions::m_posY)
+                ->Field("Width", &FlatscreenOptions::m_width)
+                ->Field("Height", &FlatscreenOptions::m_height)
                 ;
 
             if (auto editContext = serializeContext->GetEditContext())
             {
-                constexpr uint32_t MAX_DIVISIONS = 1024;// This is an insane value. But don't want to limit user's imagination too much.
-
                 editContext->Class<FlatscreenOptions>(
                     "FlatscreenOptions", "Configuration data for the RenderJoy Billboard Component in Flatscreen mode.")
                     ->ClassElement(AZ::Edit::ClassElements::EditorData, "")
                     ->Attribute(AZ::Edit::Attributes::AutoExpand, true)
                     ->Attribute(AZ::Edit::Attributes::Visibility, AZ::Edit::PropertyVisibility::Show)
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_numRows, "Row Count", "Virtual number of rows used to calculate position and size.")
-                        ->Attribute(AZ::Edit::Attributes::Min, 1)
-                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS) 
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_numColumns, "Column Count", "Virtual number of columns used to calculate position and size.")
-                        ->Attribute(AZ::Edit::Attributes::Min, 1)
-                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS) // This is an insane value.
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_row, "Row Location", "Row location of this rectangle as a 0-based index.")
-                        ->Attribute(AZ::Edit::Attributes::Min, 0)
-                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS - 1)
-                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_column, "Column Location", "Column location of this rectangle as a 0-based index.")
-                        ->Attribute(AZ::Edit::Attributes::Min, 0)
-                        ->Attribute(AZ::Edit::Attributes::Max, MAX_DIVISIONS - 1)
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_scaleX, "Scale X", "Additional scale to apply in the X dimension. Typically 1.0")
+                        ->Attribute(AZ::Edit::Attributes::Min, 0.0)
+                    ->DataElement(AZ::Edit::UIHandlers::Default, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_scaleY, "Scale Y", "Additional scale to apply in the Y dimension. Typically 1.0")
+                        ->Attribute(AZ::Edit::Attributes::Min, 0.0)
+                    ->DataElement(AZ::Edit::UIHandlers::Slider, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_posX, "Pos X", "Position in X relative to the viewport width. Typically between [0.0, 1.0]")
+                        ->Attribute(AZ::Edit::Attributes::Min, -1.0)
+                        ->Attribute(AZ::Edit::Attributes::Max,  1.0) 
+                    ->DataElement(AZ::Edit::UIHandlers::Slider, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_posY, "Pos Y", "Position in Y relative to the viewport height. Typically between [0.0, 1.0]")
+                        ->Attribute(AZ::Edit::Attributes::Min, -1.0)
+                        ->Attribute(AZ::Edit::Attributes::Max,  1.0) 
+                    ->DataElement(AZ::Edit::UIHandlers::Slider, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_width, "Width", "Output width relative to the viewport width. Typically between [0.0, 1.0]")
+                        ->Attribute(AZ::Edit::Attributes::Min,  0.0)
+                        ->Attribute(AZ::Edit::Attributes::Max,  1.0) 
+                    ->DataElement(AZ::Edit::UIHandlers::Slider, &RenderJoyBillboardComponentConfig::FlatscreenOptions::m_height, "Height", "Output height relative to the viewport height. Typically between [0.0, 1.0]")
+                        ->Attribute(AZ::Edit::Attributes::Min,  0.0)
+                        ->Attribute(AZ::Edit::Attributes::Max,  1.0) 
                     ;
             }
         }
@@ -272,11 +276,12 @@ namespace RenderJoy
         {
             if (m_configuration.m_displayMode == RenderJoyBillboardComponentConfig::DisplayMode::Flatscreen)
             {
-                const uint32_t numRows = m_configuration.m_flatscreenOptions.m_numRows;
-                const uint32_t numColumns = m_configuration.m_flatscreenOptions.m_numColumns;
-                const uint32_t row = AZStd::min(m_configuration.m_flatscreenOptions.m_row, numRows - 1);
-                const uint32_t col = AZStd::min(m_configuration.m_flatscreenOptions.m_column, numColumns - 1);
-                m_billboardPass->SetFlatscreenMode(numRows, numColumns, row, col);
+                const float scaleX = m_configuration.m_flatscreenOptions.m_scaleX;
+                const float scaleY = m_configuration.m_flatscreenOptions.m_scaleY;
+                m_billboardPass->SetFlatscreenMode(m_configuration.m_flatscreenOptions.m_posX * scaleX
+                    , m_configuration.m_flatscreenOptions.m_posY * scaleY
+                    , m_configuration.m_flatscreenOptions.m_width * scaleX
+                    , m_configuration.m_flatscreenOptions.m_height * scaleY);
             }
             else
             {

@@ -45,7 +45,7 @@ namespace RenderJoy
         AZ::Data::Instance<AZ::RPI::Shader> GetShader() const;
 
         void SetWorldTransform(const AZ::Transform& worldTM);
-        void SetFlatscreenMode(uint32_t numRows, uint32_t numColumns, uint32_t row, uint32_t col);
+        void SetFlatscreenMode(float posX, float posY, float width, float height);
         void SetBillboardMode(bool alwaysFaceCamera);
     
     private:
@@ -105,14 +105,8 @@ namespace RenderJoy
         AZ::Matrix4x4 m_worldMatrix = AZ::Matrix4x4::CreateIdentity();
 
         // For Flatscreen mode.
-        AZ::RHI::ShaderInputNameIndex m_numRowsIndex = "m_numRows";
-        uint32_t m_numRows = 1;
-        AZ::RHI::ShaderInputNameIndex m_numColumnsIndex = "m_numColumns";
-        uint32_t m_numColumns = 1;
-        AZ::RHI::ShaderInputNameIndex m_rowIndex = "m_row";
-        uint32_t m_row = 0;
-        AZ::RHI::ShaderInputNameIndex m_columnIndex = "m_column";
-        uint32_t m_column = 0;
+        AZ::RHI::ShaderInputNameIndex m_flatscreenLayoutIndex = "m_flatscreenLayout";
+        AZ::Vector4 m_flatscreenLayout;
 
         // We only use this directly when this billboard is not connected to other
         // RenderJoy passes.
