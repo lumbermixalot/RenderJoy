@@ -6,20 +6,19 @@
 *
 */
 
+#include <AzCore/Serialization/SerializeContext.h>
+#include <AzCore/RTTI/BehaviorContext.h>
 #include <AzCore/Asset/AssetManager.h>
 #include <AzCore/Asset/AssetManagerBus.h>
 #include <AzCore/Asset/AssetSerializer.h>
-#include <AzCore/Serialization/SerializeContext.h>
 
 #include <AzFramework/Entity/EntityContextBus.h>
 #include <AzFramework/Entity/EntityContext.h>
-#include <AzFramework/Scene/Scene.h>
-#include <AzFramework/Scene/SceneSystemInterface.h>
-
-#include <AzCore/RTTI/BehaviorContext.h>
 
 #include <Atom/RPI.Public/Scene.h>
+#include <Atom/RPI.Public/Pass/PassFilter.h>
 
+#include <Render/RenderJoyShaderPass.h>
 #include "RenderJoyShaderComponentController.h"
 
 namespace RenderJoy
@@ -73,6 +72,13 @@ namespace RenderJoy
                     ;
             }
         }
+    }
+
+    bool RenderJoyShaderComponentConfig::AreRenderTargetsEqual(const RenderJoyShaderComponentConfig& other) const
+    {
+        return (m_renderTargetWidth == other.m_renderTargetWidth) &&
+            (m_renderTargetHeight == other.m_renderTargetHeight) &&
+            (m_outputFormat == other.m_outputFormat);
     }
 
     void RenderJoyShaderComponentController::Reflect(AZ::ReflectContext* context)
@@ -130,12 +136,12 @@ namespace RenderJoy
         m_prevConfiguration = m_configuration;
         m_entityId = entityId;
         RenderJoyPassRequestBus::Handler::BusConnect(entityId);
-        //RenderJoyNotificationBus::Handler::BusConnect();
+        RenderJoyNotificationBus::Handler::BusConnect();
     }
 
     void RenderJoyShaderComponentController::Deactivate()
     {
-        //RenderJoyNotificationBus::Handler::BusDisconnect();
+        RenderJoyNotificationBus::Handler::BusDisconnect();
         AZ::Data::AssetBus::Handler::BusDisconnect();
         RenderJoyPassRequestBus::Handler::BusDisconnect();
     }
@@ -153,6 +159,14 @@ namespace RenderJoy
 
     void RenderJoyShaderComponentController::OnConfigurationChanged()
     {
+        // We only care to notify if we are rendering.
+        if (!m_isRendering)
+        {
+            m_prevConfiguration = m_configuration;
+            return;
+        }
+
+        // Some changes can be applied dynamically without having to recreate the parent pass.
         if (m_prevConfiguration.m_shaderAsset != m_configuration.m_shaderAsset)
         {
             const auto shaderAssetId = m_configuration.m_shaderAsset.GetId();
@@ -162,6 +176,43 @@ namespace RenderJoy
                 m_configuration.m_shaderAsset.QueueLoad();
             }
             RenderJoyPassNotificationBus::Event(m_entityId, &RenderJoyPassNotifications::OnShaderAssetChanged, m_configuration.m_shaderAsset);
+        }
+        else if (!m_configuration.AreRenderTargetsEqual(m_prevConfiguration))
+        {
+            // Recreate all passes.
+            RenderJoyInterface::Get()->RecreateAllPasses(m_entityId);
+        }
+        else
+        {
+            // Go over each entity and see which one changed.
+            for (size_t i = 0; i < m_configuration.m_inputChannels.size(); i++)
+            {
+                auto entityId = m_configuration.m_inputChannels[i];
+                if (entityId == m_prevConfiguration.m_inputChannels[i])
+                {
+                    continue;
+                }
+                
+                // A change occurred.
+                
+                // If the previous entity was a renderjoy pass we just recreate all passes.
+                if (Utils::IsRenderJoyPass(m_prevConfiguration.m_inputChannels[i]))
+                {
+                    RenderJoyInterface::Get()->RecreateAllPasses(m_entityId);
+                    break;
+                }
+
+                // If the new entity is valid and it is a shader pass we need to recreate all passes.
+                if (entityId.IsValid() && Utils::IsRenderJoyPass(entityId))
+                {
+                    // Also need to recreated all passes.
+                    RenderJoyInterface::Get()->RecreateAllPasses(m_entityId);
+                    break;
+                }
+
+                // For all other cases  we just update the texture provider at that channel
+                RenderJoyPassNotificationBus::Event(m_entityId, &RenderJoyPassNotifications::OnInputChannelEntityChanged, static_cast<uint32_t>(i), entityId);
+            }
         }
         m_prevConfiguration = m_configuration;
     }
@@ -228,42 +279,31 @@ namespace RenderJoy
         AZ::TickBus::QueueFunction(AZStd::move(notifyAssetchangedFn));
     }
 
-    // void RenderJoyShaderComponentController::RegisterFeatureProcessorEventHandler(FeatureProcessorEvent::Handler& handler)
-    // {
-    //     if (handler.IsConnected())
-    //     {
-    //         handler.Disconnect();
-    //     }
-    //     handler.Connect(m_featureProcessorEvent);
-    // }
-
     // ///////////////////////////////////////////////////////////
     // // RenderJoyNotificationBus::Handler overrides START
-    // void RenderJoyShaderComponentController::OnFeatureProcessorActivated()
-    // {
-    //     m_featureProcessorEvent.Signal(true);
-    //     //// This is the right moment to get a reference to the shader pass.
-    //     //auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(GetEntityId());
-    //     //// Keep a reference to the billboard pass.
-    //     //auto renderJoySystem = RenderJoyInterface::Get();
-    //     //auto passName = renderJoySystem->GetShaderPassName(GetEntityId());
-    //     //AZ::RPI::PassFilter passFilter = AZ::RPI::PassFilter::CreateWithPassName(passName, scenePtr);
-    //     //AZ::RPI::Pass* existingPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(passFilter);
-    //     //m_shaderPass = azrtti_cast<RenderJoyShaderPass*>(existingPass);
-    //     //AZ_Warning(LogName, m_shaderPass != nullptr, "Won't be able to capture images from shader pass named %s.\n", passName.GetCStr());
-    //     //
-    //     //// Update button state UI
-    //     //// Force UI refresh of the component so the "Save To Disk" button becomes
-    //     //// enabled again.
-    //     //AzToolsFramework::ToolsApplicationNotificationBus::Broadcast(
-    //     //    &AzToolsFramework::ToolsApplicationEvents::InvalidatePropertyDisplay, AzToolsFramework::Refresh_AttributesAndValues);
-    // }
-    // 
-    // void RenderJoyShaderComponentController::OnFeatureProcessorDeactivated()
-    // {
-    //     m_featureProcessorEvent.Signal(false);
-    //     //m_shaderPass = nullptr;
-    // }
+    void RenderJoyShaderComponentController::OnFeatureProcessorActivated()
+    {
+        // This is the right moment to get a reference to the shader pass.
+        auto scenePtr = AZ::RPI::Scene::GetSceneForEntityId(m_entityId);
+        // Keep a reference to the billboard pass.
+        auto renderJoySystem = RenderJoyInterface::Get();
+        auto passName = renderJoySystem->GetShaderPassName(m_entityId);
+        AZ::RPI::PassFilter passFilter = AZ::RPI::PassFilter::CreateWithPassName(passName, scenePtr);
+        AZ::RPI::Pass* existingPass = AZ::RPI::PassSystemInterface::Get()->FindFirstPass(passFilter);
+        const auto* shaderPass = azrtti_cast<RenderJoyShaderPass*>(existingPass);
+        m_isRendering = (shaderPass != nullptr);
+        
+        // Update button state UI
+        // Force UI refresh of the component so the "Save To Disk" button becomes
+        // enabled again.
+        //AzToolsFramework::ToolsApplicationNotificationBus::Broadcast(
+        //    &AzToolsFramework::ToolsApplicationEvents::InvalidatePropertyDisplay, AzToolsFramework::Refresh_AttributesAndValues);
+    }
+    
+    void RenderJoyShaderComponentController::OnFeatureProcessorDeactivated()
+    {
+        m_isRendering = false;
+    }
     // // RenderJoyNotificationBus::Handler overrides END
     // ///////////////////////////////////////////////////////////
 

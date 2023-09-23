@@ -101,6 +101,13 @@ namespace RenderJoy
     {
         m_prevConfiguration = m_configuration;
         m_entityId = entityId;
+
+        if (m_configuration.m_imageAsset.GetId().IsValid())
+        {
+            AZ::Data::AssetBus::Handler::BusConnect(m_configuration.m_imageAsset.GetId());
+            m_configuration.m_imageAsset.QueueLoad();
+        }
+
         RenderJoyTextureProviderBus::Handler::BusConnect(entityId);
     }
 

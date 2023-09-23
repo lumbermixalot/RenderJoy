@@ -721,14 +721,16 @@ namespace RenderJoy
     }
 
 
-    bool RenderJoyTemplatesFactory::CreateRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId, [[maybe_unused]] AZ::EntityId passBusEntity)
+    bool RenderJoyTemplatesFactory::CreateRenderJoyParentPassRequest(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId, AZ::EntityId passBusEntity)
     {
         // Attempt to remove any previously created pass template.
         RemoveTemplates(passSystem, parentPassEntityId);
         
-        ParentEntityTemplates parentEntityTemplates = {};
+        ParentEntityTemplates parentEntityTemplates;
         m_parentEntities.emplace(parentPassEntityId, parentEntityTemplates);
         ParentEntityTemplates& structRef = m_parentEntities.at(parentPassEntityId);
+        structRef.m_parentPassEntity = parentPassEntityId;
+        structRef.m_passBusEntity = passBusEntity;
 
         // Does passBusEntity implements RenderJoyPassBus?
         if (!Utils::IsRenderJoyPass(passBusEntity))
@@ -740,6 +742,11 @@ namespace RenderJoy
         if (!CreateRenderJoyShaderPassTemplatesRecursive(passBusEntity, passTemplates))
         {
             return CreateInvalidRenderJoyParentPassRequest(passSystem, parentPassEntityId, structRef);
+        }
+        // Store the passBusEntities.
+        for (auto const& kv : passTemplates)
+        {
+            structRef.m_passBusEntities.emplace(kv.first);
         }
 
         AZStd::shared_ptr<AZ::RPI::PassTemplate> billboardPassTemplate;
@@ -788,6 +795,9 @@ namespace RenderJoy
         {
             passSystem->RemovePassTemplate(templateName);
         }
+        // Remove the parent pass template.
+        passSystem->RemovePassTemplate(itor->second.m_passRequest->m_templateName);
+
         itor->second.m_createdPassTemplates.clear();
         m_parentEntities.erase(itor);
     }
@@ -852,147 +862,19 @@ namespace RenderJoy
         return existingPass != nullptr;
     }
 
-    // bool RenderJoyTemplatesFactory::Create(AZ::RPI::PassSystemInterface* passSystem)
-    // {
-    //     AZ::u32 outputPassCount = 0;
-    //     AZ::EntityId theOutputPassEntity = RenderJoyPassRequestBusUtils::DiscoverOutputPass(outputPassCount);
-    //     if (theOutputPassEntity.IsValid() && (outputPassCount == 1))
-    //     {
-    //         AZ_TracePrintf(LogName, "Valid: Found %u output pass entities\n", outputPassCount);
-    //     }
-    //     else
-    //     {
-    //         AZ_TracePrintf(LogName, "Invalid: Found %u output pass entities\n", outputPassCount);
-    //         return false;
-    //     }
-    // 
-    //     m_outputPassEntity = theOutputPassEntity;
-    // 
-    //     // Save the name of the template for the output pass
-    //     auto renderJoyTrianglePassClassName = AZ::Name("RenderJoyTrianglePass");
-    //     if (!passSystem->HasCreatorForClass(renderJoyTrianglePassClassName))
-    //     {
-    //         passSystem->AddPassCreator(renderJoyTrianglePassClassName, &RenderJoyTrianglePass::Create);
-    //     }
-    // 
-    //     m_outputPassTemplateName = GetPassTemplateNameFromEntityName(theOutputPassEntity);
-    // 
-    //     if (!CreateRenderJoyPassTemplates(passSystem, theOutputPassEntity))
-    //     {
-    //         AZ_Error(LogName, false, "Failed to create all RenderJoy pass templates");
-    //         return false;
-    //     }
-    // 
-    //     auto passTemplate = AZStd::make_shared<AZ::RPI::PassTemplate>();
-    //     passTemplate->m_name = AZ::Name(PassTemplateName);
-    //     passTemplate->m_passClass = AZ::Name("ParentPass");
-    // 
-    //     // Slots (only one)
-    //     AZ::RPI::PassSlot passSlot;
-    //     passSlot.m_name = AZ::Name("PipelineOutput");
-    //     passSlot.m_slotType = AZ::RPI::PassSlotType::InputOutput;
-    //     passSlot.m_scopeAttachmentUsage = AZ::RHI::ScopeAttachmentUsage::RenderTarget;
-    //     passTemplate->AddSlot(passSlot);
-    // 
-    //     // PassRequests
-    //     m_outputPassName = AZ::Name(GetPassNameFromEntityName(theOutputPassEntity));
-    //     if (!CreateRenderJoyPassRequests(*passTemplate.get(), theOutputPassEntity))
-    //     {
-    //         AZ_Error(LogName, false, "Failed to create all RenderJoy pass requests");
-    //         return false;
-    //     }
-    //     {
-    //         AZ::RPI::PassRequest passRequest;
-    //         passRequest.m_passName = AZ::Name("CopyToSwapChain");
-    //         passRequest.m_templateName = AZ::Name("FullscreenCopyTemplate");
-    // 
-    //         AZ::RPI::PassConnection inputConnection;
-    //         inputConnection.m_localSlot = AZ::Name("Input");
-    //         inputConnection.m_attachmentRef.m_pass = m_outputPassName;
-    //         inputConnection.m_attachmentRef.m_attachment = AZ::Name("Output");
-    //         passRequest.AddInputConnection(inputConnection);
-    // 
-    //         AZ::RPI::PassConnection outputConnection;
-    //         outputConnection.m_localSlot = AZ::Name("Output");
-    //         outputConnection.m_attachmentRef.m_pass = AZ::Name("Parent");
-    //         outputConnection.m_attachmentRef.m_attachment = passSlot.m_name;
-    //         passRequest.AddInputConnection(outputConnection);
-    // 
-    //         passTemplate->AddPassRequest(passRequest);
-    //     }
-    // 
-    //     AZ::Name passTemplateName = AZ::Name("RenderJoyMainPassTemplate");
-    //     m_createdPassTemplates.push_back(passTemplateName);
-    //     return passSystem->AddPassTemplate(passTemplateName, passTemplate);
-    // }
-    // 
+    bool RenderJoyTemplatesFactory::FindParentAndOutputPassEntity(AZ::EntityId shaderPassEntity, AZ::EntityId& parentPassEntityId, AZ::EntityId& passBusEntity) const
+    {
+        for (const auto& [parentEntityId, parentEntityTemplates] : m_parentEntities)
+        {
+            if (parentEntityTemplates.m_passBusEntities.contains(shaderPassEntity))
+            {
+                parentPassEntityId = parentEntityId;
+                passBusEntity = parentEntityTemplates.m_passBusEntity;
+                return true;
+            }
+        }
 
-
-    // 
-    // namespace RenderJoyPassRequestBusUtils
-    // {
-    //     //! enumerates all render joy passes and it will return the last entity
-    //     //! that claims to be the output pass.
-    //     AZ::EntityId DiscoverOutputPass(AZ::u32& outputPassCount)
-    //     {
-    //         outputPassCount = 0;
-    //         AZ::EntityId theOutputPass;
-    //         RenderJoyPassRequestBus::EnumerateHandlers([&](RenderJoyPassRequests* renderJoyPassRequest) -> bool
-    //         {
-    //             if (renderJoyPassRequest->IsOutputPass())
-    //             {
-    //                 if (auto* component = azrtti_cast<AZ::Component*>(renderJoyPassRequest))
-    //                 {
-    //                     theOutputPass = component->GetEntityId();
-    //                 }
-    //                 ++outputPassCount;
-    //             }
-    //             return true; // We must loop through all handlers.
-    //         });
-    //         return theOutputPass;
-    //     }
-    // 
-
-    // 
-    //     bool IsRenderJoyTextureProvider(AZ::EntityId entityId)
-    //     {
-    //         if (!entityId.IsValid())
-    //         {
-    //             return false;
-    //         }
-    // 
-    //         bool result = false;
-    //         RenderJoyTextureProviderBus::EnumerateHandlersId(entityId, [&](RenderJoyTextureProvider * /*renderJoyPassRequest*/) -> bool {
-    //             result = true;
-    //             return true; // We expect only one handler anyways.
-    //         });
-    // 
-    //         return result;
-    //     }
-    // 
-    //     AZ::EntityId GetEntityIdFromPassName(const AZ::Name& passName)
-    //     {
-    //         const AZStd::string entityName = passName.GetStringView();
-    //         AZ::EntityId entityMatch;
-    //         RenderJoyPassRequestBus::EnumerateHandlers([&](RenderJoyPassRequests* renderJoyPassRequest) -> bool {
-    //             if (auto* component = azrtti_cast<AZ::Component*>(renderJoyPassRequest))
-    //             {
-    //                 auto entityId = component->GetEntityId();
-    //                 if (entityId.IsValid())
-    //                 {
-    //                     auto namedEntityId = component->GetNamedEntityId();
-    //                     if (namedEntityId.GetName() == entityName)
-    //                     {
-    //                         entityMatch = entityId;
-    //                         return false; //Found it. Stop here.
-    //                     }
-    //                 }
-    //             }
-    //             return true; // We must loop through all handlers.
-    //         });
-    //         return entityMatch;
-    //     }
-    // 
-    // } // namespace RenderJoyPassRequestBusUtils
+        return false;
+    }
 
 } // namespace RenderJoy

@@ -70,6 +70,7 @@ namespace RenderJoy
         AZ::Data::Instance<AZ::RPI::Image> GetInvalidParentPassTexture() const override;
         AZ::Data::Instance<AZ::RPI::Image> GetDefaultInputTexture(uint32_t channelIndex) const override;
         AZ::EntityId GetEntityIdFromPassName(const AZ::Name& passName) const override;
+        void RecreateAllPasses(AZ::EntityId shaderPassTriggerEntityId) override;
         // RenderJoyRequestBus interface implementation END
         ////////////////////////////////////////////////////////////////////////
 

@@ -444,10 +444,33 @@ namespace RenderJoy
         LoadShader();
     }
 
-    void RenderJoyShaderPass::OnInputChannelEntityChanged(
-        [[maybe_unused]] uint32_t inputChannelIndex, [[maybe_unused]] AZ::EntityId newEntityId)
+    void RenderJoyShaderPass::OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId)
     {
-
+        const auto prevEntityId = m_entitiesOnInputChannels[inputChannelIndex];
+        if (prevEntityId.IsValid())
+        {
+            // Disconnect.
+            if (RenderJoyTextureProviderNotificationBus::MultiHandler::BusIsConnectedId(prevEntityId))
+            {
+                RenderJoyTextureProviderNotificationBus::MultiHandler::BusDisconnect(prevEntityId);
+            }
+        }
+        m_entitiesOnInputChannels[inputChannelIndex] = newEntityId;
+        if (!newEntityId.IsValid() || !Utils::IsRenderJoyTextureProvider(newEntityId))
+        {
+            // Set a default texture.
+            SetDefaultImageForChannel(inputChannelIndex);
+        }
+        else
+        {
+            RenderJoyTextureProviderNotificationBus::MultiHandler::BusConnect(newEntityId);
+            AZ::Data::Instance<AZ::RPI::Image> image;
+            RenderJoyTextureProviderBus::EventResult(image, newEntityId, &RenderJoyTextureProvider::GetImage);
+            SetImageForChannel(inputChannelIndex, image);
+        }
+        m_shaderResourceGroup->SetImage(m_imageChannelsIndices[inputChannelIndex], m_imageChannels[inputChannelIndex]);
+        m_shaderResourceGroup->SetConstant<AZ::Vector4>(
+            m_imageChannelResolutionsIndex, m_imageChannelResolutions[inputChannelIndex], inputChannelIndex);
     }
     ///////////////////////////////////////////////////////////////////
 

@@ -208,7 +208,10 @@ namespace RenderJoy
         // Notify the feature processor
         AZ::RPI::Scene* scene = m_pipeline->GetScene();
         auto* fp = scene->GetFeatureProcessor<RenderJoyFeatureProcessorInterface>();
-        fp->OnBillboardPassReady(GetName());
+        if (fp) // can be null when switching levels.
+        {
+            fp->OnBillboardPassReady(GetName());
+        }
 
     }
     

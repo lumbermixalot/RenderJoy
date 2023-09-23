@@ -143,70 +143,79 @@ namespace RenderJoy
     // Captures the current rendered image and saves it to disk.
     AZ::u32 EditorRenderJoyShaderComponent::OnSaveToDisk()
     {
-        AZ::IO::Path fullPathIO = AzToolsFramework::GetAbsolutePathFromRelativePath(m_saveToDiskConfig.m_outputImagePath);
-        if (m_saveToDiskConfig.m_outputImagePath.empty() || fullPathIO.empty())
+        QString errorMsg;
+        do
         {
-            QString msg("Invalid output path.");
+            AZ::IO::Path fullPathIO = AzToolsFramework::GetAbsolutePathFromRelativePath(m_saveToDiskConfig.m_outputImagePath);
+            if (m_saveToDiskConfig.m_outputImagePath.empty() || fullPathIO.empty())
+            {
+                errorMsg = QString("Invalid output path.");
+                break;
+            }
+            fullPathIO = fullPathIO.LexicallyNormal();
+
+            AZStd::string parentPath = fullPathIO.ParentPath().String();
+            // Make sure the output directory exists:
+            if (!AZ::IO::SystemFile::Exists(parentPath.c_str()))
+            {
+                errorMsg = QString::asprintf("Output directory=<%s> doesn't exist!", parentPath.c_str());
+                break;
+            }
+
+            AZStd::string prefix = fullPathIO.Stem().String();
+            const uint16_t mipLevels = 1;
+            const AZ::RHI::Format pixFormat = m_controller.GetRenderTargetFormat();
+            m_textureWriter.reset();
+            if (fullPathIO.Extension() == ".png")
+            {
+                if (m_controller.m_configuration.m_outputFormat != AZ::RHI::Format::R8G8B8A8_UNORM)
+                {
+                    errorMsg = QString("At the moment, PNG files only support the R8G8B8A8_UNORM pixel format. Consider using the DDS extension.");
+                    break;
+                }
+
+                m_textureWriter = AZStd::make_unique<PngTextureWriter>(
+                    mipLevels, pixFormat, parentPath, prefix);
+            }
+            else if (fullPathIO.Extension() == ".dds")
+            {
+                m_textureWriter = AZStd::make_unique<DdsTextureWriter>(
+                    mipLevels, pixFormat, parentPath, prefix);
+            }
+            else
+            {
+                errorMsg = QString::asprintf("Image extension <%s> is not supported.", fullPathIO.Extension().String().c_str());
+                break;
+            }
+
+            if (!m_attachmentReadback)
+            {
+                m_readbackTaskId = AZ::Crc32(GetEntityId().ToString());
+                AZStd::fixed_string<128> scope_name = AZStd::fixed_string<128>::format("RenderJoyCapture_%u", m_readbackTaskId);
+                m_attachmentReadback = AZStd::make_shared<AZ::RPI::AttachmentReadback>(AZ::RHI::ScopeId{ scope_name });
+                m_attachmentReadback->SetCallback(AZStd::bind(&EditorRenderJoyShaderComponent::AttachmentReadbackCallback, this, AZStd::placeholders::_1));
+                m_attachmentReadback->SetUserIdentifier(m_readbackTaskId);
+            }
+
+            AZ::Name slotName("Output");
+            const bool result = m_shaderPass->ReadbackAttachment(m_attachmentReadback, m_readbackTaskId,
+                slotName, AZ::RPI::PassAttachmentReadbackOption::Output);
+            if (!result)
+            {
+                errorMsg = QString("Failed to schedule attachment readback capture.");
+            }
+
+        } while (false);
+
+        if (!errorMsg.isEmpty())
+        {
             QMessageBox::information(
                 QApplication::activeWindow(),
                 "Error",
-                msg,
+                errorMsg,
                 QMessageBox::Ok);
             return AZ::Edit::PropertyRefreshLevels::None;
         }
-        fullPathIO = fullPathIO.LexicallyNormal();
-
-        AZStd::string parentPath = fullPathIO.ParentPath().String();
-        // Make sure the output directory exists:
-        if (!AZ::IO::SystemFile::Exists(parentPath.c_str()))
-        {
-            QString msg = QString::asprintf("Output directory=<%s> doesn't exist!", parentPath.c_str());
-            QMessageBox::information(
-                QApplication::activeWindow(),
-                "Error",
-                msg,
-                QMessageBox::Ok);
-            return AZ::Edit::PropertyRefreshLevels::None;
-        }
-
-        AZStd::string prefix = fullPathIO.Stem().String();
-        const uint16_t mipLevels = 1;
-        const AZ::RHI::Format pixFormat = m_controller.GetRenderTargetFormat();
-        m_textureWriter.reset();
-        if (fullPathIO.Extension() == ".png")
-        {
-            m_textureWriter = AZStd::make_unique<PngTextureWriter>(
-                mipLevels, pixFormat, parentPath, prefix);
-        }
-        else if (fullPathIO.Extension() == ".dds")
-        {
-            m_textureWriter = AZStd::make_unique<DdsTextureWriter>(
-                mipLevels, pixFormat, parentPath, prefix);
-        }
-        else
-        {
-            QString msg = QString::asprintf("Image extension <%s> is not supported.", fullPathIO.Extension().String().c_str());
-            QMessageBox::information(
-                QApplication::activeWindow(),
-                "Error",
-                msg,
-                QMessageBox::Ok);
-            return AZ::Edit::PropertyRefreshLevels::None;
-        }
-
-        if (!m_attachmentReadback)
-        {
-            m_readbackTaskId = AZ::Crc32(GetEntityId().ToString());
-            AZStd::fixed_string<128> scope_name = AZStd::fixed_string<128>::format("RenderJoyCapture_%u", m_readbackTaskId);
-            m_attachmentReadback = AZStd::make_shared<AZ::RPI::AttachmentReadback>(AZ::RHI::ScopeId{ scope_name });
-            m_attachmentReadback->SetCallback(AZStd::bind(&EditorRenderJoyShaderComponent::AttachmentReadbackCallback, this, AZStd::placeholders::_1));
-            m_attachmentReadback->SetUserIdentifier(m_readbackTaskId);
-        }
-
-        AZ::Name slotName("Output");
-        const bool result = m_shaderPass->ReadbackAttachment(m_attachmentReadback, m_readbackTaskId,
-            slotName, AZ::RPI::PassAttachmentReadbackOption::Output);
-        AZ_Error(LogName, result, "Failed to schedule attachment readback capture.");
 
         return AZ::Edit::PropertyRefreshLevels::AttributesAndValues;
     }

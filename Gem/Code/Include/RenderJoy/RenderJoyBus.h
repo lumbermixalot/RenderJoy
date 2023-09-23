@@ -53,6 +53,9 @@ namespace RenderJoy
         virtual AZ::Data::Instance<AZ::RPI::Image> GetDefaultInputTexture(uint32_t channelIndex) const = 0;
 
         virtual AZ::EntityId GetEntityIdFromPassName(const AZ::Name& passName) const = 0;
+
+        // @shaderPassTriggerEntityId is the entityId that is requesting the recreation.
+        virtual void RecreateAllPasses(AZ::EntityId shaderPassTriggerEntityId) = 0;
     };
 
     class RenderJoyBusTraits

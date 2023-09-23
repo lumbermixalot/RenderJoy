@@ -53,6 +53,7 @@ namespace RenderJoy
         //////////////////////////////////////////////////////////////////////////
     
         virtual void OnShaderAssetChanged(AZ::Data::Asset<AZ::RPI::ShaderAsset> newShaderAsset) = 0;
+        // Typically @newEntityId is an SRV texture provider.
         virtual void OnInputChannelEntityChanged(uint32_t inputChannelIndex, AZ::EntityId newEntityId) = 0;
     };
     

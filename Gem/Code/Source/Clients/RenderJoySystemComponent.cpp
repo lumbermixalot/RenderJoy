@@ -302,6 +302,35 @@ namespace RenderJoy
         return AZ::EntityId(uEntityId);
     }
 
+    void RenderJoySystemComponent::RecreateAllPasses(AZ::EntityId shaderPassTriggerEntityId)
+    {
+        if (!shaderPassTriggerEntityId.IsValid() || !m_templatesFactory.GetParentPassCount() || !m_scenePtr)
+        {
+            return;
+        }
+
+        AZ::EntityId parentPassEntityId;
+        AZ::EntityId passBusEntityId;
+        if (!m_templatesFactory.FindParentAndOutputPassEntity(shaderPassTriggerEntityId
+            , parentPassEntityId, passBusEntityId))
+        {
+            AZ_Warning(LogName, false, "Failed to find parent entity and output entity for shader pass entity %s.\n", shaderPassTriggerEntityId.ToString().c_str());
+            return;
+        }
+
+        AZ_Printf(LogName, "The RendeJoy Passes will be recreated upon request from %s.\n", shaderPassTriggerEntityId.ToString().c_str());
+
+        AddRenderJoyParentPass(parentPassEntityId, passBusEntityId);
+
+        // // We can not remove pass templates while the Feature Processor is still active.
+        // DestroyFeatureProcessor();
+        // 
+        // if (!AZ::SystemTickBus::Handler::BusIsConnected())
+        // {
+        //     AZ::SystemTickBus::Handler::BusConnect();
+        // }
+    }
+
     // RenderJoyRequestBus interface implementation END
     ////////////////////////////////////////////////////////////////////////
 

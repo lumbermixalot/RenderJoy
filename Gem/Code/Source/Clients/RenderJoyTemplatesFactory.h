@@ -8,6 +8,8 @@
 
 #pragma once
 
+#include <AzCore/Component/EntityId.h>
+
 #include <Atom/RPI.Reflect/Pass/PassTemplate.h>
 
 namespace AZ
@@ -36,7 +38,10 @@ namespace RenderJoy
             // that renders something visible in the screen, typically a RenderJoyBillboardPass.
             AZStd::vector<AZ::Name> m_createdPassTemplates;
             AZStd::shared_ptr<AZ::RPI::PassRequest> m_passRequest;
-            AZ::Name m_billboardPassName; 
+            AZ::Name m_billboardPassName;
+            AZ::EntityId m_parentPassEntity;
+            AZ::EntityId m_passBusEntity;
+            AZStd::unordered_set<AZ::EntityId> m_passBusEntities;
         };
 
     private:
@@ -61,6 +66,8 @@ namespace RenderJoy
         AZ::Name GetShaderPassName(AZ::EntityId shaderPassEntityId) const;
 
         bool EntityHasActivePasses(AZ::RPI::PassSystemInterface* passSystem, AZ::EntityId parentPassEntityId) const;
+
+        bool FindParentAndOutputPassEntity(AZ::EntityId shaderPassEntity, AZ::EntityId& parentPassEntityId, AZ::EntityId& passBusEntity) const;
 
         //////////////////////////////////////////////////////////////////////////
         // Helper Functions Start ...
