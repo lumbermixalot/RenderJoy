@@ -19,7 +19,7 @@
                 "$type": "EditorEntitySortComponent",
                 "Id": 14126657869720434043,
                 "Child Entity Order": [
-                    "Entity_[597094055804]"
+                    "Instance_[4816982990837]/ContainerEntity"
                 ]
             },
             "Component_[15230859088967841193]": {
@@ -54,125 +54,16 @@
             }
         }
     },
-    "Entities": {
-        "Entity_[454429921403]": {
-            "Id": "Entity_[454429921403]",
-            "Name": "Shader",
-            "Components": {
-                "EditorDisabledCompositionComponent": {
-                    "$type": "EditorDisabledCompositionComponent",
-                    "Id": 929227496484295675
-                },
-                "EditorEntityIconComponent": {
-                    "$type": "EditorEntityIconComponent",
-                    "Id": 4036051916335383699
-                },
-                "EditorEntitySortComponent": {
-                    "$type": "EditorEntitySortComponent",
-                    "Id": 14227013110313957610
-                },
-                "EditorInspectorComponent": {
-                    "$type": "EditorInspectorComponent",
-                    "Id": 9952518469661540856
-                },
-                "EditorLockComponent": {
-                    "$type": "EditorLockComponent",
-                    "Id": 1250881663955670837
-                },
-                "EditorOnlyEntityComponent": {
-                    "$type": "EditorOnlyEntityComponent",
-                    "Id": 2962639110450403426
-                },
-                "EditorPendingCompositionComponent": {
-                    "$type": "EditorPendingCompositionComponent",
-                    "Id": 9189690239486326121
-                },
-                "EditorRenderJoyShaderComponent": {
-                    "$type": "EditorRenderJoyShaderComponent",
-                    "Id": 6192175652414502506,
-                    "Controller": {
-                        "Configuration": {
-                            "ShaderAsset": {
-                                "assetId": {
-                                    "guid": "{84CE3C99-901D-522C-B12C-C0F7C1B1B404}"
-                                },
-                                "assetHint": "levels/perlinworleynoise/shaders/perlinworleynoise.azshader"
-                            },
-                            "InputChannels": [
-                                "",
-                                "",
-                                "",
-                                ""
-                            ]
-                        }
-                    }
-                },
-                "EditorVisibilityComponent": {
-                    "$type": "EditorVisibilityComponent",
-                    "Id": 3151591211641053839
-                },
-                "TransformComponent": {
-                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 2765969341976835709,
-                    "Parent Entity": "Entity_[597094055804]"
+    "Instances": {
+        "Instance_[4816982990837]": {
+            "Source": "Prefabs/PerlinWorleyNoise.prefab",
+            "Patches": [
+                {
+                    "op": "replace",
+                    "path": "/ContainerEntity/Components/TransformComponent/Parent Entity",
+                    "value": "../Entity_[1146574390643]"
                 }
-            }
-        },
-        "Entity_[597094055804]": {
-            "Id": "Entity_[597094055804]",
-            "Name": "PerlinWorleyNoise",
-            "Components": {
-                "EditorDisabledCompositionComponent": {
-                    "$type": "EditorDisabledCompositionComponent",
-                    "Id": 16394652661137783885
-                },
-                "EditorEntityIconComponent": {
-                    "$type": "EditorEntityIconComponent",
-                    "Id": 1282557575705256263
-                },
-                "EditorEntitySortComponent": {
-                    "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434,
-                    "Child Entity Order": [
-                        "Entity_[454429921403]"
-                    ]
-                },
-                "EditorInspectorComponent": {
-                    "$type": "EditorInspectorComponent",
-                    "Id": 15194449258439760064
-                },
-                "EditorLockComponent": {
-                    "$type": "EditorLockComponent",
-                    "Id": 13180443100171049933
-                },
-                "EditorOnlyEntityComponent": {
-                    "$type": "EditorOnlyEntityComponent",
-                    "Id": 18431621524732590685
-                },
-                "EditorPendingCompositionComponent": {
-                    "$type": "EditorPendingCompositionComponent",
-                    "Id": 4840068608094150098
-                },
-                "EditorRenderJoyBillboardComponent": {
-                    "$type": "EditorRenderJoyBillboardComponent",
-                    "Id": 14666368190466866859,
-                    "Controller": {
-                        "Configuration": {
-                            "ShaderEntityId": "Entity_[454429921403]",
-                            "DisplayMode": 1
-                        }
-                    }
-                },
-                "EditorVisibilityComponent": {
-                    "$type": "EditorVisibilityComponent",
-                    "Id": 6542505920671505724
-                },
-                "TransformComponent": {
-                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 8648535109438981924,
-                    "Parent Entity": "Entity_[1146574390643]"
-                }
-            }
+            ]
         }
     }
 }

@@ -19,7 +19,7 @@
                 "$type": "EditorEntitySortComponent",
                 "Id": 14126657869720434043,
                 "Child Entity Order": [
-                    "Entity_[1635545927803]"
+                    "Instance_[7295179120629]/ContainerEntity"
                 ]
             },
             "Component_[15230859088967841193]": {
@@ -54,280 +54,31 @@
             }
         }
     },
-    "Entities": {
-        "Entity_[1635545927803]": {
-            "Id": "Entity_[1635545927803]",
-            "Name": "RayMarchingWithMorePrimitives",
-            "Components": {
-                "EditorDisabledCompositionComponent": {
-                    "$type": "EditorDisabledCompositionComponent",
-                    "Id": 16394652661137783885
+    "Instances": {
+        "Instance_[7295179120629]": {
+            "Source": "Prefabs/RayMarchingWithMorePrimitives.prefab",
+            "Patches": [
+                {
+                    "op": "replace",
+                    "path": "/ContainerEntity/Components/TransformComponent/Parent Entity",
+                    "value": "../Entity_[1146574390643]"
                 },
-                "EditorEntityIconComponent": {
-                    "$type": "EditorEntityIconComponent",
-                    "Id": 1282557575705256263
+                {
+                    "op": "replace",
+                    "path": "/ContainerEntity/Components/TransformComponent/Transform Data/Translate/0",
+                    "value": 19.98255729675293
                 },
-                "EditorEntitySortComponent": {
-                    "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434,
-                    "Child Entity Order": [
-                        "Entity_[1639840895099]",
-                        "Entity_[1648430829691]",
-                        "Entity_[1644135862395]"
-                    ]
+                {
+                    "op": "replace",
+                    "path": "/ContainerEntity/Components/TransformComponent/Transform Data/Translate/1",
+                    "value": 25.949466705322266
                 },
-                "EditorInspectorComponent": {
-                    "$type": "EditorInspectorComponent",
-                    "Id": 15194449258439760064,
-                    "ComponentOrderEntryArray": [
-                        {
-                            "ComponentId": 8648535109438981924
-                        },
-                        {
-                            "ComponentId": 14223236441040090887,
-                            "SortIndex": 1
-                        }
-                    ]
-                },
-                "EditorLockComponent": {
-                    "$type": "EditorLockComponent",
-                    "Id": 13180443100171049933
-                },
-                "EditorOnlyEntityComponent": {
-                    "$type": "EditorOnlyEntityComponent",
-                    "Id": 18431621524732590685
-                },
-                "EditorPendingCompositionComponent": {
-                    "$type": "EditorPendingCompositionComponent",
-                    "Id": 4840068608094150098
-                },
-                "EditorRenderJoyBillboardComponent": {
-                    "$type": "EditorRenderJoyBillboardComponent",
-                    "Id": 14223236441040090887,
-                    "Controller": {
-                        "Configuration": {
-                            "ShaderEntityId": "Entity_[1639840895099]",
-                            "DisplayMode": 1
-                        }
-                    }
-                },
-                "EditorVisibilityComponent": {
-                    "$type": "EditorVisibilityComponent",
-                    "Id": 6542505920671505724
-                },
-                "TransformComponent": {
-                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 8648535109438981924,
-                    "Parent Entity": "Entity_[1146574390643]",
-                    "Transform Data": {
-                        "Translate": [
-                            19.98255729675293,
-                            25.949466705322266,
-                            -5.22939920425415
-                        ]
-                    }
+                {
+                    "op": "replace",
+                    "path": "/ContainerEntity/Components/TransformComponent/Transform Data/Translate/2",
+                    "value": -5.22939920425415
                 }
-            }
-        },
-        "Entity_[1639840895099]": {
-            "Id": "Entity_[1639840895099]",
-            "Name": "OutputPass",
-            "Components": {
-                "EditorDisabledCompositionComponent": {
-                    "$type": "EditorDisabledCompositionComponent",
-                    "Id": 9848445340395873823
-                },
-                "EditorEntityIconComponent": {
-                    "$type": "EditorEntityIconComponent",
-                    "Id": 12147802173957082087
-                },
-                "EditorEntitySortComponent": {
-                    "$type": "EditorEntitySortComponent",
-                    "Id": 14119612529809461917
-                },
-                "EditorInspectorComponent": {
-                    "$type": "EditorInspectorComponent",
-                    "Id": 16416222643341887125,
-                    "ComponentOrderEntryArray": [
-                        {
-                            "ComponentId": 16920923835999679997
-                        },
-                        {
-                            "ComponentId": 8007956000758176522,
-                            "SortIndex": 1
-                        }
-                    ]
-                },
-                "EditorLockComponent": {
-                    "$type": "EditorLockComponent",
-                    "Id": 15767734644939828159
-                },
-                "EditorOnlyEntityComponent": {
-                    "$type": "EditorOnlyEntityComponent",
-                    "Id": 7965415848034904372
-                },
-                "EditorPendingCompositionComponent": {
-                    "$type": "EditorPendingCompositionComponent",
-                    "Id": 15632698286048920478
-                },
-                "EditorRenderJoyShaderComponent": {
-                    "$type": "EditorRenderJoyShaderComponent",
-                    "Id": 8007956000758176522,
-                    "Controller": {
-                        "Configuration": {
-                            "ShaderAsset": {
-                                "assetId": {
-                                    "guid": "{7C507CED-CCB4-5FEA-A639-542F2B4FBD13}"
-                                },
-                                "assetHint": "levels/raymarchingwithmoreprimitives/shaders/raymarchingwithmoreprimitives.azshader"
-                            },
-                            "InputChannels": [
-                                "Entity_[1644135862395]",
-                                "",
-                                "",
-                                ""
-                            ]
-                        }
-                    }
-                },
-                "EditorVisibilityComponent": {
-                    "$type": "EditorVisibilityComponent",
-                    "Id": 4726479155454724516
-                },
-                "TransformComponent": {
-                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 16920923835999679997,
-                    "Parent Entity": "Entity_[1635545927803]"
-                }
-            }
-        },
-        "Entity_[1644135862395]": {
-            "Id": "Entity_[1644135862395]",
-            "Name": "ControlPass",
-            "Components": {
-                "EditorDisabledCompositionComponent": {
-                    "$type": "EditorDisabledCompositionComponent",
-                    "Id": 5586608568178811474
-                },
-                "EditorEntityIconComponent": {
-                    "$type": "EditorEntityIconComponent",
-                    "Id": 3767690913011244269
-                },
-                "EditorEntitySortComponent": {
-                    "$type": "EditorEntitySortComponent",
-                    "Id": 18375604875271842198
-                },
-                "EditorInspectorComponent": {
-                    "$type": "EditorInspectorComponent",
-                    "Id": 6146755956742767926,
-                    "ComponentOrderEntryArray": [
-                        {
-                            "ComponentId": 8450320065856528333
-                        },
-                        {
-                            "ComponentId": 15517393181495482009,
-                            "SortIndex": 1
-                        }
-                    ]
-                },
-                "EditorLockComponent": {
-                    "$type": "EditorLockComponent",
-                    "Id": 11357173961100087115
-                },
-                "EditorOnlyEntityComponent": {
-                    "$type": "EditorOnlyEntityComponent",
-                    "Id": 880064400211462439
-                },
-                "EditorPendingCompositionComponent": {
-                    "$type": "EditorPendingCompositionComponent",
-                    "Id": 9341405423411135073
-                },
-                "EditorRenderJoyShaderComponent": {
-                    "$type": "EditorRenderJoyShaderComponent",
-                    "Id": 15517393181495482009,
-                    "Controller": {
-                        "Configuration": {
-                            "ShaderAsset": {
-                                "assetId": {
-                                    "guid": "{D8248186-0B9E-54C1-B141-D6985EFD6312}"
-                                },
-                                "assetHint": "levels/raymarchingwithmoreprimitives/shaders/controlpass.azshader"
-                            },
-                            "InputChannels": [
-                                "Entity_[1644135862395]",
-                                "Entity_[1648430829691]",
-                                "",
-                                ""
-                            ]
-                        }
-                    }
-                },
-                "EditorVisibilityComponent": {
-                    "$type": "EditorVisibilityComponent",
-                    "Id": 17518091326987102411
-                },
-                "TransformComponent": {
-                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 8450320065856528333,
-                    "Parent Entity": "Entity_[1635545927803]"
-                }
-            }
-        },
-        "Entity_[1648430829691]": {
-            "Id": "Entity_[1648430829691]",
-            "Name": "Keyboard",
-            "Components": {
-                "EditorDisabledCompositionComponent": {
-                    "$type": "EditorDisabledCompositionComponent",
-                    "Id": 12376698942670945198
-                },
-                "EditorEntityIconComponent": {
-                    "$type": "EditorEntityIconComponent",
-                    "Id": 8521779818525870547
-                },
-                "EditorEntitySortComponent": {
-                    "$type": "EditorEntitySortComponent",
-                    "Id": 6199760267803660271
-                },
-                "EditorInspectorComponent": {
-                    "$type": "EditorInspectorComponent",
-                    "Id": 17447974704592732972,
-                    "ComponentOrderEntryArray": [
-                        {
-                            "ComponentId": 8837415460188816281
-                        },
-                        {
-                            "ComponentId": 16240133287312891994,
-                            "SortIndex": 1
-                        }
-                    ]
-                },
-                "EditorLockComponent": {
-                    "$type": "EditorLockComponent",
-                    "Id": 16219677702929635754
-                },
-                "EditorOnlyEntityComponent": {
-                    "$type": "EditorOnlyEntityComponent",
-                    "Id": 6377883263978690439
-                },
-                "EditorPendingCompositionComponent": {
-                    "$type": "EditorPendingCompositionComponent",
-                    "Id": 6677933616025000349
-                },
-                "EditorRenderJoyKeyboardComponent": {
-                    "$type": "EditorRenderJoyKeyboardComponent",
-                    "Id": 16240133287312891994
-                },
-                "EditorVisibilityComponent": {
-                    "$type": "EditorVisibilityComponent",
-                    "Id": 4475638257519773142
-                },
-                "TransformComponent": {
-                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 8837415460188816281,
-                    "Parent Entity": "Entity_[1635545927803]"
-                }
-            }
+            ]
         }
     }
 }
