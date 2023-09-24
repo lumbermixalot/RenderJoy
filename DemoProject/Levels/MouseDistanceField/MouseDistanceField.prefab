@@ -19,7 +19,7 @@
                 "$type": "EditorEntitySortComponent",
                 "Id": 14126657869720434043,
                 "Child Entity Order": [
-                    "Entity_[597094055804]"
+                    "Entity_[318442944090]"
                 ]
             },
             "Component_[15230859088967841193]": {
@@ -51,77 +51,126 @@
                 "$type": "LocalViewBookmarkComponent",
                 "Id": 11122665660198416446,
                 "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
-            },
-            "RenderJoySettingsEditorComponent": {
-                "$type": "RenderJoySettingsEditorComponent",
-                "Id": 10258070016114864616,
-                "SettingsConfig": {
-                    "RenderTargetWidth": 1024,
-                    "RenderTargetHeight": 1024
-                }
             }
         }
     },
     "Entities": {
-        "Entity_[597094055804]": {
-            "Id": "Entity_[597094055804]",
-            "Name": "MouseDistanceField",
+        "Entity_[318442944090]": {
+            "Id": "Entity_[318442944090]",
+            "Name": "Output Billboard",
             "Components": {
                 "EditorDisabledCompositionComponent": {
                     "$type": "EditorDisabledCompositionComponent",
-                    "Id": 16394652661137783885
+                    "Id": 18338458092223329709
                 },
                 "EditorEntityIconComponent": {
                     "$type": "EditorEntityIconComponent",
-                    "Id": 1282557575705256263
+                    "Id": 2756878670792854907
                 },
                 "EditorEntitySortComponent": {
                     "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434
+                    "Id": 14637798838785241965,
+                    "Child Entity Order": [
+                        "Entity_[322737911386]"
+                    ]
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
-                    "Id": 15194449258439760064
+                    "Id": 16518050586701248663
                 },
                 "EditorLockComponent": {
                     "$type": "EditorLockComponent",
-                    "Id": 13180443100171049933
+                    "Id": 8744602034146347166
                 },
                 "EditorOnlyEntityComponent": {
                     "$type": "EditorOnlyEntityComponent",
-                    "Id": 18431621524732590685
+                    "Id": 2980652028493358490
                 },
                 "EditorPendingCompositionComponent": {
                     "$type": "EditorPendingCompositionComponent",
-                    "Id": 4840068608094150098
+                    "Id": 12176193747670451414
+                },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 12879304900996631590,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[322737911386]",
+                            "DisplayMode": 1
+                        }
+                    }
                 },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
-                    "Id": 6542505920671505724
-                },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 9347923606193280101,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{A81BE942-9E70-5D91-810B-079D27D5EF4F}"
-                            },
-                            "assetHint": "levels/mousedistancefield/shaders/mousedistancefield.azshader"
-                        },
-                        "InputChannels": [
-                            "",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "IsOutputPass": true
-                    }
+                    "Id": 14564736149836535793
                 },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 8648535109438981924,
+                    "Id": 3445682809193124081,
                     "Parent Entity": "Entity_[1146574390643]"
+                }
+            }
+        },
+        "Entity_[322737911386]": {
+            "Id": "Entity_[322737911386]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 5902260597537664736
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 10903373705842559368
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 6493891016044394451
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 13102532690314900390
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 17618070564518994404
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 799007008081005385
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 9691783283508327466
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 16244580076073467428,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{A81BE942-9E70-5D91-810B-079D27D5EF4F}"
+                                },
+                                "assetHint": "levels/mousedistancefield/shaders/mousedistancefield.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ]
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 15262646957557696513
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 4465969933898426439,
+                    "Parent Entity": "Entity_[318442944090]"
                 }
             }
         }

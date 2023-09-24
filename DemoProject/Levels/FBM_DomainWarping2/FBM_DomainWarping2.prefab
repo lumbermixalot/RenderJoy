@@ -51,14 +51,73 @@
                 "$type": "LocalViewBookmarkComponent",
                 "Id": 11122665660198416446,
                 "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
-            },
-            "RenderJoySettingsEditorComponent": {
-                "$type": "RenderJoySettingsEditorComponent",
-                "Id": 10258070016114864616
             }
         }
     },
     "Entities": {
+        "Entity_[4086476957126]": {
+            "Id": "Entity_[4086476957126]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 1460737646202248202
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 5349463362912144319
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 9676418917496785781
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 13221597064479724288
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 17478096507319458064
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 12911792651730431999
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 14292862786715467715
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 2280844605178629557,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{4B4C56DE-69B1-58E6-9FF0-995F1BE98E7F}"
+                                },
+                                "assetHint": "levels/fbm_domainwarping2/shaders/fbm_domainwarping2.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ]
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 12411042652637130954
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 9976838301326410090,
+                    "Parent Entity": "Entity_[597094055804]"
+                }
+            }
+        },
         "Entity_[597094055804]": {
             "Id": "Entity_[597094055804]",
             "Name": "FBM_DomainWarping2",
@@ -73,7 +132,10 @@
                 },
                 "EditorEntitySortComponent": {
                     "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434
+                    "Id": 412471392918652434,
+                    "Child Entity Order": [
+                        "Entity_[4086476957126]"
+                    ]
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
@@ -91,28 +153,19 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 4840068608094150098
                 },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 7582758364925779555,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[4086476957126]",
+                            "DisplayMode": 1
+                        }
+                    }
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 6542505920671505724
-                },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 9347923606193280101,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{4B4C56DE-69B1-58E6-9FF0-995F1BE98E7F}"
-                            },
-                            "assetHint": "levels/fbm_domainwarping2/shaders/fbm_domainwarping2.azshader"
-                        },
-                        "InputChannels": [
-                            "",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "IsOutputPass": true
-                    }
                 },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",

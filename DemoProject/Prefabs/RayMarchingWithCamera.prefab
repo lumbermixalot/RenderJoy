@@ -1,63 +1,58 @@
 {
     "ContainerEntity": {
-        "Id": "Entity_[1146574390643]",
-        "Name": "Level",
+        "Id": "ContainerEntity",
+        "Name": "RayMarchingWithCamera",
         "Components": {
-            "Component_[10641544592923449938]": {
-                "$type": "EditorInspectorComponent",
-                "Id": 10641544592923449938
+            "EditorDisabledCompositionComponent": {
+                "$type": "EditorDisabledCompositionComponent",
+                "Id": 12199692557175169033
             },
-            "Component_[12039882709170782873]": {
-                "$type": "EditorOnlyEntityComponent",
-                "Id": 12039882709170782873
+            "EditorEntityIconComponent": {
+                "$type": "EditorEntityIconComponent",
+                "Id": 12071629939100118256
             },
-            "Component_[12265484671603697631]": {
-                "$type": "EditorPendingCompositionComponent",
-                "Id": 12265484671603697631
-            },
-            "Component_[14126657869720434043]": {
+            "EditorEntitySortComponent": {
                 "$type": "EditorEntitySortComponent",
-                "Id": 14126657869720434043,
+                "Id": 976885426031432616,
                 "Child Entity Order": [
-                    "Entity_[1635545927803]"
+                    "Entity_[1090085081211]"
                 ]
             },
-            "Component_[15230859088967841193]": {
-                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                "Id": 15230859088967841193,
-                "Parent Entity": ""
+            "EditorInspectorComponent": {
+                "$type": "EditorInspectorComponent",
+                "Id": 4842454674247585345
             },
-            "Component_[16239496886950819870]": {
-                "$type": "EditorDisabledCompositionComponent",
-                "Id": 16239496886950819870
-            },
-            "Component_[5688118765544765547]": {
-                "$type": "EditorEntityIconComponent",
-                "Id": 5688118765544765547
-            },
-            "Component_[7247035804068349658]": {
-                "$type": "EditorPrefabComponent",
-                "Id": 7247035804068349658
-            },
-            "Component_[9307224322037797205]": {
+            "EditorLockComponent": {
                 "$type": "EditorLockComponent",
-                "Id": 9307224322037797205
+                "Id": 14031450193685559681
             },
-            "Component_[9562516168917670048]": {
+            "EditorOnlyEntityComponent": {
+                "$type": "EditorOnlyEntityComponent",
+                "Id": 8553591693941813540
+            },
+            "EditorPendingCompositionComponent": {
+                "$type": "EditorPendingCompositionComponent",
+                "Id": 1704184727975333397
+            },
+            "EditorPrefabComponent": {
+                "$type": "EditorPrefabComponent",
+                "Id": 14175582235724919161
+            },
+            "EditorVisibilityComponent": {
                 "$type": "EditorVisibilityComponent",
-                "Id": 9562516168917670048
+                "Id": 9252867601130138027
             },
-            "LocalViewBookmarkComponent": {
-                "$type": "LocalViewBookmarkComponent",
-                "Id": 11122665660198416446,
-                "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
+            "TransformComponent": {
+                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                "Id": 3598930356518691187,
+                "Parent Entity": ""
             }
         }
     },
     "Entities": {
-        "Entity_[1635545927803]": {
-            "Id": "Entity_[1635545927803]",
-            "Name": "RayMarchingWithMorePrimitives",
+        "Entity_[1090085081211]": {
+            "Id": "Entity_[1090085081211]",
+            "Name": "RayMarchingWithCamera",
             "Components": {
                 "EditorDisabledCompositionComponent": {
                     "$type": "EditorDisabledCompositionComponent",
@@ -71,9 +66,9 @@
                     "$type": "EditorEntitySortComponent",
                     "Id": 412471392918652434,
                     "Child Entity Order": [
-                        "Entity_[1639840895099]",
-                        "Entity_[1648430829691]",
-                        "Entity_[1644135862395]"
+                        "Entity_[1094380048507]",
+                        "Entity_[1102969983099]",
+                        "Entity_[1098675015803]"
                     ]
                 },
                 "EditorInspectorComponent": {
@@ -106,7 +101,7 @@
                     "Id": 14223236441040090887,
                     "Controller": {
                         "Configuration": {
-                            "ShaderEntityId": "Entity_[1639840895099]",
+                            "ShaderEntityId": "Entity_[1094380048507]",
                             "DisplayMode": 1
                         }
                     }
@@ -118,19 +113,12 @@
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
                     "Id": 8648535109438981924,
-                    "Parent Entity": "Entity_[1146574390643]",
-                    "Transform Data": {
-                        "Translate": [
-                            19.98255729675293,
-                            25.949466705322266,
-                            -5.22939920425415
-                        ]
-                    }
+                    "Parent Entity": "ContainerEntity"
                 }
             }
         },
-        "Entity_[1639840895099]": {
-            "Id": "Entity_[1639840895099]",
+        "Entity_[1094380048507]": {
+            "Id": "Entity_[1094380048507]",
             "Name": "OutputPass",
             "Components": {
                 "EditorDisabledCompositionComponent": {
@@ -177,12 +165,12 @@
                         "Configuration": {
                             "ShaderAsset": {
                                 "assetId": {
-                                    "guid": "{7C507CED-CCB4-5FEA-A639-542F2B4FBD13}"
+                                    "guid": "{9812202B-BAD8-55A0-99E9-D0C088D4DD6F}"
                                 },
-                                "assetHint": "levels/raymarchingwithmoreprimitives/shaders/raymarchingwithmoreprimitives.azshader"
+                                "assetHint": "levels/raymarchingwithcamera/shaders/raymarchingwithcamera.azshader"
                             },
                             "InputChannels": [
-                                "Entity_[1644135862395]",
+                                "Entity_[1098675015803]",
                                 "",
                                 "",
                                 ""
@@ -197,12 +185,12 @@
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
                     "Id": 16920923835999679997,
-                    "Parent Entity": "Entity_[1635545927803]"
+                    "Parent Entity": "Entity_[1090085081211]"
                 }
             }
         },
-        "Entity_[1644135862395]": {
-            "Id": "Entity_[1644135862395]",
+        "Entity_[1098675015803]": {
+            "Id": "Entity_[1098675015803]",
             "Name": "ControlPass",
             "Components": {
                 "EditorDisabledCompositionComponent": {
@@ -249,13 +237,13 @@
                         "Configuration": {
                             "ShaderAsset": {
                                 "assetId": {
-                                    "guid": "{D8248186-0B9E-54C1-B141-D6985EFD6312}"
+                                    "guid": "{11564A67-FB80-58D8-82F1-9F2870A21DDA}"
                                 },
-                                "assetHint": "levels/raymarchingwithmoreprimitives/shaders/controlpass.azshader"
+                                "assetHint": "levels/raymarchingwithcamera/shaders/controlpass.azshader"
                             },
                             "InputChannels": [
-                                "Entity_[1644135862395]",
-                                "Entity_[1648430829691]",
+                                "Entity_[1098675015803]",
+                                "Entity_[1102969983099]",
                                 "",
                                 ""
                             ]
@@ -269,12 +257,12 @@
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
                     "Id": 8450320065856528333,
-                    "Parent Entity": "Entity_[1635545927803]"
+                    "Parent Entity": "Entity_[1090085081211]"
                 }
             }
         },
-        "Entity_[1648430829691]": {
-            "Id": "Entity_[1648430829691]",
+        "Entity_[1102969983099]": {
+            "Id": "Entity_[1102969983099]",
             "Name": "Keyboard",
             "Components": {
                 "EditorDisabledCompositionComponent": {
@@ -325,7 +313,7 @@
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
                     "Id": 8837415460188816281,
-                    "Parent Entity": "Entity_[1635545927803]"
+                    "Parent Entity": "Entity_[1090085081211]"
                 }
             }
         }
