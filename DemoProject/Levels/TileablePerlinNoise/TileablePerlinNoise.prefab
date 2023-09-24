@@ -51,18 +51,75 @@
                 "$type": "LocalViewBookmarkComponent",
                 "Id": 11122665660198416446,
                 "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
-            },
-            "RenderJoySettingsEditorComponent": {
-                "$type": "RenderJoySettingsEditorComponent",
-                "Id": 10258070016114864616,
-                "SettingsConfig": {
-                    "RenderTargetWidth": 512,
-                    "RenderTargetHeight": 512
-                }
             }
         }
     },
     "Entities": {
+        "Entity_[1126766956443]": {
+            "Id": "Entity_[1126766956443]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 16950133498068800831
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 12480717541424581152
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 4017169531691136335
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 5135858870188278061
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 2789821510420457181
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 16281838743404500631
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 7335260458983455071
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 14522756909243587099,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{EAFEDE2D-1E09-54BA-93F4-D34A52861EFF}"
+                                },
+                                "assetHint": "levels/tileableperlinnoise/shaders/tileableperlinnoise.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetWidth": 256,
+                            "RenderTargetHeight": 256
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 11214163598238909491
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 5008940517022909816,
+                    "Parent Entity": "Entity_[597094055804]"
+                }
+            }
+        },
         "Entity_[597094055804]": {
             "Id": "Entity_[597094055804]",
             "Name": "TileablePerlinNoise",
@@ -77,7 +134,10 @@
                 },
                 "EditorEntitySortComponent": {
                     "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434
+                    "Id": 412471392918652434,
+                    "Child Entity Order": [
+                        "Entity_[1126766956443]"
+                    ]
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
@@ -95,28 +155,18 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 4840068608094150098
                 },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 6031737118778056349,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[1126766956443]"
+                        }
+                    }
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 6542505920671505724
-                },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 12379441108401212863,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{EAFEDE2D-1E09-54BA-93F4-D34A52861EFF}"
-                            },
-                            "assetHint": "levels/tileableperlinnoise/shaders/tileableperlinnoise.azshader"
-                        },
-                        "InputChannels": [
-                            "",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "IsOutputPass": true
-                    }
                 },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",

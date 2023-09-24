@@ -1,0 +1,242 @@
+{
+    "ContainerEntity": {
+        "Id": "ContainerEntity",
+        "Name": "RenderJoy_Liberation",
+        "Components": {
+            "EditorDisabledCompositionComponent": {
+                "$type": "EditorDisabledCompositionComponent",
+                "Id": 7898239918801420312
+            },
+            "EditorEntityIconComponent": {
+                "$type": "EditorEntityIconComponent",
+                "Id": 5719442952154488582
+            },
+            "EditorEntitySortComponent": {
+                "$type": "EditorEntitySortComponent",
+                "Id": 9694857330556176743,
+                "Child Entity Order": [
+                    "Entity_[634626693909]"
+                ]
+            },
+            "EditorInspectorComponent": {
+                "$type": "EditorInspectorComponent",
+                "Id": 9930997679479160054
+            },
+            "EditorLockComponent": {
+                "$type": "EditorLockComponent",
+                "Id": 4841131834104481606
+            },
+            "EditorOnlyEntityComponent": {
+                "$type": "EditorOnlyEntityComponent",
+                "Id": 16632574789525069008
+            },
+            "EditorPendingCompositionComponent": {
+                "$type": "EditorPendingCompositionComponent",
+                "Id": 5416865450007048590
+            },
+            "EditorPrefabComponent": {
+                "$type": "EditorPrefabComponent",
+                "Id": 14986950677240670684
+            },
+            "EditorVisibilityComponent": {
+                "$type": "EditorVisibilityComponent",
+                "Id": 14567339409870077223
+            },
+            "TransformComponent": {
+                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                "Id": 3463483560397359357,
+                "Parent Entity": ""
+            }
+        }
+    },
+    "Entities": {
+        "Entity_[634626693909]": {
+            "Id": "Entity_[634626693909]",
+            "Name": " RenderJoy Liberation",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 4502560550131714745
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 12121025948889053062
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 6417175482506955768,
+                    "Child Entity Order": [
+                        "Entity_[643216628501]",
+                        "Entity_[638921661205]"
+                    ]
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 7098471393482080003,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 3986300774052167529
+                        },
+                        {
+                            "ComponentId": 13605319852948907267,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 11808796623431036485
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 15114302223829124304
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 9980931228830712002
+                },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 13605319852948907267,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[638921661205]",
+                            "DisplayMode": 1
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 10946159354936536282
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 3986300774052167529,
+                    "Parent Entity": "ContainerEntity"
+                }
+            }
+        },
+        "Entity_[638921661205]": {
+            "Id": "Entity_[638921661205]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 1109944431823150261
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 5944973179208755790
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 15640474405878480326
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 3788998622150991653
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 9671429407891248597
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 11849607868832594076
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 2069964779364832817
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 13299244068719751709,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{7E24315C-052D-5DDA-A95D-CEFB2A356FFB}"
+                                },
+                                "assetHint": "shaders/liberationofthetrueself.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    },
+                    "SaveToDiskConfig": {
+                        "OutputImagePath": "Assets/CapturedTextures/myimage.png"
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 17626596626423989947
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 10652118769280027695,
+                    "Parent Entity": "Entity_[634626693909]"
+                }
+            }
+        },
+        "Entity_[643216628501]": {
+            "Id": "Entity_[643216628501]",
+            "Name": "AboutThisDemo",
+            "Components": {
+                "Component_[11035233810340591782]": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 11035233810340591782
+                },
+                "Component_[12663900458749687616]": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 12663900458749687616,
+                    "Parent Entity": "Entity_[634626693909]",
+                    "Transform Data": {
+                        "Translate": [
+                            -0.016172213479876518,
+                            -0.10000801086425781,
+                            -3.9998083114624023
+                        ]
+                    }
+                },
+                "Component_[13401419250448702501]": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 13401419250448702501
+                },
+                "Component_[13412822944589561721]": {
+                    "$type": "EditorCommentComponent",
+                    "Id": 13412822944589561721,
+                    "Configuration": "This is a port of:\nhttps://www.shadertoy.com/view/tlGfzd  by Kali\n\nPorted to RenderJoy by Galib Arrieta (galib.arrieta@gmail.com"
+                },
+                "Component_[137435919328711343]": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 137435919328711343
+                },
+                "Component_[15033494963607993575]": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 15033494963607993575
+                },
+                "Component_[15661981966821915006]": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 15661981966821915006
+                },
+                "Component_[2427985940250778409]": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 2427985940250778409
+                },
+                "Component_[553008529981986098]": {
+                    "$type": "EditorLockComponent",
+                    "Id": 553008529981986098
+                },
+                "Component_[9069579591518304630]": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 9069579591518304630
+                }
+            }
+        }
+    }
+}

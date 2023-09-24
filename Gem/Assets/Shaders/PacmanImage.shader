@@ -1,6 +1,10 @@
 { 
     "Source" : "PacmanImage.azsl",
 
+    "AddBuildArguments": {
+      "debug": false
+    },
+    
     "DepthStencilState" : 
     {
         "Depth" : 

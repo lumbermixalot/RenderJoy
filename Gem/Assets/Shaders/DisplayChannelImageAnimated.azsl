@@ -19,7 +19,7 @@ PSOutput MainPS(VSOutput IN)
     
     // Normalized pixel coordinates (from 0 to 1)
     float2 uv = IN.m_position.xy / PassSrg::m_resolution.xy;
-    float4 texColor = PassSrg::m_channel[0].Sample(PassSrg::LinearSampler, uv);
+    float4 texColor = iChannel0.Sample(PassSrg::LinearSampler, uv);
     float timeFrac = frac(PassSrg::m_time);
     texColor += float4(timeFrac, timeFrac, timeFrac, 1);
     texColor = clamp(texColor, float4(0, 0, 0, 1), float4(1, 1, 1, 1));

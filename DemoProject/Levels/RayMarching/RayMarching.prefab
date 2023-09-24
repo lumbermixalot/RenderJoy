@@ -55,6 +55,69 @@
         }
     },
     "Entities": {
+        "Entity_[587573907579]": {
+            "Id": "Entity_[587573907579]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 73519868644804633
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 497109184715430624
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 11574594768033521235
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 8726826395557406136
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 9383484796983227241
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 9486036649209592604
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 8601412165423071036
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 5539287364808757967,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{2BBB6AA7-3E67-57EF-A3EE-548601851D6E}"
+                                },
+                                "assetHint": "levels/raymarching/shaders/raymarching.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ]
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 12778710397449346716
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 4128727232666902214,
+                    "Parent Entity": "Entity_[597094055804]"
+                }
+            }
+        },
         "Entity_[597094055804]": {
             "Id": "Entity_[597094055804]",
             "Name": "RayMarching",
@@ -69,7 +132,10 @@
                 },
                 "EditorEntitySortComponent": {
                     "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434
+                    "Id": 412471392918652434,
+                    "Child Entity Order": [
+                        "Entity_[587573907579]"
+                    ]
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
@@ -87,28 +153,19 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 4840068608094150098
                 },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 17658777002447241070,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[587573907579]",
+                            "DisplayMode": 1
+                        }
+                    }
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 6542505920671505724
-                },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 9347923606193280101,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{2BBB6AA7-3E67-57EF-A3EE-548601851D6E}"
-                            },
-                            "assetHint": "levels/raymarching/shaders/raymarching.azshader"
-                        },
-                        "InputChannels": [
-                            "",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "IsOutputPass": true
-                    }
                 },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",

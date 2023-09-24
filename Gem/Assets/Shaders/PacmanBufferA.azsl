@@ -118,7 +118,7 @@ int2 dir2dis( in int dir )
 
 float Keyboard(int key, int stateIndex)
 {
-    return PassSrg::m_channel[1].Load( int3(key, stateIndex, 0) ).x;
+    return iChannel1.Load( int3(key, stateIndex, 0) ).x;
 }
 
 //void mainImage( out vec4 fragColor, in vec2 fragCoord )

@@ -1,0 +1,446 @@
+{
+    "ContainerEntity": {
+        "Id": "ContainerEntity",
+        "Name": "RenderJoy_PacMan",
+        "Components": {
+            "EditorDisabledCompositionComponent": {
+                "$type": "EditorDisabledCompositionComponent",
+                "Id": 6143265991604773893
+            },
+            "EditorEntityIconComponent": {
+                "$type": "EditorEntityIconComponent",
+                "Id": 239220141566421220
+            },
+            "EditorEntitySortComponent": {
+                "$type": "EditorEntitySortComponent",
+                "Id": 4684945324314982630,
+                "Child Entity Order": [
+                    "Entity_[1871577275157]"
+                ]
+            },
+            "EditorInspectorComponent": {
+                "$type": "EditorInspectorComponent",
+                "Id": 73011305248643964
+            },
+            "EditorLockComponent": {
+                "$type": "EditorLockComponent",
+                "Id": 1501620495223856483
+            },
+            "EditorOnlyEntityComponent": {
+                "$type": "EditorOnlyEntityComponent",
+                "Id": 9838296853159092698
+            },
+            "EditorPendingCompositionComponent": {
+                "$type": "EditorPendingCompositionComponent",
+                "Id": 1447219230001177132
+            },
+            "EditorPrefabComponent": {
+                "$type": "EditorPrefabComponent",
+                "Id": 8806978491976810383
+            },
+            "EditorVisibilityComponent": {
+                "$type": "EditorVisibilityComponent",
+                "Id": 14580488987142017829
+            },
+            "TransformComponent": {
+                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                "Id": 5509404573887672685,
+                "Parent Entity": ""
+            }
+        }
+    },
+    "Entities": {
+        "Entity_[1850102438677]": {
+            "Id": "Entity_[1850102438677]",
+            "Name": "ImageA Pass",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 4371793696413566336
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 16657479148272051930
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 5265527984165526874
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 693870170215540100,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 5566971479436328178
+                        },
+                        {
+                            "ComponentId": 11482227539558082052,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 14347478516022117270
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 11228635946356406203
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 7000286206816436588
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 11482227539558082052,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{E459B49E-CFD1-5DE4-9C8B-57572254F978}"
+                                },
+                                "assetHint": "shaders/pacmanbuffera.azshader"
+                            },
+                            "InputChannels": [
+                                "Entity_[1850102438677]",
+                                "Entity_[1854397405973]",
+                                "",
+                                ""
+                            ]
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 8341136035028962763
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 5566971479436328178,
+                    "Parent Entity": "Entity_[1871577275157]"
+                }
+            }
+        },
+        "Entity_[1854397405973]": {
+            "Id": "Entity_[1854397405973]",
+            "Name": "Keyboard",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 3113669354418172665
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 4757790753158831408
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 15093267399604532517
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 13875244310091904949
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 3750820984685474505
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 5495124947484526761
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 18271776512674854484
+                },
+                "EditorRenderJoyKeyboardComponent": {
+                    "$type": "EditorRenderJoyKeyboardComponent",
+                    "Id": 14475295815591306476
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 17865899728049218604
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 13979619643535691766,
+                    "Parent Entity": "Entity_[1871577275157]"
+                }
+            }
+        },
+        "Entity_[1858692373269]": {
+            "Id": "Entity_[1858692373269]",
+            "Name": "Output Pass",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 8185534901921329660
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 1660399572224381770
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 11879996559518545185
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 7409311733237883198,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 6979755565574329966
+                        },
+                        {
+                            "ComponentId": 3739276678140055484,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 9601166820124164612
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 6587125594221650035
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 6243814167528638985
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 3739276678140055484,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{F9312896-A395-512E-9167-A789BE0DDF70}"
+                                },
+                                "assetHint": "shaders/pacmanimage.azshader"
+                            },
+                            "InputChannels": [
+                                "Entity_[1850102438677]",
+                                "Entity_[1862987340565]",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 16197764594616171933
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 6979755565574329966,
+                    "Parent Entity": "Entity_[1871577275157]"
+                }
+            }
+        },
+        "Entity_[1862987340565]": {
+            "Id": "Entity_[1862987340565]",
+            "Name": "ImageB Pass",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 11808069977468814015
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 16078277602775099936
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 16447303070468495750
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 6488563482008795549,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 16955829149321897047
+                        },
+                        {
+                            "ComponentId": 7998499013817003018,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 2688541093126096470
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 6649145026978580480
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 13838958797315946555
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 7998499013817003018,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{945498EB-9529-5A95-A4E8-ACBC87728ACC}"
+                                },
+                                "assetHint": "shaders/pacmanbufferb.azshader"
+                            },
+                            "InputChannels": [
+                                "Entity_[1850102438677]",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    },
+                    "SaveToDiskConfig": {
+                        "OutputImagePath": "Assets/CapturedTextures/pacmanB.dds"
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 16929201894184419860
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 16955829149321897047,
+                    "Parent Entity": "Entity_[1871577275157]"
+                }
+            }
+        },
+        "Entity_[1867282307861]": {
+            "Id": "Entity_[1867282307861]",
+            "Name": "AboutThisDemo",
+            "Components": {
+                "Component_[11035233810340591782]": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 11035233810340591782
+                },
+                "Component_[12663900458749687616]": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 12663900458749687616,
+                    "Parent Entity": "Entity_[1871577275157]",
+                    "Transform Data": {
+                        "Translate": [
+                            -0.016172213479876518,
+                            -0.10000801086425781,
+                            -3.9998083114624023
+                        ]
+                    }
+                },
+                "Component_[13401419250448702501]": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 13401419250448702501
+                },
+                "Component_[13412822944589561721]": {
+                    "$type": "EditorCommentComponent",
+                    "Id": 13412822944589561721,
+                    "Configuration": "Play pacman with arrow keys. If you die, press Enter to restart.\n\nOriginal ShaderToy:\nhttps://www.shadertoy.com/view/Ms3XWN\nCreated by inigo quilez - iq/2016\nLicense Creative Commons Attribution-NonCommercial-ShareAlike 3.0\n\nPorted to RenderJoy by Galib Arrieta (galib.arrieta@gmail.com)."
+                },
+                "Component_[137435919328711343]": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 137435919328711343
+                },
+                "Component_[15033494963607993575]": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 15033494963607993575
+                },
+                "Component_[15661981966821915006]": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 15661981966821915006
+                },
+                "Component_[2427985940250778409]": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 2427985940250778409
+                },
+                "Component_[553008529981986098]": {
+                    "$type": "EditorLockComponent",
+                    "Id": 553008529981986098
+                },
+                "Component_[9069579591518304630]": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 9069579591518304630
+                }
+            }
+        },
+        "Entity_[1871577275157]": {
+            "Id": "Entity_[1871577275157]",
+            "Name": "RenderJoy PacMan",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 16318326500196161222
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 5592132497741511306
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 15807455821299981809,
+                    "Child Entity Order": [
+                        "Entity_[1867282307861]",
+                        "Entity_[1854397405973]",
+                        "Entity_[1850102438677]",
+                        "Entity_[1862987340565]",
+                        "Entity_[1858692373269]"
+                    ]
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 11616627336631150941,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 1827108095927739925
+                        },
+                        {
+                            "ComponentId": 4496381210671743258,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 1187659021411488530
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 13678166053985626980
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 891483981513462873
+                },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 4496381210671743258,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[1858692373269]",
+                            "DisplayMode": 1
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 3569968095411162295
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 1827108095927739925,
+                    "Parent Entity": "ContainerEntity"
+                }
+            }
+        }
+    }
+}

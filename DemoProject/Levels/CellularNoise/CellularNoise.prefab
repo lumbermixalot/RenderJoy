@@ -51,18 +51,74 @@
                 "$type": "LocalViewBookmarkComponent",
                 "Id": 11122665660198416446,
                 "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
-            },
-            "RenderJoySettingsEditorComponent": {
-                "$type": "RenderJoySettingsEditorComponent",
-                "Id": 10258070016114864616,
-                "SettingsConfig": {
-                    "RenderTargetWidth": 256,
-                    "RenderTargetHeight": 256
-                }
             }
         }
     },
     "Entities": {
+        "Entity_[3137289184710]": {
+            "Id": "Entity_[3137289184710]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 6994461962509864890
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 11036286576186137132
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 7610167852975998232
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 2706101000521670053
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 8978211922387137300
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 2782155222283894546
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 13551107719706129060
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 5285052543207072004,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{D160EBF1-B140-54A9-A8E7-D5143554F569}"
+                                },
+                                "assetHint": "levels/cellularnoise/shaders/cellularnoise.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 4667789852461011736
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 2527655775191572092,
+                    "Parent Entity": "Entity_[597094055804]"
+                }
+            }
+        },
         "Entity_[597094055804]": {
             "Id": "Entity_[597094055804]",
             "Name": "CellularNoise",
@@ -77,7 +133,10 @@
                 },
                 "EditorEntitySortComponent": {
                     "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434
+                    "Id": 412471392918652434,
+                    "Child Entity Order": [
+                        "Entity_[3137289184710]"
+                    ]
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
@@ -95,28 +154,19 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 4840068608094150098
                 },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 17239283583881115523,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[3137289184710]",
+                            "DisplayMode": 1
+                        }
+                    }
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 6542505920671505724
-                },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 9347923606193280101,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{D160EBF1-B140-54A9-A8E7-D5143554F569}"
-                            },
-                            "assetHint": "levels/cellularnoise/shaders/cellularnoise.azshader"
-                        },
-                        "InputChannels": [
-                            "",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "IsOutputPass": true
-                    }
                 },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",

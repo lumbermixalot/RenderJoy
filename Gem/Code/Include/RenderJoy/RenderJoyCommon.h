@@ -8,9 +8,6 @@
 
 #pragma once
 
-#include <AzCore/EBus/EBus.h>
-#include <Atom/RPI.Reflect/Image/StreamingImageAsset.h>
-
 namespace RenderJoy
 {
     static constexpr uint32_t MaxInputChannels = 4;

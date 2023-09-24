@@ -1,6 +1,10 @@
 { 
     "Source" : "PacmanBufferA.azsl",
 
+    "AddBuildArguments": {
+      "debug": false
+    },
+    
     "DepthStencilState" : 
     {
         "Depth" : 

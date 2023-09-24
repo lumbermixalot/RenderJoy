@@ -1,6 +1,10 @@
 { 
     "Source" : "DisplayChannelImageAnimated.azsl",
 
+    "AddBuildArguments": {
+      "debug": false
+    },
+    
     "DepthStencilState" : 
     {
         "Depth" : 

@@ -13,7 +13,7 @@
 
 float4 Texture1( in float2 uv)
 {
-    return PassSrg::m_channel[1].Sample(PassSrg::LinearSampler, uv);
+    return iChannel1.Sample(PassSrg::LinearSampler, uv);
 }
 
 float3 drawMap( float3 col, in float2 fragCoord )

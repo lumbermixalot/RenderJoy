@@ -19,8 +19,7 @@
                 "$type": "EditorEntitySortComponent",
                 "Id": 14126657869720434043,
                 "Child Entity Order": [
-                    "Entity_[597094055804]",
-                    "Entity_[314610065415]"
+                    "Entity_[597094055804]"
                 ]
             },
             "Component_[15230859088967841193]": {
@@ -52,17 +51,13 @@
                 "$type": "LocalViewBookmarkComponent",
                 "Id": 11122665660198416446,
                 "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
-            },
-            "RenderJoySettingsEditorComponent": {
-                "$type": "RenderJoySettingsEditorComponent",
-                "Id": 10258070016114864616
             }
         }
     },
     "Entities": {
         "Entity_[314610065415]": {
             "Id": "Entity_[314610065415]",
-            "Name": "PerlinWorleyNoise",
+            "Name": "PerlinWorleyNoise Shader",
             "Components": {
                 "EditorDisabledCompositionComponent": {
                     "$type": "EditorDisabledCompositionComponent",
@@ -92,34 +87,99 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 3670496622880899840
                 },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 16067844610086362611,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{7C559E29-2DEC-5D84-B434-C88CD46299BC}"
+                                },
+                                "assetHint": "levels/cloudtextureprototype/shaders/perlinworleynoise.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    }
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 627104654226233530
                 },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 15273035001908470999,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{7C559E29-2DEC-5D84-B434-C88CD46299BC}"
-                            },
-                            "assetHint": "levels/cloudtextureprototype/shaders/perlinworleynoise.azshader"
-                        },
-                        "InputChannels": [
-                            "",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "RenderTargetWidth": 512,
-                        "RenderTargetHeight": 512
-                    }
-                },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
                     "Id": 14563456690731862073,
-                    "Parent Entity": "Entity_[1146574390643]"
+                    "Parent Entity": "Entity_[597094055804]"
+                }
+            }
+        },
+        "Entity_[3459411731910]": {
+            "Id": "Entity_[3459411731910]",
+            "Name": "Cloud Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 12565479660531210229
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 5054494186427224281
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 15534820132912078563
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 1959943060363896089
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 14896200425097735316
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 11812019670145986311
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 12847508387488615240
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 4222251520441486750,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{C062C85E-4720-5FF9-850D-B128FA3D83EE}"
+                                },
+                                "assetHint": "levels/cloudtextureprototype/shaders/cloudtextureprototype.azshader"
+                            },
+                            "InputChannels": [
+                                "Entity_[314610065415]",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 16774489731494759991
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 15677492884438866842,
+                    "Parent Entity": "Entity_[597094055804]"
                 }
             }
         },
@@ -137,7 +197,11 @@
                 },
                 "EditorEntitySortComponent": {
                     "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434
+                    "Id": 412471392918652434,
+                    "Child Entity Order": [
+                        "Entity_[3459411731910]",
+                        "Entity_[314610065415]"
+                    ]
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
@@ -155,28 +219,18 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 4840068608094150098
                 },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 121689817064800960,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[3459411731910]"
+                        }
+                    }
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 6542505920671505724
-                },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 12379441108401212863,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{C062C85E-4720-5FF9-850D-B128FA3D83EE}"
-                            },
-                            "assetHint": "levels/cloudtextureprototype/shaders/cloudtextureprototype.azshader"
-                        },
-                        "InputChannels": [
-                            "Entity_[314610065415]",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "IsOutputPass": true
-                    }
                 },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",

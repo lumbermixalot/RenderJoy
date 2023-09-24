@@ -1,0 +1,383 @@
+{
+    "ContainerEntity": {
+        "Id": "ContainerEntity",
+        "Name": "RenderJoy_Image",
+        "Components": {
+            "EditorDisabledCompositionComponent": {
+                "$type": "EditorDisabledCompositionComponent",
+                "Id": 3700426014609106101
+            },
+            "EditorEntityIconComponent": {
+                "$type": "EditorEntityIconComponent",
+                "Id": 4312069543368999564
+            },
+            "EditorEntitySortComponent": {
+                "$type": "EditorEntitySortComponent",
+                "Id": 6278948832926256679,
+                "Child Entity Order": [
+                    "Entity_[2355605136838]"
+                ]
+            },
+            "EditorInspectorComponent": {
+                "$type": "EditorInspectorComponent",
+                "Id": 10240916094272976680
+            },
+            "EditorLockComponent": {
+                "$type": "EditorLockComponent",
+                "Id": 16409471413485587040
+            },
+            "EditorOnlyEntityComponent": {
+                "$type": "EditorOnlyEntityComponent",
+                "Id": 2982794763883000498
+            },
+            "EditorPendingCompositionComponent": {
+                "$type": "EditorPendingCompositionComponent",
+                "Id": 8083393791025883125
+            },
+            "EditorPrefabComponent": {
+                "$type": "EditorPrefabComponent",
+                "Id": 6851889427885748074
+            },
+            "EditorVisibilityComponent": {
+                "$type": "EditorVisibilityComponent",
+                "Id": 5154784433024657609
+            },
+            "TransformComponent": {
+                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                "Id": 40992474970911728,
+                "Parent Entity": ""
+            }
+        }
+    },
+    "Entities": {
+        "Entity_[2338425267654]": {
+            "Id": "Entity_[2338425267654]",
+            "Name": "Second image",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 8612550099609551318
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 5358357434353017605
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 9932674199667381664
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 6530254897025747113,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 11416170295346576130
+                        },
+                        {
+                            "ComponentId": 18443166294923840155,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 13030047913827271648
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 14387372174538230753
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 11461847547063448532
+                },
+                "EditorRenderJoyTextureComponent": {
+                    "$type": "EditorRenderJoyTextureComponent",
+                    "Id": 18443166294923840155,
+                    "Controller": {
+                        "Configuration": {
+                            "ImageAsset": {
+                                "assetId": {
+                                    "guid": "{E2B93A4E-3041-5FD0-8573-F788A25A1D49}",
+                                    "subId": 1000
+                                },
+                                "assetHint": "assets/renderjoy/images/jellyfish-1507290.jpg.streamingimage"
+                            }
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 3337882270057837059
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 11416170295346576130,
+                    "Parent Entity": "Entity_[2355605136838]"
+                }
+            }
+        },
+        "Entity_[2342720234950]": {
+            "Id": "Entity_[2342720234950]",
+            "Name": "About This Demo",
+            "Components": {
+                "EditorCommentComponent": {
+                    "$type": "EditorCommentComponent",
+                    "Id": 5112621170943938798,
+                    "Configuration": "A very simple shader that renders the image attached to iChannel0"
+                },
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 6183048378056637962
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 11867886606117764700
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 1048710074291108360
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 12249531792436566375
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 708852629582259108
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 10473264675889807600
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 9261146893753235961
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 14803742393099805402
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 14791440507312253047,
+                    "Parent Entity": "Entity_[2355605136838]"
+                }
+            }
+        },
+        "Entity_[2347015202246]": {
+            "Id": "Entity_[2347015202246]",
+            "Name": "First Image",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 13793684512851165413
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 8616409149878725065
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 9013853883952071227
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 1465530834720586478,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 3274199526186726907
+                        },
+                        {
+                            "ComponentId": 6280453626236471893,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 12442428685772045534
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 13026436341047335413
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 12623067843590482622
+                },
+                "EditorRenderJoyTextureComponent": {
+                    "$type": "EditorRenderJoyTextureComponent",
+                    "Id": 6280453626236471893,
+                    "Controller": {
+                        "Configuration": {
+                            "ImageAsset": {
+                                "assetId": {
+                                    "guid": "{946EA6A0-455D-5202-96C5-58BAA2FA9BD7}",
+                                    "subId": 1000
+                                },
+                                "assetHint": "assets/renderjoy/images/neom-npdnhmysl6y-unsplash.jpg.streamingimage"
+                            }
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 10253521258844189066
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 3274199526186726907,
+                    "Parent Entity": "Entity_[2355605136838]"
+                }
+            }
+        },
+        "Entity_[2351310169542]": {
+            "Id": "Entity_[2351310169542]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 9728339048778227455
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 3133950170968466793
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 17207998801887771584
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 11078137929963937045,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 5710982946359021008
+                        },
+                        {
+                            "ComponentId": 17655263551074948715,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 8273639701325317235
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 1272213559847039706
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 5855132275340651237
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 17655263551074948715,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{2738ED6E-AA61-530B-89B5-177351CC3B6A}"
+                                },
+                                "assetHint": "shaders/displaychannelimage.azshader"
+                            },
+                            "InputChannels": [
+                                "Entity_[2338425267654]",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 151752498713149919
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 5710982946359021008,
+                    "Parent Entity": "Entity_[2355605136838]",
+                    "Transform Data": {
+                        "Translate": [
+                            0.0,
+                            1.7708613872528076,
+                            -0.44976377487182617
+                        ]
+                    }
+                }
+            }
+        },
+        "Entity_[2355605136838]": {
+            "Id": "Entity_[2355605136838]",
+            "Name": "RenderJoy Image",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 15880355961909205448
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 16768783742235954279
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 15100788013429384681,
+                    "Child Entity Order": [
+                        "Entity_[2351310169542]",
+                        "Entity_[2347015202246]",
+                        "Entity_[2338425267654]",
+                        "Entity_[2342720234950]"
+                    ]
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 13062635919379416547,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 6492101128308731487
+                        },
+                        {
+                            "ComponentId": 7812660896693551065,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 554785055366110598
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 2135947396952652371
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 6814754904210683522
+                },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 7812660896693551065,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[2351310169542]"
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 4907043450936660559
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 6492101128308731487,
+                    "Parent Entity": "ContainerEntity"
+                }
+            }
+        }
+    }
+}

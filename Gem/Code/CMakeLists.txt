@@ -1,3 +1,10 @@
+#
+# Copyright (c) Contributors to the Open 3D Engine Project.
+# For complete copyright and license terms please see the LICENSE at the root of this distribution.
+#
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+#
+#
 
 # Currently we are in the Code folder: ${CMAKE_CURRENT_LIST_DIR}
 # Get the platform specific folder ${pal_dir} for the current folder: ${CMAKE_CURRENT_LIST_DIR}/Platform/${PAL_PLATFORM_NAME}
@@ -16,6 +23,84 @@ include(${pal_dir}/PAL_${PAL_PLATFORM_NAME_LOWERCASE}.cmake)
 if(NOT PAL_TRAIT_RENDERJOY_SUPPORTED)
     return()
 endif()
+
+# The ${gem_name}.API target declares the common interface that users of this gem should depend on in their targets
+ly_add_target(
+    NAME ${gem_name}.API INTERFACE
+    NAMESPACE Gem
+    FILES_CMAKE
+        renderjoy_api_files.cmake
+        ${pal_dir}/renderjoy_api_files.cmake
+    INCLUDE_DIRECTORIES
+        INTERFACE
+            Include
+    BUILD_DEPENDENCIES
+        INTERFACE
+           AZ::AzCore
+           Gem::Atom_RPI.Public
+           Gem::Atom_Feature_Common
+           Gem::Atom_Feature_Common.Public
+           Gem::Atom_Feature_Common.Static
+)
+
+# The ${gem_name}.Private.Object target is an internal target
+# It should not be used outside of this Gems CMakeLists.txt
+ly_add_target(
+    NAME ${gem_name}.Private.Object STATIC
+    NAMESPACE Gem
+    FILES_CMAKE
+        renderjoy_private_files.cmake
+        ${pal_dir}/renderjoy_private_files.cmake
+    TARGET_PROPERTIES
+        O3DE_PRIVATE_TARGET TRUE
+    INCLUDE_DIRECTORIES
+        PRIVATE
+            Include
+            Source
+    BUILD_DEPENDENCIES
+        PUBLIC
+            AZ::AzCore
+            AZ::AzFramework
+            Gem::Atom_RPI.Public
+            Gem::Atom_Utils.Static
+            Gem::Atom_Feature_Common
+            Gem::AtomLyIntegration_CommonFeatures.Static
+)
+
+# Here add ${gem_name} target, it depends on the Private Object library and Public API interface
+ly_add_target(
+    NAME ${gem_name} ${PAL_TRAIT_MONOLITHIC_DRIVEN_MODULE_TYPE}
+    NAMESPACE Gem
+    FILES_CMAKE
+        renderjoy_shared_files.cmake
+        ${pal_dir}/renderjoy_shared_files.cmake
+    INCLUDE_DIRECTORIES
+        PUBLIC
+            Include
+        PRIVATE
+            Source
+    BUILD_DEPENDENCIES
+        PUBLIC
+            Gem::${gem_name}.API
+        PRIVATE
+            Gem::${gem_name}.Private.Object
+)
+
+# By default, we will specify that the above target ${gem_name} would be used by
+# Client and Server type targets when this gem is enabled.  If you don't want it
+# active in Clients or Servers by default, delete one of both of the following lines:
+ly_create_alias(NAME ${gem_name}.Clients NAMESPACE Gem TARGETS Gem::${gem_name})
+ly_create_alias(NAME ${gem_name}.Servers NAMESPACE Gem TARGETS Gem::${gem_name})
+ly_create_alias(NAME ${gem_name}.Unified NAMESPACE Gem TARGETS Gem::${gem_name})
+
+# For the Client and Server variants of ${gem_name} Gem, an alias to the ${gem_name}.API target will be made
+ly_create_alias(NAME ${gem_name}.Clients.API NAMESPACE Gem TARGETS Gem::${gem_name}.API)
+ly_create_alias(NAME ${gem_name}.Servers.API NAMESPACE Gem TARGETS Gem::${gem_name}.API)
+ly_create_alias(NAME ${gem_name}.Unified.API NAMESPACE Gem TARGETS Gem::${gem_name}.API)
+
+# Add in CMake dependencies for each gem dependency listed in this gem's gem.json file
+# for the Clients, Servers and Unified gem variants
+o3de_add_variant_dependencies_for_gem_dependencies(GEM_NAME ${gem_name} VARIANTS Clients Servers Unified)
 
 # If we are on a host platform, we want to add the host tools targets like the ${gem_name}.Editor MODULE target
 if(PAL_TRAIT_BUILD_HOST_TOOLS)
@@ -40,9 +125,6 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
     ly_add_target(
         NAME ${gem_name}.Editor.Private.Object STATIC
         NAMESPACE Gem
-        AUTOMOC
-        AUTOUIC
-        AUTORCC
         FILES_CMAKE
             renderjoy_editor_private_files.cmake
         TARGET_PROPERTIES
@@ -54,15 +136,12 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
                 Source
         BUILD_DEPENDENCIES
             PUBLIC
-                AZ::AzCore
-                AZ::AzFramework
                 AZ::AzToolsFramework
+                $<TARGET_OBJECTS:Gem::${gem_name}.Private.Object>
                 Gem::AtomToolsFramework.Static
                 Gem::AtomToolsFramework.Editor
                 Gem::Atom_RHI.Public
                 Gem::Atom_RPI.Public
-                Legacy::Editor.Headers
-                Legacy::EditorLib
     )
 
     ly_add_target(
@@ -93,6 +172,10 @@ if(PAL_TRAIT_BUILD_HOST_TOOLS)
     ly_create_alias(NAME ${gem_name}.Tools.API NAMESPACE Gem TARGETS Gem::${gem_name}.Editor.API)
     ly_create_alias(NAME ${gem_name}.Builders.API NAMESPACE Gem TARGETS Gem::${gem_name}.Editor.API)
 
+    # Add in CMake dependencies for each gem dependency listed in this gem's gem.json file
+    # for the Tools and Builders gem variants
+    o3de_add_variant_dependencies_for_gem_dependencies(GEM_NAME ${gem_name} VARIANTS Tools Builders)
+
 endif()
 
 ################################################################################
@@ -100,6 +183,32 @@ endif()
 ################################################################################
 # See if globally, tests are supported
 if(PAL_TRAIT_BUILD_TESTS_SUPPORTED)
+    # We globally support tests, see if we support tests on this platform for ${gem_name}.Tests
+    if(PAL_TRAIT_RENDERJOY_TEST_SUPPORTED)
+        # We support ${gem_name}.Tests on this platform, add dependency on the Private Object target
+        ly_add_target(
+            NAME ${gem_name}.Tests ${PAL_TRAIT_TEST_TARGET_TYPE}
+            NAMESPACE Gem
+            FILES_CMAKE
+                renderjoy_tests_files.cmake
+            INCLUDE_DIRECTORIES
+                PRIVATE
+                    Tests
+                    Source
+                    Include
+            BUILD_DEPENDENCIES
+                PRIVATE
+                    AZ::AzTest
+                    AZ::AzFramework
+                    Gem::${gem_name}.Private.Object
+        )
+
+        # Add ${gem_name}.Tests to googletest
+        ly_add_googletest(
+            NAME Gem::${gem_name}.Tests
+        )
+    endif()
+
     # If we are a host platform we want to add tools test like editor tests here
     if(PAL_TRAIT_BUILD_HOST_TOOLS)
         # We are a host platform, see if Editor tests are supported on this platform

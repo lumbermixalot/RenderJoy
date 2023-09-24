@@ -1,5 +1,9 @@
 { 
     "Source" : "DisplayChannelImage.azsl",
+    
+    "AddBuildArguments": {
+      "debug": false
+    },
 
     "DepthStencilState" : 
     {

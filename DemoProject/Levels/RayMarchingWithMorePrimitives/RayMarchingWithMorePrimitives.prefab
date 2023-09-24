@@ -19,9 +19,7 @@
                 "$type": "EditorEntitySortComponent",
                 "Id": 14126657869720434043,
                 "Child Entity Order": [
-                    "Entity_[597094055804]",
-                    "Entity_[521787825569]",
-                    "Entity_[526082792865]"
+                    "Entity_[1635545927803]"
                 ]
             },
             "Component_[15230859088967841193]": {
@@ -53,16 +51,158 @@
                 "$type": "LocalViewBookmarkComponent",
                 "Id": 11122665660198416446,
                 "LocalBookmarkFileName": "RayMarching_16819029739206717.setreg"
-            },
-            "RenderJoySettingsEditorComponent": {
-                "$type": "RenderJoySettingsEditorComponent",
-                "Id": 14295510149120505907
             }
         }
     },
     "Entities": {
-        "Entity_[521787825569]": {
-            "Id": "Entity_[521787825569]",
+        "Entity_[1635545927803]": {
+            "Id": "Entity_[1635545927803]",
+            "Name": "RayMarchingWithMorePrimitives",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 16394652661137783885
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 1282557575705256263
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 412471392918652434,
+                    "Child Entity Order": [
+                        "Entity_[1639840895099]",
+                        "Entity_[1648430829691]",
+                        "Entity_[1644135862395]"
+                    ]
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 15194449258439760064,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 8648535109438981924
+                        },
+                        {
+                            "ComponentId": 14223236441040090887,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 13180443100171049933
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 18431621524732590685
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 4840068608094150098
+                },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 14223236441040090887,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[1639840895099]",
+                            "DisplayMode": 1
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 6542505920671505724
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 8648535109438981924,
+                    "Parent Entity": "Entity_[1146574390643]",
+                    "Transform Data": {
+                        "Translate": [
+                            19.98255729675293,
+                            25.949466705322266,
+                            -5.22939920425415
+                        ]
+                    }
+                }
+            }
+        },
+        "Entity_[1639840895099]": {
+            "Id": "Entity_[1639840895099]",
+            "Name": "OutputPass",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 9848445340395873823
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 12147802173957082087
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 14119612529809461917
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 16416222643341887125,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 16920923835999679997
+                        },
+                        {
+                            "ComponentId": 8007956000758176522,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 15767734644939828159
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 7965415848034904372
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 15632698286048920478
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 8007956000758176522,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{7C507CED-CCB4-5FEA-A639-542F2B4FBD13}"
+                                },
+                                "assetHint": "levels/raymarchingwithmoreprimitives/shaders/raymarchingwithmoreprimitives.azshader"
+                            },
+                            "InputChannels": [
+                                "Entity_[1644135862395]",
+                                "",
+                                "",
+                                ""
+                            ]
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 4726479155454724516
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 16920923835999679997,
+                    "Parent Entity": "Entity_[1635545927803]"
+                }
+            }
+        },
+        "Entity_[1644135862395]": {
+            "Id": "Entity_[1644135862395]",
             "Name": "ControlPass",
             "Components": {
                 "EditorDisabledCompositionComponent": {
@@ -79,7 +219,16 @@
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
-                    "Id": 6146755956742767926
+                    "Id": 6146755956742767926,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 8450320065856528333
+                        },
+                        {
+                            "ComponentId": 15517393181495482009,
+                            "SortIndex": 1
+                        }
+                    ]
                 },
                 "EditorLockComponent": {
                     "$type": "EditorLockComponent",
@@ -93,37 +242,39 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 9341405423411135073
                 },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 15517393181495482009,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{D8248186-0B9E-54C1-B141-D6985EFD6312}"
+                                },
+                                "assetHint": "levels/raymarchingwithmoreprimitives/shaders/controlpass.azshader"
+                            },
+                            "InputChannels": [
+                                "Entity_[1644135862395]",
+                                "Entity_[1648430829691]",
+                                "",
+                                ""
+                            ]
+                        }
+                    }
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 17518091326987102411
                 },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 4721087041019374719,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{D8248186-0B9E-54C1-B141-D6985EFD6312}"
-                            },
-                            "assetHint": "levels/raymarchingwithmoreprimitives/shaders/controlpass.azshader"
-                        },
-                        "InputChannels": [
-                            "Entity_[521787825569]",
-                            "Entity_[526082792865]",
-                            "",
-                            ""
-                        ]
-                    }
-                },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
                     "Id": 8450320065856528333,
-                    "Parent Entity": "Entity_[1146574390643]"
+                    "Parent Entity": "Entity_[1635545927803]"
                 }
             }
         },
-        "Entity_[526082792865]": {
-            "Id": "Entity_[526082792865]",
+        "Entity_[1648430829691]": {
+            "Id": "Entity_[1648430829691]",
             "Name": "Keyboard",
             "Components": {
                 "EditorDisabledCompositionComponent": {
@@ -140,7 +291,16 @@
                 },
                 "EditorInspectorComponent": {
                     "$type": "EditorInspectorComponent",
-                    "Id": 17447974704592732972
+                    "Id": 17447974704592732972,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 8837415460188816281
+                        },
+                        {
+                            "ComponentId": 16240133287312891994,
+                            "SortIndex": 1
+                        }
+                    ]
                 },
                 "EditorLockComponent": {
                     "$type": "EditorLockComponent",
@@ -154,83 +314,18 @@
                     "$type": "EditorPendingCompositionComponent",
                     "Id": 6677933616025000349
                 },
+                "EditorRenderJoyKeyboardComponent": {
+                    "$type": "EditorRenderJoyKeyboardComponent",
+                    "Id": 16240133287312891994
+                },
                 "EditorVisibilityComponent": {
                     "$type": "EditorVisibilityComponent",
                     "Id": 4475638257519773142
                 },
-                "RenderJoyKeyboardEditorComponent": {
-                    "$type": "RenderJoyKeyboardEditorComponent",
-                    "Id": 1357046121155797539,
-                    "Config": {
-                        "ClearKeyPressedWaitTime": 500
-                    }
-                },
                 "TransformComponent": {
                     "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
                     "Id": 8837415460188816281,
-                    "Parent Entity": "Entity_[1146574390643]"
-                }
-            }
-        },
-        "Entity_[597094055804]": {
-            "Id": "Entity_[597094055804]",
-            "Name": "RayMarchingWithMorePrimitives",
-            "Components": {
-                "EditorDisabledCompositionComponent": {
-                    "$type": "EditorDisabledCompositionComponent",
-                    "Id": 16394652661137783885
-                },
-                "EditorEntityIconComponent": {
-                    "$type": "EditorEntityIconComponent",
-                    "Id": 1282557575705256263
-                },
-                "EditorEntitySortComponent": {
-                    "$type": "EditorEntitySortComponent",
-                    "Id": 412471392918652434
-                },
-                "EditorInspectorComponent": {
-                    "$type": "EditorInspectorComponent",
-                    "Id": 15194449258439760064
-                },
-                "EditorLockComponent": {
-                    "$type": "EditorLockComponent",
-                    "Id": 13180443100171049933
-                },
-                "EditorOnlyEntityComponent": {
-                    "$type": "EditorOnlyEntityComponent",
-                    "Id": 18431621524732590685
-                },
-                "EditorPendingCompositionComponent": {
-                    "$type": "EditorPendingCompositionComponent",
-                    "Id": 4840068608094150098
-                },
-                "EditorVisibilityComponent": {
-                    "$type": "EditorVisibilityComponent",
-                    "Id": 6542505920671505724
-                },
-                "RenderJoyPassEditorComponent": {
-                    "$type": "RenderJoyPassEditorComponent",
-                    "Id": 9347923606193280101,
-                    "Config": {
-                        "ShaderAsset": {
-                            "assetId": {
-                                "guid": "{7C507CED-CCB4-5FEA-A639-542F2B4FBD13}"
-                            },
-                            "assetHint": "levels/raymarchingwithmoreprimitives/shaders/raymarchingwithmoreprimitives.azshader"
-                        },
-                        "InputChannels": [
-                            "Entity_[521787825569]",
-                            "",
-                            "",
-                            ""
-                        ],
-                        "IsOutputPass": true
-                    }
-                },
-                "TransformComponent": {
-                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
-                    "Id": 8648535109438981924,
-                    "Parent Entity": "Entity_[1146574390643]"
+                    "Parent Entity": "Entity_[1635545927803]"
                 }
             }
         }

@@ -1,6 +1,10 @@
 { 
     "Source" : "Seascape.azsl",
 
+    "AddBuildArguments": {
+      "debug": false
+    },
+    
     "DepthStencilState" : 
     {
         "Depth" : 

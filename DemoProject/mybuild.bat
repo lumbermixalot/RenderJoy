@@ -14,4 +14,4 @@ REM Will start AP if it's not running, will wait 3 seconds if the AP needed to b
 tasklist /nh /fi "imagename eq %AP%" | find /i "%AP%" > nul || (start %BINDIR%\%AP% & timeout /t 3 /nobreak)
 
 
-REM cmake --build build --target Editor --config debug -- /m
+cmake --build build --target Editor --config debug -- /m

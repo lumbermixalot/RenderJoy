@@ -13,7 +13,7 @@ static const int2 MaxDataCoordinates = int2(6,1);
 float4 loadValue( in int2 pixCoord )
 {
     //return texelFetch( iChannel0, re, 0 );
-    return PassSrg::m_channel[0].Load( int3(pixCoord, 0) );
+    return iChannel0.Load( int3(pixCoord, 0) );
 }
 
 
