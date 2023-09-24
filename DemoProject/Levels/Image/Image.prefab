@@ -19,7 +19,7 @@
                 "$type": "EditorEntitySortComponent",
                 "Id": 14126657869720434043,
                 "Child Entity Order": [
-                    "Instance_[6968047862781]/ContainerEntity"
+                    "Instance_[2329835333062]/ContainerEntity"
                 ]
             },
             "Component_[15230859088967841193]": {
@@ -49,14 +49,14 @@
             },
             "LocalViewBookmarkComponent": {
                 "$type": "LocalViewBookmarkComponent",
-                "Id": 10950560171703160016,
-                "LocalBookmarkFileName": "Mouse_Demo_16818700691721575.setreg"
+                "Id": 1004221476252031311,
+                "LocalBookmarkFileName": "Seascape_16818699112181311.setreg"
             }
         }
     },
     "Instances": {
-        "Instance_[6968047862781]": {
-            "Source": "Prefabs/RenderJoy_Mouse.prefab",
+        "Instance_[2329835333062]": {
+            "Source": "Prefabs/RenderJoy_Image.prefab",
             "Patches": [
                 {
                     "op": "replace",

@@ -1,6 +1,10 @@
 { 
     "Source" : "MouseDemo.azsl",
 
+    "AddBuildArguments": {
+      "debug": false
+    },
+    
     "DepthStencilState" : 
     {
         "Depth" : 

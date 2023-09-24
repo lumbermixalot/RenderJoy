@@ -206,10 +206,17 @@ PSOutput MainPS(VSOutput IN)
     //float invGamma = 2.2;
     //color.rgb = pow(color.rgb, float3(invGamma, invGamma, invGamma));
 
-    color.rgb = TransformColor(color.rgb, ColorSpaceId::LinearSRGB, ColorSpaceId::ACEScg);
+    //color.rgb = TransformColor(color.rgb, ColorSpaceId::LinearSRGB, ColorSpaceId::ACEScg);
+    //color.rgb = TransformColor(color.rgb, ColorSpaceId::SRGB, ColorSpaceId::ACEScg);
+
+    
+    // Textures look great with this.
+    //color.rgb = TransformColor(color.rgb, ColorSpaceId::ACEScg, ColorSpaceId::SRGB);
+    
+    
     //color.rgb = TransformColor(color.rgb, ColorSpaceId::LinearSRGB, ColorSpaceId::SRGB);
     //color.rgb = HsvToRgb(color.rgb);
-    color.a = 1.0;
+    color.a = 1.00;
 
     OUT.m_color = color;
 

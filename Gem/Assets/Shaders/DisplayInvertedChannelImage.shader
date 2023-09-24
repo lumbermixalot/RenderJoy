@@ -1,6 +1,10 @@
 { 
     "Source" : "DisplayInvertedChannelImage.azsl",
 
+    "AddBuildArguments": {
+      "debug": false
+    },
+    
     "DepthStencilState" : 
     {
         "Depth" : 

@@ -1,6 +1,10 @@
 { 
     "Source" : "LiberationOfTheTrueSelf.azsl",
 
+    "AddBuildArguments": {
+      "debug": false
+    },
+    
     "DepthStencilState" : 
     {
         "Depth" : 

@@ -1,0 +1,255 @@
+{
+    "ContainerEntity": {
+        "Id": "ContainerEntity",
+        "Name": "RenderJoy_Mouse",
+        "Components": {
+            "EditorDisabledCompositionComponent": {
+                "$type": "EditorDisabledCompositionComponent",
+                "Id": 10068523996344745610
+            },
+            "EditorEntityIconComponent": {
+                "$type": "EditorEntityIconComponent",
+                "Id": 7807834084670540563
+            },
+            "EditorEntitySortComponent": {
+                "$type": "EditorEntitySortComponent",
+                "Id": 3760780672436886615,
+                "Child Entity Order": [
+                    "Entity_[6976637797373]"
+                ]
+            },
+            "EditorInspectorComponent": {
+                "$type": "EditorInspectorComponent",
+                "Id": 15029204733506997353
+            },
+            "EditorLockComponent": {
+                "$type": "EditorLockComponent",
+                "Id": 13595106021983736023
+            },
+            "EditorOnlyEntityComponent": {
+                "$type": "EditorOnlyEntityComponent",
+                "Id": 10462254724668288590
+            },
+            "EditorPendingCompositionComponent": {
+                "$type": "EditorPendingCompositionComponent",
+                "Id": 13020336027612127062
+            },
+            "EditorPrefabComponent": {
+                "$type": "EditorPrefabComponent",
+                "Id": 17655763873084542310
+            },
+            "EditorVisibilityComponent": {
+                "$type": "EditorVisibilityComponent",
+                "Id": 3128379144470694427
+            },
+            "TransformComponent": {
+                "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                "Id": 9414641624169462427,
+                "Parent Entity": ""
+            }
+        }
+    },
+    "Entities": {
+        "Entity_[6976637797373]": {
+            "Id": "Entity_[6976637797373]",
+            "Name": "RenderJoy Mouse",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 6682507249842258972
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 12457126788114832103
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 6125332668498729486,
+                    "Child Entity Order": [
+                        "Entity_[6985227731965]",
+                        "Entity_[6980932764669]"
+                    ]
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 1481287015483723942,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 2263357850249801572
+                        },
+                        {
+                            "ComponentId": 2425099509733447490,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 18038819962837203461
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 10740418297627782392
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 12912127865600185591
+                },
+                "EditorRenderJoyBillboardComponent": {
+                    "$type": "EditorRenderJoyBillboardComponent",
+                    "Id": 2425099509733447490,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderEntityId": "Entity_[6980932764669]",
+                            "DisplayMode": 1
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 13669833419983682998
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 2263357850249801572,
+                    "Parent Entity": "ContainerEntity"
+                }
+            }
+        },
+        "Entity_[6980932764669]": {
+            "Id": "Entity_[6980932764669]",
+            "Name": "Shader",
+            "Components": {
+                "EditorDisabledCompositionComponent": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 13656510654541240349
+                },
+                "EditorEntityIconComponent": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 12862804420566513165
+                },
+                "EditorEntitySortComponent": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 7987480390831804437
+                },
+                "EditorInspectorComponent": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 15931408740837564023,
+                    "ComponentOrderEntryArray": [
+                        {
+                            "ComponentId": 1649618047260977559
+                        },
+                        {
+                            "ComponentId": 12174972140993595630,
+                            "SortIndex": 1
+                        }
+                    ]
+                },
+                "EditorLockComponent": {
+                    "$type": "EditorLockComponent",
+                    "Id": 11464368190241452663
+                },
+                "EditorOnlyEntityComponent": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 15757354679414078314
+                },
+                "EditorPendingCompositionComponent": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 6469281584129662093
+                },
+                "EditorRenderJoyShaderComponent": {
+                    "$type": "EditorRenderJoyShaderComponent",
+                    "Id": 12174972140993595630,
+                    "Controller": {
+                        "Configuration": {
+                            "ShaderAsset": {
+                                "assetId": {
+                                    "guid": "{6ACCE349-DE30-5F9D-9B7F-EB7E5D72DB0F}"
+                                },
+                                "assetHint": "shaders/mousedemo.azshader"
+                            },
+                            "InputChannels": [
+                                "",
+                                "",
+                                "",
+                                ""
+                            ],
+                            "RenderTargetFormat": "R8G8B8A8_UNORM"
+                        }
+                    }
+                },
+                "EditorVisibilityComponent": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 1907585217188851031
+                },
+                "TransformComponent": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 1649618047260977559,
+                    "Parent Entity": "Entity_[6976637797373]",
+                    "Transform Data": {
+                        "Translate": [
+                            -2.346820831298828,
+                            -0.08930778503417969,
+                            0.0
+                        ]
+                    }
+                }
+            }
+        },
+        "Entity_[6985227731965]": {
+            "Id": "Entity_[6985227731965]",
+            "Name": "AboutThisDemo",
+            "Components": {
+                "Component_[11035233810340591782]": {
+                    "$type": "EditorEntitySortComponent",
+                    "Id": 11035233810340591782
+                },
+                "Component_[12663900458749687616]": {
+                    "$type": "{27F1E1A1-8D9D-4C3B-BD3A-AFB9762449C0} TransformComponent",
+                    "Id": 12663900458749687616,
+                    "Parent Entity": "Entity_[6976637797373]",
+                    "Transform Data": {
+                        "Translate": [
+                            -0.016172213479876518,
+                            -0.10000801086425781,
+                            -3.9998083114624023
+                        ]
+                    }
+                },
+                "Component_[13401419250448702501]": {
+                    "$type": "EditorEntityIconComponent",
+                    "Id": 13401419250448702501
+                },
+                "Component_[13412822944589561721]": {
+                    "$type": "EditorCommentComponent",
+                    "Id": 13412822944589561721,
+                    "Configuration": "Trivial shader example on how to use the mouse input.\n\nThis is a port of:\nhttps://www.shadertoy.com/view/Mss3zH\n\nPorted to RenderJoy by Galib Arrieta (galib.arrieta@gmail.com)."
+                },
+                "Component_[137435919328711343]": {
+                    "$type": "EditorVisibilityComponent",
+                    "Id": 137435919328711343
+                },
+                "Component_[15033494963607993575]": {
+                    "$type": "EditorInspectorComponent",
+                    "Id": 15033494963607993575
+                },
+                "Component_[15661981966821915006]": {
+                    "$type": "EditorOnlyEntityComponent",
+                    "Id": 15661981966821915006
+                },
+                "Component_[2427985940250778409]": {
+                    "$type": "EditorPendingCompositionComponent",
+                    "Id": 2427985940250778409
+                },
+                "Component_[553008529981986098]": {
+                    "$type": "EditorLockComponent",
+                    "Id": 553008529981986098
+                },
+                "Component_[9069579591518304630]": {
+                    "$type": "EditorDisabledCompositionComponent",
+                    "Id": 9069579591518304630
+                }
+            }
+        }
+    }
+}

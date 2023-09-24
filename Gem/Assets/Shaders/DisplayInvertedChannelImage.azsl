@@ -11,6 +11,7 @@
 */
 
 #include <RenderJoy/RenderJoyPassSrg.azsli>
+#include <Atom/Features/ColorManagement/TransformColor.azsli>
 
 // Simply displays the (1 - color) pixels of the texture attached to channel0.
 PSOutput MainPS(VSOutput IN)
@@ -20,7 +21,15 @@ PSOutput MainPS(VSOutput IN)
     // Normalized pixel coordinates (from 0 to 1)
     float2 uv = IN.m_position.xy / PassSrg::m_resolution.xy;
     float4 texColor = float4(1, 1, 1, 1) - iChannel0.Sample(PassSrg::LinearSampler, uv);
-    OUT.m_color = float4(texColor.rgb,1);
+
+    // By default, images are stored in LinearSRGB R32G32B32A32F format
+    // in the asset catalog. Need to convert the color to SRGB for them to look good.
+    
+    // Textures look great with this.
+    //texColor.rgb = TransformColor(texColor.rgb, ColorSpaceId::ACEScg, ColorSpaceId::SRGB);
+    texColor.rgb = TransformColor(texColor.rgb, ColorSpaceId::LinearSRGB, ColorSpaceId::SRGB);
+
+    OUT.m_color = float4(texColor.rgb, 1.0);
 
     return OUT;
 }

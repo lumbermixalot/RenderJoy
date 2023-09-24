@@ -21,6 +21,7 @@
 
 #include <Atom/Features/SrgSemantics.azsli>
 #include <Atom/Features/PostProcessing/FullscreenVertex.azsli>
+//#include <Atom/Features/ColorManagement/TransformColor.azsli>
 
 // The default render target semantic has four color components.
 // But you can change it as needed.
