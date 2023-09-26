@@ -13,6 +13,7 @@ set(FILES
     Include/RenderJoy/RenderJoyFeatureProcessorInterface.h
     Include/RenderJoy/RenderJoyPassBus.h
     Include/RenderJoy/RenderJoyTextureProviderBus.h
+    Include/RenderJoy/RenderJoyBillboardBus.h
     Include/RenderJoy/IRenderJoySrgDataProvider.h
     Include/RenderJoy/IKeyboardComponentsManager.h
 )

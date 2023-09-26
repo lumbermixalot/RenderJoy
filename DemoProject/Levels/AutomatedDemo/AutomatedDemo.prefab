@@ -217,9 +217,9 @@
                     "Parent Entity": "Entity_[1176639161715]",
                     "Transform Data": {
                         "Translate": [
-                            0.06589680910110474,
-                            -3.1008691787719727,
-                            4.059997081756592
+                            0.0,
+                            -3.2473840713500977,
+                            2.354097843170166
                         ]
                     }
                 },
@@ -568,7 +568,7 @@
                         "Translate": [
                             0.0,
                             0.0,
-                            4.0
+                            2.3475265502929688
                         ]
                     }
                 }
@@ -650,7 +650,7 @@
                                     "value": {
                                         "$type": "Vector3",
                                         "value": [
-                                            1.0,
+                                            0.0,
                                             0.0,
                                             1.0
                                         ]
@@ -658,9 +658,9 @@
                                 },
                                 {
                                     "$type": "AzFramework::ScriptPropertyNumber",
-                                    "id": 455819407,
-                                    "name": "rotationSpeed",
-                                    "value": 1.0
+                                    "id": 773336689,
+                                    "name": "viewTimePerShader",
+                                    "value": 5.0
                                 }
                             ]
                         },
@@ -905,7 +905,7 @@
                 {
                     "op": "replace",
                     "path": "/ContainerEntity/Components/TransformComponent/Transform Data/Translate/2",
-                    "value": 4.0
+                    "value": 2.3480000495910645
                 }
             ]
         }

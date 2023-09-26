@@ -33,6 +33,8 @@
         "StartingPointInput",
         "TextureAtlas",
         "QtForPython",
+        "ScriptedEntityTweener",
+        "RemoteTools",
         "RenderJoy"
     ],
     "engine_version": "2.0.0"
