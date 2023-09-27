@@ -4,13 +4,17 @@ local automated_demo = {
     Properties = {
         cubeEntity = { default = EntityId()
                             , description="The parent entity of all RenderJoy billboards" },
-        pacmanEntity = { default = EntityId()
-                            , description="The entity that owns the Pacman billboard" },
+        pacmanParentEntity = { default = EntityId()
+                            , description="The parent entity that owns the Pacman billboard entity." },
         cameraEntity = { default = EntityId()
                             , description="The entity that owns the main camera"},
         viewTimePerShader = { default = 6.0
                             , description="How many seconds a particular shader effect will be in focus"
                             , suffix="s"},
+        finalPositions = {
+            default = { Vector3(-3.0, 1.5, 3.598),  Vector3(0.0, 1.5, 1.25),  Vector3(3.0, 1.5, 1.25),
+                        Vector3(-3.0, 1.5, -1.25), Vector3(0.0, 1.5, -1.25), Vector3(3.0, 1.5, 1.098), }
+            , description="Final positions for the billboards."},
     }
 }
 
@@ -20,9 +24,9 @@ function automated_demo:OnActivate()
         self._cubeEntity = self.Properties.cubeEntity
     end
     
-    self._pacmanEntity = self.entityId
-    if EntityId.IsValid(self.Properties.pacmanEntity) then
-        self._pacmanEntity = self.Properties.pacmanEntity
+    self._pacmanParentEntity = self.entityId
+    if EntityId.IsValid(self.Properties.pacmanParentEntity) then
+        self._pacmanParentEntity = self.Properties.pacmanParentEntity
     end
 
     self._cameraEntity = self.entityId
@@ -64,10 +68,12 @@ end
 function automated_demo:_OnTickState_WaitinForCompletion(deltaTime, timePoint)
     if self._totalTime >= 1.0 then
         self:_DiscoverBillboardEntities()
-        self:_ForceBillboardMode()
-        --self._currentState = self._OnTickState_TweenSetup
-        self._currentState = self._OnTickState_WaitingForCompletion
-        self:_OnTweenComplete()
+        self:_DiscoverPacmanEntities()
+        --self:_ForceBillboardMode()
+        --self:_DumpBillboardPositions()
+        self._currentState = self._OnTickState_FirstTimelineSetup
+        --self._currentState = self._OnTickState_SecondTimelineSetup
+        --self:_OnTweenComplete()
     end
 end
 
@@ -100,7 +106,7 @@ end
 --     self._currentState = self._OnTickState_WaitingForCompletion
 -- end
 
-function automated_demo:_OnTickState_TweenSetup(deltaTime, timePoint)
+function automated_demo:_OnTickState_FirstTimelineSetup(deltaTime, timePoint)
 
     local timeline1 = self._tweener:TimelineCreate()
 
@@ -277,15 +283,78 @@ function automated_demo:_OnTickState_TweenSetup(deltaTime, timePoint)
 
     timeline1:Play()
 
-    self._currentState = self._OnTickState_WaitingForCompletion
+    self._done = false
+    self._currentState = self._OnTickState_WaitingForFirstTimeline
 end
 
-function automated_demo:_OnTickState_WaitingForCompletion(deltaTime, timePoint)
+-- When this is called, it is assumed all billboards are in Billboard mode, facing the camera.
+function automated_demo:_OnTickState_SecondTimelineSetup(deltaTime, timePoint)
+
+    local positions = self.Properties.finalPositions
+    -- local entities = self._billboardEntities
+    local entities = self._parentEntities
+
+    local timeline1 = self._tweener:TimelineCreate()
+
+    local easeM = ScriptedEntityTweenerEasingMethod_Elastic
+    local easeT = ScriptedEntityTweenerEasingType_Out
+    local travelTime = 1.0
+
+    local numEntities = #entities
+    for i=1,numEntities do
+        local tweenArgs = {
+            easeMethod = easeM,
+            easeType = easeT,
+            ["3dposition"] = positions[i], --Vector3(0.0, 0.0, math.pi),
+            --onComplete = onCompleteCB
+        }
+        --if i == numEntities then
+        --    tweenArgs['onComplete'] = onCompleteCB
+        --end
+        timeline1:Add(entities[i], travelTime, tweenArgs)
+    end
+
+    -- Finally add the pacman position animation
+    local onCompleteCB = function ()
+        self:_OnTweenComplete()
+        -- self:_DumpBillboardPositions()
+    end
+
+    local finalPos = self._pacmanCurrentPosition:Clone()
+    finalPos.y = -2.0
+
+    local tweenArgsPacman = {
+        easeMethod = ScriptedEntityTweenerEasingMethod_Cubic,
+        easeType = ScriptedEntityTweenerEasingType_Out,
+        ["3dposition"] = finalPos, --Vector3(0.0, 0.0, math.pi),
+        onComplete = onCompleteCB
+    }
+    timeline1:Add(self._pacmanParentEntity, 3.0, tweenArgsPacman)
+
+
+    timeline1:Play()
+
+    self._done = false
+    self._currentState = self._OnTickState_WaitingForSecondTimeline
+
+end
+
+function automated_demo:_OnTickState_WaitingForFirstTimeline(deltaTime, timePoint)
+    if self._done then
+        self._currentState = self._OnTickState_SecondTimelineSetup
+        --Debug.Log("Disconnecting from ticks")
+        --self.tickBusHandler:Disconnect()
+        --self.tickBusHandler = nil
+        self:_ForceBillboardMode()
+    end
+end
+
+function automated_demo:_OnTickState_WaitingForSecondTimeline(deltaTime, timePoint)
     if self._done then
         Debug.Log("Disconnecting from ticks")
         self.tickBusHandler:Disconnect()
         self.tickBusHandler = nil
-        self:_ForceBillboardMode()
+        --self:_ForceBillboardMode()
     end
 end
 
@@ -317,6 +386,7 @@ function automated_demo:_DiscoverBillboardEntities()
     -- These are typically the parent entity of the Spawnable.
 
     local billboardEntities = {}
+    local parentEntities = {}
     local billboardIndex = 0
 
     -- vector_EntityId
@@ -334,12 +404,14 @@ function automated_demo:_DiscoverBillboardEntities()
             Debug.Log("automated_demo:_DiscoverBillboardEntities billboard with name=" .. billboardName)
             billboardIndex = billboardIndex + 1
             billboardEntities[billboardIndex] = billboardEntity
+            parentEntities[billboardIndex] = entity
         else
             Debug.Warning(false, "automated_demo:_DiscoverBillboardEntities Spawnable Root with name=" .. entityName .. " has unexpected amount of children=" .. tostring(spawnableChildren:Size()))
         end
     end
 
     self._billboardEntities = billboardEntities
+    self._parentEntities = parentEntities
 end
 
 
@@ -347,6 +419,27 @@ function automated_demo:_ForceBillboardMode()
     for _, billboardEntity in ipairs(self._billboardEntities) do
         RenderJoyBillboardBus.Event.SetBillboardMode(billboardEntity, true);
     end
+end
+
+function automated_demo:_DumpBillboardPositions()
+    for idx, billboardEntity in ipairs(self._billboardEntities) do
+        local name = GameEntityContextRequestBus.Broadcast.GetEntityName(billboardEntity)
+        local localPos = TransformBus.Event.GetLocalTranslation(billboardEntity)
+        local worldPos = TransformBus.Event.GetWorldTranslation(billboardEntity)
+        Debug.Log("[" .. tostring(idx) .. "]" .. name .. ", local=" .. tostring(localPos) .. ", world=" .. tostring(worldPos))
+    end
+end
+
+function automated_demo:_DiscoverPacmanEntities()
+    local children = TransformBus.Event.GetChildren(self._pacmanParentEntity)
+    assert(children:Size() == 1, "Unexpected size for vector of entities.")
+    local pacmanBillboardEntity = children:At(1)
+    local currentPacmanPosition = TransformBus.Event.GetWorldTranslation(self._pacmanParentEntity)
+    currentPacmanPosition.y = 20.0
+    TransformBus.Event.SetWorldTranslation(self._pacmanParentEntity, currentPacmanPosition)
+
+    self._pacmanBillboardEntity = pacmanBillboardEntity
+    self._pacmanCurrentPosition = currentPacmanPosition
 end
 
 --<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<

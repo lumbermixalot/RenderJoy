@@ -635,32 +635,75 @@
                                     }
                                 },
                                 {
+                                    "$type": "AZ::ScriptPropertyGenericClassArray",
+                                    "id": 2276888108,
+                                    "name": "finalPositions",
+                                    "values": [
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                -3.0,
+                                                1.5,
+                                                1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                0.0,
+                                                1.5,
+                                                1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                3.0,
+                                                1.5,
+                                                1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                -3.0,
+                                                1.5,
+                                                -1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                0.0,
+                                                1.5,
+                                                -1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                3.0,
+                                                1.5,
+                                                -1.25
+                                            ]
+                                        }
+                                    ],
+                                    "elementType": "{8379EB7D-01FA-4538-B64B-A6543B4BE73D}"
+                                },
+                                {
                                     "$type": "AzFramework::ScriptPropertyGenericClass",
-                                    "id": 555460021,
-                                    "name": "pacmanEntity",
+                                    "id": 582650715,
+                                    "name": "pacmanParentEntity",
                                     "value": {
                                         "$type": "EntityId",
                                         "value": "Instance_[9614461460469]/ContainerEntity"
                                     }
                                 },
                                 {
-                                    "$type": "AzFramework::ScriptPropertyGenericClass",
-                                    "id": 2314055910,
-                                    "name": "rotationAxis",
-                                    "value": {
-                                        "$type": "Vector3",
-                                        "value": [
-                                            0.0,
-                                            0.0,
-                                            1.0
-                                        ]
-                                    }
-                                },
-                                {
                                     "$type": "AzFramework::ScriptPropertyNumber",
                                     "id": 773336689,
                                     "name": "viewTimePerShader",
-                                    "value": 5.0
+                                    "value": 4.0
                                 }
                             ]
                         },
