@@ -13,6 +13,7 @@
 #include <AzCore/Component/TransformBus.h>
 
 #include <RenderJoy/RenderJoyBus.h>
+#include <RenderJoy/RenderJoyBillboardBus.h>
 
 //#include <RenderJoy/RenderJoyFeatureProcessorInterface.h>
 
@@ -101,6 +102,7 @@ namespace RenderJoy
         : public AZ::Data::AssetBus::MultiHandler
         , private AZ::TransformNotificationBus::Handler
         , private RenderJoyNotificationBus::Handler
+        , public RenderJoyBillboardBus::Handler
     {
     public:
         friend class EditorRenderJoyBillboardComponent;
@@ -121,6 +123,13 @@ namespace RenderJoy
         void Deactivate();
         void SetConfiguration(const RenderJoyBillboardComponentConfig& config);
         const RenderJoyBillboardComponentConfig& GetConfiguration() const;
+
+        ///////////////////////////////////////////////////////////
+        // RenderJoyBillboardBus::Handler overrides START
+        void SetFlatscreenMode(float posX, float posY, float width, float height) override;
+        void SetBillboardMode(bool alwaysFaceCamera) override;
+        // RenderJoyBillboardBus::Handler overrides END
+        ///////////////////////////////////////////////////////////
 
     private:
 

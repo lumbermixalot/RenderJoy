@@ -217,9 +217,9 @@
                     "Parent Entity": "Entity_[1176639161715]",
                     "Transform Data": {
                         "Translate": [
-                            0.06589680910110474,
-                            -3.1008691787719727,
-                            4.059997081756592
+                            0.0,
+                            -3.2473840713500977,
+                            2.354097843170166
                         ]
                     }
                 },
@@ -568,7 +568,7 @@
                         "Translate": [
                             0.0,
                             0.0,
-                            4.0
+                            2.3475265502929688
                         ]
                     }
                 }
@@ -635,32 +635,75 @@
                                     }
                                 },
                                 {
+                                    "$type": "AZ::ScriptPropertyGenericClassArray",
+                                    "id": 2276888108,
+                                    "name": "finalPositions",
+                                    "values": [
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                -3.0,
+                                                1.5,
+                                                1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                0.0,
+                                                1.5,
+                                                1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                3.0,
+                                                1.5,
+                                                1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                -3.0,
+                                                1.5,
+                                                -1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                0.0,
+                                                1.5,
+                                                -1.25
+                                            ]
+                                        },
+                                        {
+                                            "$type": "Vector3",
+                                            "value": [
+                                                3.0,
+                                                1.5,
+                                                -1.25
+                                            ]
+                                        }
+                                    ],
+                                    "elementType": "{8379EB7D-01FA-4538-B64B-A6543B4BE73D}"
+                                },
+                                {
                                     "$type": "AzFramework::ScriptPropertyGenericClass",
-                                    "id": 555460021,
-                                    "name": "pacmanEntity",
+                                    "id": 582650715,
+                                    "name": "pacmanParentEntity",
                                     "value": {
                                         "$type": "EntityId",
                                         "value": "Instance_[9614461460469]/ContainerEntity"
                                     }
                                 },
                                 {
-                                    "$type": "AzFramework::ScriptPropertyGenericClass",
-                                    "id": 2314055910,
-                                    "name": "rotationAxis",
-                                    "value": {
-                                        "$type": "Vector3",
-                                        "value": [
-                                            1.0,
-                                            0.0,
-                                            1.0
-                                        ]
-                                    }
-                                },
-                                {
                                     "$type": "AzFramework::ScriptPropertyNumber",
-                                    "id": 455819407,
-                                    "name": "rotationSpeed",
-                                    "value": 1.0
+                                    "id": 773336689,
+                                    "name": "viewTimePerShader",
+                                    "value": 4.0
                                 }
                             ]
                         },
@@ -905,7 +948,7 @@
                 {
                     "op": "replace",
                     "path": "/ContainerEntity/Components/TransformComponent/Transform Data/Translate/2",
-                    "value": 4.0
+                    "value": 2.3480000495910645
                 }
             ]
         }

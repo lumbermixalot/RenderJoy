@@ -125,6 +125,17 @@ namespace RenderJoy
                     ;
             }
         }
+
+        if (auto behaviorContext = azrtti_cast<AZ::BehaviorContext*>(context))
+        {
+            behaviorContext->EBus<RenderJoyBillboardBus>("RenderJoyBillboardBus", "RenderJoy Billboard Editor And Runtime API")
+                ->Attribute(AZ::Script::Attributes::Storage, AZ::Script::Attributes::StorageType::RuntimeOwn)
+                ->Attribute(AZ::Script::Attributes::Scope, AZ::Script::Attributes::ScopeFlags::Common)
+                ->Attribute(AZ::Edit::Attributes::Category, "renderjoy")
+                ->Event("SetFlatscreenMode", &RenderJoyBillboardRequests::SetFlatscreenMode)
+                ->Event("SetBillboardMode", &RenderJoyBillboardRequests::SetBillboardMode)
+                ;
+        }
     }
 
     void RenderJoyBillboardComponentController::Reflect(AZ::ReflectContext* context)
@@ -183,6 +194,7 @@ namespace RenderJoy
         m_prevConfiguration = m_configuration;
 
         AZ::TransformNotificationBus::Handler::BusConnect(m_entityId);
+        RenderJoyBillboardBus::Handler::BusConnect(m_entityId);
 
         if (!m_configuration.m_shaderEntityId.IsValid())
         {
@@ -204,6 +216,7 @@ namespace RenderJoy
     {
         AZ_Printf(LogName, "%s for entity=%s.\n", __FUNCTION__, m_entityId.ToString().c_str());
 
+        RenderJoyBillboardBus::Handler::BusDisconnect();
         AZ::TransformNotificationBus::Handler::BusDisconnect();
         RenderJoyNotificationBus::Handler::BusDisconnect();
         
@@ -327,5 +340,26 @@ namespace RenderJoy
         m_billboardPass = nullptr;
     }
     // RenderJoyNotificationBus::Handler overrides END
+    ///////////////////////////////////////////////////////////
+
+    ///////////////////////////////////////////////////////////
+    // RenderJoyBillboardBus::Handler overrides START
+    void RenderJoyBillboardComponentController::SetFlatscreenMode(float posX, float posY, float width, float height)
+    {
+        m_configuration.m_flatscreenOptions.m_posX = posX;
+        m_configuration.m_flatscreenOptions.m_posY = posY;
+        m_configuration.m_flatscreenOptions.m_width = width;
+        m_configuration.m_flatscreenOptions.m_height = height;
+        m_configuration.m_displayMode = RenderJoyBillboardComponentConfig::DisplayMode::Flatscreen;
+        OnConfigurationChanged();
+    }
+
+    void RenderJoyBillboardComponentController::SetBillboardMode(bool alwaysFaceCamera)
+    {
+        m_configuration.m_billboardOptions.m_alwaysFaceCamera = alwaysFaceCamera;
+        m_configuration.m_displayMode = RenderJoyBillboardComponentConfig::DisplayMode::Billboard;
+        OnConfigurationChanged();
+    }
+    // RenderJoyBillboardBus::Handler overrides END
     ///////////////////////////////////////////////////////////
 }
