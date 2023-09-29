@@ -69,10 +69,14 @@ function automated_demo:_OnTickState_WaitinForCompletion(deltaTime, timePoint)
     if self._totalTime >= 1.0 then
         self:_DiscoverBillboardEntities()
         self:_DiscoverPacmanEntities()
-        --self:_ForceBillboardMode()
+
         --self:_DumpBillboardPositions()
+
         self._currentState = self._OnTickState_FirstTimelineSetup
+        
+        --self:_ForceBillboardMode()
         --self._currentState = self._OnTickState_SecondTimelineSetup
+
         --self:_OnTweenComplete()
     end
 end
@@ -296,9 +300,9 @@ function automated_demo:_OnTickState_SecondTimelineSetup(deltaTime, timePoint)
 
     local timeline1 = self._tweener:TimelineCreate()
 
-    local easeM = ScriptedEntityTweenerEasingMethod_Elastic
+    local easeM = ScriptedEntityTweenerEasingMethod_Cubic
     local easeT = ScriptedEntityTweenerEasingType_Out
-    local travelTime = 1.0
+    local travelTime = 3.0
 
     local numEntities = #entities
     for i=1,numEntities do
@@ -308,10 +312,15 @@ function automated_demo:_OnTickState_SecondTimelineSetup(deltaTime, timePoint)
             ["3dposition"] = positions[i], --Vector3(0.0, 0.0, math.pi),
             --onComplete = onCompleteCB
         }
-        --if i == numEntities then
-        --    tweenArgs['onComplete'] = onCompleteCB
-        --end
-        timeline1:Add(entities[i], travelTime, tweenArgs)
+
+        local timelineParams = {
+            offset = 0
+        }
+
+        if i > 1 then
+            timelineParams.offset = -travelTime
+        end
+        timeline1:Add(entities[i], travelTime, tweenArgs, timelineParams)
     end
 
     -- Finally add the pacman position animation
