@@ -21,7 +21,9 @@
     "icon_path": "",
     "requirements": "",
     "documentation_url": "",
-    "dependencies": [],
+    "dependencies": [
+        "QtForPython"
+    ],
     "repo_uri": "https://github.com/lumbermixalot/RenderJoy",
     "compatible_engines": [],
     "engine_api_dependencies": [],
