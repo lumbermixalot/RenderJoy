@@ -10,6 +10,8 @@
 *
 */
 
+#pragma once
+
 // All .azsl files for RenderJoy shaders must start by including this file.
 
 // REMARK:
@@ -53,7 +55,7 @@ ShaderResourceGroup PassSrg : SRG_PerPass
     float m_frameRate;
 
     // Mouse input data.
-    //      mouse.xy  = mouse position during last button down
+    //      mouse.xy  = mouse position during last button down (Clamped to viewport resolution in pixels).
     //  abs(mouse.zw) = mouse position during last button click
     // sign(mouze.z)  = button is down
     // sign(mouze.w)  = button is clicked
@@ -85,6 +87,17 @@ ShaderResourceGroup PassSrg : SRG_PerPass
         AddressV = Wrap;
         AddressW = Wrap;
     };
+
+    // Common helpers.
+    bool IsMouseButtonDown()
+    {
+        return sign(m_mouse.z) > 0;
+    }
+
+    bool IsMouseButtonClick()
+    {
+        return sign(m_mouse.w) > 0;
+    }
 }
 
 // Convenience macros to ease porting from ShaderToy

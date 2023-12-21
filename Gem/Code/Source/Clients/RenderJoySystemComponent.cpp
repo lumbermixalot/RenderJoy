@@ -250,9 +250,9 @@ namespace RenderJoy
         if (!m_invalidParentPassTexture && !m_asyncLoadStarted)
         {
             m_asyncLoadStarted = true;
-            auto textureReadCB = [this](AZ::Data::Asset<AZ::Data::AssetData> asset, bool success)
+            auto textureReadCB = [this](AZ::Data::Asset<AZ::Data::AssetData> asset)
                 {
-                    if (success)
+                    if (asset.IsReady())
                     {
                         AZ_Printf(LogName, "Successfully loaded the Invalid ParentPass Texture!");
                         m_invalidParentPassTexture = AZ::RPI::StreamingImage::FindOrCreate(asset);

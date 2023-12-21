@@ -143,7 +143,7 @@ namespace RenderJoy
         AZ::RPI::Scene* m_scenePtr = nullptr;
         RenderJoyFeatureProcessorInterface* m_featureProcessor = nullptr;
 
-        mutable AZ::RPI::AssetUtils::AsyncAssetLoader m_asyncAssetLoader;
+        mutable AZStd::shared_ptr<AZ::RPI::AssetUtils::AsyncAssetLoader> m_asyncAssetLoader;
         mutable bool m_asyncLoadStarted = false;
         mutable AZ::Data::Instance<AZ::RPI::StreamingImage> m_invalidParentPassTexture;
 
