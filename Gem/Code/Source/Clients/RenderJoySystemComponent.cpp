@@ -515,6 +515,11 @@ namespace RenderJoy
         {
             //hasBeenConsumed = true;
             const auto* pos2D = inputChannel.GetCustomData<AzFramework::InputChannel::PositionData2D>();
+
+            if (!pos2D) //May be null in some circumstances.
+            {
+                return;
+            }
             
             const float normalizedX = AZ::GetClamp(pos2D->m_normalizedPosition.GetX(), 0.0f, 1.0f);
             const float screenPosX = normalizedX * static_cast<float>(m_viewportSize.m_width);

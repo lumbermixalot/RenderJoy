@@ -41,6 +41,7 @@ namespace RenderJoy
     RenderJoyBillboardPass::RenderJoyBillboardPass(const AZ::RPI::PassDescriptor& descriptor)
         : RenderPass(descriptor)
         , m_passDescriptor(descriptor)
+        , m_item(AZ::RHI::MultiDevice::AllDevices)
     {
         m_flatscreenLayout = AZ::Vector4(0.0f, 0.0f, 1.0f, 1.0f);
         LoadShader();
@@ -186,9 +187,9 @@ namespace RenderJoy
         AZ::RHI::DrawLinear draw = AZ::RHI::DrawLinear();
         draw.m_vertexCount = 6; //6-vertices, as this is a billboard that can be rendered anywhere in the world.
     
-        m_item.m_arguments = AZ::RHI::DrawArguments(draw);
-        m_item.m_pipelineState = m_pipelineStateForDraw.Finalize();
-        m_item.m_stencilRef = static_cast<uint8_t>(m_stencilRef);
+        m_item.SetArguments(AZ::RHI::DrawArguments(draw));
+        m_item.SetPipelineState(m_pipelineStateForDraw.Finalize());
+        m_item.SetStencilRef(static_cast<uint8_t>(m_stencilRef));
     }
     
     void RenderJoyBillboardPass::InitializeInternal()
@@ -316,15 +317,14 @@ namespace RenderJoy
     }
     
     void RenderJoyBillboardPass::BuildCommandListInternal(const AZ::RHI::FrameGraphExecuteContext& context)
-    {
+    {    
+        SetSrgsForDraw(context);
+    
         AZ::RHI::CommandList* commandList = context.GetCommandList();
-    
-        SetSrgsForDraw(commandList);
-    
         commandList->SetViewport(m_viewportState);
         commandList->SetScissor(m_scissorState);
     
-        commandList->Submit(m_item);
+        commandList->Submit(m_item.GetDeviceDrawItem(context.GetDeviceIndex()));
     }
 
     void RenderJoyBillboardPass::SetWorldTransform(const AZ::Transform& worldTM)

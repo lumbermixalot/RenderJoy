@@ -30,14 +30,12 @@ namespace RenderJoy
         m_texture =  AZ::RPI::AttachmentImage::Create(*pool.get(), imageDesc, AZ::Name(imageName), &clearValue, nullptr);
 
         // Cache the update request, which will be the same each time a keyboard button changes state.
-        AZ::RHI::ImageUpdateRequest updateRequest;
         AZ::RHI::Size imageSize(width, height, 1);
+        AZ::RHI::DeviceImageSubresourceLayout layout{imageSize,
+           height, bytesPerRow, bytesPerRow * height, 1, 1};
+        m_updateRequest.m_sourceSubresourceLayout.Init(m_texture->GetRHIImage()->GetDeviceMask(), layout);
         m_updateRequest.m_image = m_texture->GetRHIImage();
         m_updateRequest.m_sourceData = m_textureCpuData;
-        m_updateRequest.m_sourceSubresourceLayout.m_size = imageSize;
-        m_updateRequest.m_sourceSubresourceLayout.m_rowCount = height;
-        m_updateRequest.m_sourceSubresourceLayout.m_bytesPerRow = bytesPerRow;
-        m_updateRequest.m_sourceSubresourceLayout.m_bytesPerImage = bytesPerRow * height;
     }
 
     RenderJoyKeyboardTextureManager::RenderJoyKeyboardTextureManager()

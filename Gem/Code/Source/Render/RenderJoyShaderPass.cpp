@@ -45,6 +45,7 @@ namespace RenderJoy
     RenderJoyShaderPass::RenderJoyShaderPass(const AZ::RPI::PassDescriptor& descriptor)
         : AZ::RPI::RenderPass(descriptor)
         , m_passDescriptor(descriptor)
+        , m_item(AZ::RHI::MultiDevice::AllDevices)
     {
         auto renderJoySystem = RenderJoyInterface::Get();
         m_entityId = renderJoySystem->GetEntityIdFromPassName(GetName());
@@ -189,9 +190,9 @@ namespace RenderJoy
 
         pipelineStateDescriptor.m_inputStreamLayout = inputStreamLayout;
 
-        m_item.m_arguments = AZ::RHI::DrawArguments(draw);
-        m_item.m_pipelineState = m_shader->AcquirePipelineState(pipelineStateDescriptor);
-        m_item.m_stencilRef = m_stencilRef;
+        m_item.SetArguments(AZ::RHI::DrawArguments(draw));
+        m_item.SetPipelineState(m_shader->AcquirePipelineState(pipelineStateDescriptor));
+        m_item.SetStencilRef(m_stencilRef);
 
         m_initialized = true;
     }
@@ -307,14 +308,13 @@ namespace RenderJoy
     // RenderPass functions...
     void RenderJoyShaderPass::BuildCommandListInternal(const AZ::RHI::FrameGraphExecuteContext& context)
     {
+        SetSrgsForDraw(context);
+
         AZ::RHI::CommandList* commandList = context.GetCommandList();
-
-        SetSrgsForDraw(commandList);
-
         commandList->SetViewport(m_viewportState);
         commandList->SetScissor(m_scissorState);
 
-        commandList->Submit(m_item);
+        commandList->Submit(m_item.GetDeviceDrawItem(context.GetDeviceIndex()));
 
         //if (m_inputChannelIndexForPrevFrameOutputAsInput != InvalidInputChannelIndex)
         //{
