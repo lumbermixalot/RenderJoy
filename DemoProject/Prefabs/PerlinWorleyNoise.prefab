@@ -99,7 +99,8 @@
                     "Id": 14666368190466866859,
                     "Controller": {
                         "Configuration": {
-                            "ShaderEntityId": "Entity_[4829867892725]"
+                            "ShaderEntityId": "Entity_[4829867892725]",
+                            "DisplayMode": 1
                         }
                     }
                 },
