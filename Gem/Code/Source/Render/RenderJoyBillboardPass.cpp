@@ -44,6 +44,14 @@ namespace RenderJoy
         , m_item(AZ::RHI::MultiDevice::AllDevices)
     {
         m_flatscreenLayout = AZ::Vector4(0.0f, 0.0f, 1.0f, 1.0f);
+
+        // This draw item purposefully does not reference any geometry buffers.
+        // Instead it's expected that the extended class uses a vertex shader 
+        // that generates a full-screen triangle completely from vertex ids.
+        AZ::RHI::DrawLinear drawLinear = AZ::RHI::DrawLinear();
+        drawLinear.m_vertexCount = 6; //6-vertices, as this is a billboard that can be rendered anywhere in the world.
+        m_geometryView.SetDrawArguments(drawLinear);
+
         LoadShader();
     }
     
@@ -181,13 +189,7 @@ namespace RenderJoy
     
         m_pipelineStateForDraw.SetInputStreamLayout(inputStreamLayout);
     
-        // This draw item purposefully does not reference any geometry buffers.
-        // Instead it's expected that the extended class uses a vertex shader 
-        // that generates a full-screen triangle completely from vertex ids.
-        AZ::RHI::DrawLinear draw = AZ::RHI::DrawLinear();
-        draw.m_vertexCount = 6; //6-vertices, as this is a billboard that can be rendered anywhere in the world.
-    
-        m_item.SetArguments(AZ::RHI::DrawArguments(draw));
+        m_item.SetGeometryView(&m_geometryView);
         m_item.SetPipelineState(m_pipelineStateForDraw.Finalize());
         m_item.SetStencilRef(static_cast<uint8_t>(m_stencilRef));
     }

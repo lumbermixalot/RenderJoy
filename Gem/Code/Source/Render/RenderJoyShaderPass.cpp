@@ -76,6 +76,13 @@ namespace RenderJoy
         m_renderTargetHeight = passData->m_renderTargetHeight;
         AZ_Assert(m_renderTargetWidth && m_renderTargetHeight, "Invalid render target width or height from RenderJoyShaderPassData");
 
+        // This draw item purposefully does not reference any geometry buffers.
+        // Instead it's expected that the extended class uses a vertex shader 
+        // that generates a full-screen triangle completely from vertex ids.
+        AZ::RHI::DrawLinear drawLinear = AZ::RHI::DrawLinear();
+        drawLinear.m_vertexCount = 3;
+        m_geometryView.SetDrawArguments(drawLinear);
+
         LoadShader();
         RenderJoyPassNotificationBus::Handler::BusConnect(m_entityId);
     }
@@ -169,11 +176,7 @@ namespace RenderJoy
 
     void RenderJoyShaderPass::Init()
     {
-        // This draw item purposefully does not reference any geometry buffers.
-        // Instead it's expected that the extended class uses a vertex shader 
-        // that generates a full-screen triangle completely from vertex ids.
-        AZ::RHI::DrawLinear draw = AZ::RHI::DrawLinear();
-        draw.m_vertexCount = 3;
+
 
         AZ::RHI::PipelineStateDescriptorForDraw pipelineStateDescriptor;
 
@@ -190,7 +193,7 @@ namespace RenderJoy
 
         pipelineStateDescriptor.m_inputStreamLayout = inputStreamLayout;
 
-        m_item.SetArguments(AZ::RHI::DrawArguments(draw));
+        m_item.SetGeometryView(&m_geometryView);
         m_item.SetPipelineState(m_shader->AcquirePipelineState(pipelineStateDescriptor));
         m_item.SetStencilRef(m_stencilRef);
 
