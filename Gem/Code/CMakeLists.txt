@@ -38,9 +38,7 @@ ly_add_target(
         INTERFACE
            AZ::AzCore
            Gem::Atom_RPI.Public
-           Gem::Atom_Feature_Common
            Gem::Atom_Feature_Common.Public
-           Gem::Atom_Feature_Common.Static
 )
 
 # The ${gem_name}.Private.Object target is an internal target
@@ -63,7 +61,7 @@ ly_add_target(
             AZ::AzFramework
             Gem::Atom_RPI.Public
             Gem::Atom_Utils.Static
-            Gem::Atom_Feature_Common
+            Gem::Atom_Feature_Common.Public
             Gem::AtomLyIntegration_CommonFeatures.Static
 )
 
