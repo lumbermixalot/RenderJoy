@@ -98,11 +98,13 @@ namespace RenderJoy
     // ShaderReloadNotificationBus overrides...
     void RenderJoyShaderPass::OnShaderReinitialized(const AZ::RPI::Shader&)
     {
+        m_shaderAsset.Reset();
         LoadShader();
     }
 
     void RenderJoyShaderPass::OnShaderAssetReinitialized(const AZ::Data::Asset<AZ::RPI::ShaderAsset>&)
     {
+        m_shaderAsset.Reset();
         LoadShader();
     }
 
